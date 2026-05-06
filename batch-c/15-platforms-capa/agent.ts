@@ -6,7 +6,8 @@
 // tenant touch another's data.
 
 import type { FlueContext } from '@flue/sdk/client';
-import { stripe } from '@acoyfellow/capa/stripe';
+// import { stripe } from 'capa/stripe'; // capa not yet shaped as a library — see snippet 05 TODO
+declare const stripe: (token: string) => { refunds: { create: (args: any) => Promise<{ result: any; evidence: any }> } };
 
 export const triggers = { webhook: true };
 

@@ -4,7 +4,7 @@
 // the new exchange after. The agent stops being amnesiac.
 
 import type { FlueContext } from '@flue/sdk/client';
-import { Deja } from '@acoyfellow/deja';
+import { Deja } from 'deja-jordan';
 
 export const triggers = { webhook: true };
 

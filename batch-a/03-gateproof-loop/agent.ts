@@ -5,7 +5,7 @@
 // Self-healing, capped at 3 attempts.
 
 import type { FlueContext } from '@flue/sdk/client';
-import { gateproof } from '@acoyfellow/gateproof';
+import { gateproof } from 'gateproof';
 
 export const triggers = { webhook: true };
 

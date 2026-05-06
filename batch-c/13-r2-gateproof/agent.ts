@@ -7,7 +7,7 @@
 
 import type { FlueContext } from '@flue/sdk/client';
 import { getVirtualSandbox } from '@flue/sdk/cloudflare';
-import { gateproof } from '@acoyfellow/gateproof';
+import { gateproof } from 'gateproof';
 
 export const triggers = { webhook: true };
 

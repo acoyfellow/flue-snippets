@@ -4,7 +4,7 @@
 // trace (proof-spec.v0), and returns a video + JSON receipt.
 
 import type { FlueContext } from '@flue/sdk/client';
-import { observe } from '@acoyfellow/unsurf';
+import { observe } from 'unsurf';
 
 export const triggers = { webhook: true };
 

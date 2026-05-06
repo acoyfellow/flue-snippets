@@ -19,6 +19,9 @@
     "vitest": "^3.1.0"
   },
   "dependencies": {
-    "@acoyfellow/lab": "latest"
+    "@acoyfellow/lab": "^0.0.3",
+    "deja-jordan": "github:acoyfellow/deja",
+    "gateproof": "latest",
+    "unsurf": "latest"
   }
 }

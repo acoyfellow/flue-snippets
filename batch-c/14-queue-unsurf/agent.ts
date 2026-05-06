@@ -5,7 +5,7 @@
 // any assertion fails, the proof URL goes to the alert channel.
 
 import type { FlueContext } from '@flue/sdk/client';
-import { observe } from '@acoyfellow/unsurf';
+import { observe } from 'unsurf';
 
 export const triggers = { webhook: true };
 
