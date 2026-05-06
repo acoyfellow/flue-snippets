@@ -2,62 +2,56 @@
  * 02-deja-memory — E2E test
  *
  * What it proves:
- *  - the snippet's handler returns { answer, memoryUsed }
- *  - deja.recall is callable via the published @acoyfellow/deja import
- *  - deja.remember persists the new exchange (verifiable on next call)
+ *  - the snippet handler returns { answer, memoryUsed }
+ *  - deja's recall() runs without throwing on a fresh DB
+ *  - deja's remember() persists across calls when given a shared path
  *
- * Hits real deja.coey.dev (or env.DEJA_URL). Stubs the model call.
+ * Deja is LOCAL: each test gets a tempfile DB so writes survive within
+ * the test. :memory: would isolate every Deja instance.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'bun:test';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { unlinkSync, existsSync } from 'node:fs';
 import handler from './agent.ts';
 import { runFlueHandler } from '../../test-helpers.ts';
 
-const DEJA_URL = process.env.DEJA_URL ?? 'https://deja.coey.dev';
+const TEST_DB = join(tmpdir(), `deja-test-${Date.now()}.db`);
+
+afterEach(() => {
+  if (existsSync(TEST_DB)) unlinkSync(TEST_DB);
+});
 
 describe('02-deja-memory', () => {
-  it('returns { answer, memoryUsed: number }', async () => {
+  it('returns { answer, memoryUsed: number } on a fresh DB', async () => {
     const result = await runFlueHandler(handler, {
-      payload: {
-        question: 'What is the test discipline for flue-snippets?',
-        topic: 'flue-snippets-test',
-      },
-      env: { DEJA_URL },
+      payload: { question: 'first question on fresh db', topic: 'test' },
+      env: { DEJA_PATH: TEST_DB },
     });
 
     expect(result).toHaveProperty('answer');
     expect(result).toHaveProperty('memoryUsed');
     expect(typeof result.answer).toBe('string');
-    expect(typeof result.memoryUsed).toBe('number');
-    expect(result.memoryUsed).toBeGreaterThanOrEqual(0);
+    expect(result.memoryUsed).toBe(0); // fresh DB, no memory yet
   });
 
-  it('persists a new slip after the call (subsequent recall sees it)', async () => {
-    const uniqueTopic = `flue-test-${Date.now()}`;
-    const uniqueAnswer = `marker-${Math.random().toString(36).slice(2, 8)}`;
+  it('recalls memory persisted by a previous call (same DB path)', async () => {
+    const sharedDb = join(tmpdir(), `deja-shared-${Date.now()}.db`);
 
-    // First call: should remember the marker.
+    // First call writes something memorable.
     await runFlueHandler(handler, {
-      payload: {
-        question: `Remember this: ${uniqueAnswer}`,
-        topic: uniqueTopic,
-      },
-      env: { DEJA_URL },
+      payload: { question: 'what is the launch date for project nova', topic: 'shared' },
+      env: { DEJA_PATH: sharedDb },
     });
 
-    // Wait briefly for index propagation.
-    await new Promise((r) => setTimeout(r, 1500));
-
-    // Second call: recall should surface the prior exchange.
+    // Second call asks a related question; should recall something.
     const second = await runFlueHandler(handler, {
-      payload: {
-        question: `What did we say about ${uniqueAnswer}?`,
-        topic: uniqueTopic,
-      },
-      env: { DEJA_URL },
+      payload: { question: 'project nova launch', topic: 'shared' },
+      env: { DEJA_PATH: sharedDb },
     });
 
-    // memoryUsed > 0 means deja.recall returned at least one slip.
     expect(second.memoryUsed).toBeGreaterThan(0);
+    if (existsSync(sharedDb)) unlinkSync(sharedDb);
   });
 });

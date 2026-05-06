@@ -2,39 +2,32 @@
  * 03-gateproof-loop — E2E test
  *
  * What it proves:
- *  - the snippet's handler runs without throwing for a successful gate
- *  - returns { ok: true, attempts, proof: URL } when the plan passes
- *  - returns { ok: false, attempts: 3 } when the plan keeps failing
+ *  - the snippet's handler runs without throwing
+ *  - returns { ok: true } when a passing command (e.g. 'true') is the test
+ *  - returns { ok: false, attempts: 3 } when a failing command ('false') is
  *
- * gateproof imports from @acoyfellow/gateproof; the test supplies a
- * minimal in-memory plan factory so we don't need a real workspace.
+ * Real gateproof runs the command via Effect; we use unix `true`/`false`
+ * to keep the test deterministic and fast.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import handler from './agent.ts';
 import { runFlueHandler } from '../../test-helpers.ts';
 
 describe('03-gateproof-loop', () => {
-  it('returns ok:true when the plan succeeds', async () => {
+  it('returns ok:true when the test command exits 0', async () => {
     const result = await runFlueHandler(handler, {
-      payload: {
-        task: 'no-op task that always passes',
-        plan: 'fixtures/passing-plan.ts',
-      },
+      payload: { task: 'no-op', testCommand: 'true' },
     });
 
     expect(result.ok).toBe(true);
     expect(result.attempts).toBeGreaterThanOrEqual(1);
     expect(result.attempts).toBeLessThanOrEqual(3);
-    expect(result).toHaveProperty('proof');
   });
 
-  it('returns ok:false after 3 attempts when the plan never passes', async () => {
+  it('returns ok:false after 3 attempts when test command always fails', async () => {
     const result = await runFlueHandler(handler, {
-      payload: {
-        task: 'task that never passes the gate',
-        plan: 'fixtures/failing-plan.ts',
-      },
+      payload: { task: 'never passes', testCommand: 'false' },
     });
 
     expect(result.ok).toBe(false);

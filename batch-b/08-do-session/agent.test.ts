@@ -16,7 +16,7 @@
  * @flue/sdk/client types work outside of `flue run`.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import handler from './agent.ts';
 import { runFlueHandler } from '../../test-helpers.ts';
 

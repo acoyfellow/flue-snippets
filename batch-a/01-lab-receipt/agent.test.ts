@@ -10,7 +10,7 @@
  * Hits real lab.coey.dev (or env.LAB_URL). Stubs the model call.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import handler from './agent.ts';
 import { runFlueHandler } from '../../test-helpers.ts';
 

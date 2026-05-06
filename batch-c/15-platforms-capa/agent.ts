@@ -1,21 +1,41 @@
 // batch-c/15-platforms-capa — Flue + Workers for Platforms + capa
 //
-// A multi-tenant agent platform where each tenant gets their own Stripe
-// account via capa, isolated by Workers for Platforms. The tenant's
-// agent never sees the platform admin's keys; capa never lets one
-// tenant touch another's data.
+// Multi-tenant Flue host where each tenant agent is a Worker for Platforms
+// child, with its own service binding to a per-tenant capa-stripe Worker.
+// Per-tenant V8 isolation + per-tenant scoped Stripe access.
+//
+// The TENANT'S Worker config (uploaded via the platform API) declares:
+//   "services": [{
+//     "binding": "STRIPE",
+//     "service": "capa-stripe-<tenant>",
+//     "entrypoint": "StripeCapability"
+//   }]
+//
+// One capa-stripe deployment per tenant, each with its own STRIPE_API_KEY
+// secret. A tenant's agent literally cannot reach another tenant's
+// account because the binding is per-tenant.
 
 import type { FlueContext } from '@flue/sdk/client';
-// import { stripe } from 'capa/stripe'; // capa not yet shaped as a library — see snippet 05 TODO
-declare const stripe: (token: string) => { refunds: { create: (args: any) => Promise<{ result: any; evidence: any }> } };
 
 export const triggers = { webhook: true };
 
-// Each tenant's agent. The runtime is the same; the tenant binding
-// supplies their scoped capa token + their own R2 + their own DO.
-export default async function ({ init, payload, env }: FlueContext) {
+interface StripeBinding {
+  refunds: {
+    create: (args: { charge: string; amount: number }) => Promise<{
+      result: { id: string };
+      evidence: unknown;
+    }>;
+  };
+}
+
+interface Env {
+  STRIPE: StripeBinding;
+  WORKSPACE: unknown;
+}
+
+export default async function ({ init, payload, env }: FlueContext & { env: Env }) {
   const agent = await init({
-    sandbox: env.WORKSPACE as any,
+    sandbox: env.WORKSPACE as never,
     model: 'anthropic/claude-sonnet-4-6',
   });
   const session = await agent.session();
@@ -32,9 +52,7 @@ export default async function ({ init, payload, env }: FlueContext) {
   });
 
   if (decision.action === 'refund') {
-    // capa enforces: this tenant can only refund THEIR charges.
-    // Token is provisioned per-tenant; agent can't steal another's keys.
-    const { result, evidence } = await stripe(env.CAPA_TOKEN).refunds.create({
+    const { result, evidence } = await env.STRIPE.refunds.create({
       charge: payload.chargeId,
       amount: decision.amount,
     });

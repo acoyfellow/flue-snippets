@@ -1,7 +1,8 @@
 // batch-a/02-deja-memory — Flue + deja
 //
 // A Flue agent that recalls relevant memory before answering and remembers
-// the new exchange after. The agent stops being amnesiac.
+// the new exchange after. Deja is LOCAL-first: it opens a sqlite DB in
+// process. For tests we use :memory:; for production point at a path.
 
 import type { FlueContext } from '@flue/sdk/client';
 import { Deja } from 'deja-jordan';
@@ -9,27 +10,31 @@ import { Deja } from 'deja-jordan';
 export const triggers = { webhook: true };
 
 export default async function ({ init, payload, env }: FlueContext) {
-  const deja = new Deja({ baseUrl: env.DEJA_URL });
+  const deja = new Deja({ path: env.DEJA_PATH ?? ':memory:' });
 
-  // Pull memory relevant to this question.
-  const recalled = await deja.recall(payload.question, { limit: 5 });
+  // recall(query, limit) — positional. Returns { hits, readFirst, activeHandoff }.
+  const recalled = deja.recall(payload.question, 5);
+
+  const formatted = recalled.hits
+    .map((h) => `- ${h.slip.text}`)
+    .join('\n') || '(no prior memory)';
 
   const agent = await init({
     model: 'anthropic/claude-sonnet-4-6',
     role: 'researcher',
   });
   const session = await agent.session({
-    system: `Relevant memory:\n${recalled.formatted}`,
+    system: `Relevant memory:\n${formatted}`,
   });
 
   const answer = await session.prompt(payload.question);
 
-  // Persist the exchange so the next agent benefits.
-  await deja.remember({
-    text: `Q: ${payload.question}\nA: ${answer}`,
+  // remember(text, opts?) — positional text, optional opts.
+  // keep=true promotes draft to kept (survives the 24h GC).
+  deja.remember(`Q: ${payload.question}\nA: ${answer}`, {
     tags: ['qa', payload.topic ?? 'general'],
-    keep: true,
   });
 
+  deja.close();
   return { answer, memoryUsed: recalled.hits.length };
 }
