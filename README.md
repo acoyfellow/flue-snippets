@@ -69,7 +69,8 @@ Where it gets interesting. The snippets nobody else can write.
 | [14](batch-c/14-queue-unsurf) | Hourly regression checks with video | Queues + unsurf | 35 |
 | [15](batch-c/15-platforms-capa) | Multi-tenant agents handle money | Workers for Platforms + capa | 37 |
 
-**Total: 380 LOC across 15 snippets.** Average snippet: 25 lines.
+**Total: 323 LOC across 15 snippets** (excluding comments + blanks).
+Average: **21 LOC per snippet**.
 
 ---
 
