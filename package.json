@@ -1,0 +1,24 @@
+{
+  "name": "flue-snippets",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Hero snippets where each one is a Flue agent + a Jordan primitive + a Cloudflare primitive. Each snippet ships with an E2E test that hits real hosted services. Green = the composition works. Red = the bug list.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:01": "vitest run batch-a/01-lab-receipt",
+    "test:02": "vitest run batch-a/02-deja-memory",
+    "test:03": "vitest run batch-a/03-gateproof-loop",
+    "test:08": "vitest run batch-b/08-do-session"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.10.0",
+    "@types/bun": "latest",
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.0"
+  },
+  "dependencies": {
+    "@acoyfellow/lab": "latest"
+  }
+}
