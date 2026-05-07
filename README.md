@@ -9,6 +9,63 @@ lines.
 > agent, it's a snippet. If it doesn't, that's a library issue, not a Flue
 > issue. Volume is the moat.
 
+> **The discipline (in two stages):**
+>
+> 1. **Local pre-push:** `agent-ci` runs the GitHub Actions workflow in a
+>    bind-mounted Docker container before push. Pause-on-failure means an
+>    agent (or you) can fix and retry without burning a remote CI cycle.
+> 2. **Remote post-push:** GitHub Actions runs the same workflow on every
+>    push to `main`. Green badge ↓ is the load-bearing signal.
+>
+> ![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/test.yml/badge.svg)
+>
+> If the local stage passes and the remote fails, that's a real environment
+> bug worth diagnosing. If both pass, the snippet ships.
+
+---
+
+## Run the tests
+
+### Locally (post-edit, pre-commit)
+
+```bash
+bun install
+LAB_URL=https://lab.coey.dev bun test
+```
+
+Expected: **N pass / 0 fail** (currently 8/8 across 4 pilot snippets).
+
+### Locally (pre-push, full GH Actions surface)
+
+One-time setup for Colima users:
+
+```bash
+sudo ln -sf "$HOME/.colima/docker.sock" /var/run/docker.sock
+```
+
+Then:
+
+```bash
+npx @redwoodjs/agent-ci run --workflow .github/workflows/test.yml --quiet
+```
+
+This runs the **exact same** workflow GitHub Actions would, against the
+**official runner image**, with `~/.bun` and `node_modules` bind-mounted
+for ~0ms cache hits on subsequent runs.
+
+If a step fails, the run pauses. Fix the issue, then:
+
+```bash
+npx @redwoodjs/agent-ci retry --name <runner-name>
+```
+
+(See `.agents/skills/agent-ci/SKILL.md` for the full agent loop.)
+
+### Remotely (push to main)
+
+`.github/workflows/test.yml` runs on every push + PR + manual dispatch.
+Live results: <https://github.com/acoyfellow/flue-snippets/actions>
+
 ---
 
 ## Why this repo exists
