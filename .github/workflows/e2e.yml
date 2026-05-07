@@ -1,0 +1,55 @@
+name: e2e (real deploy)
+
+# On-demand only. Each run deploys a real Worker to Jordan's personal CF
+# account, runs gateproof against it, then tears it down. Cost per snippet
+# per run ~$0.0001 (Workers AI llama-scout). The personal account stays
+# clean because every Worker has a sha-suffixed unique name and the
+# trap-cleanup ensures `wrangler delete` always runs.
+
+on:
+  workflow_dispatch:
+    inputs:
+      snippet:
+        description: 'Snippet to run (default: all wired snippets)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - 01-lab-receipt
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        snippet:
+          - { id: '01-lab-receipt', dir: 'batch-a/01-lab-receipt' }
+
+    name: ${{ matrix.snippet.id }}
+
+    steps:
+      - name: Skip if not selected
+        if: ${{ github.event.inputs.snippet != 'all' && github.event.inputs.snippet != matrix.snippet.id }}
+        run: echo "skipped — input asked for ${{ github.event.inputs.snippet }}" && exit 0
+
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Run E2E (deploy + gateproof + teardown)
+        working-directory: ${{ matrix.snippet.dir }}
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID_E2E }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_E2E }}
+          LAB_URL: https://lab.coey.dev
+          GITHUB_SHA: ${{ github.sha }}
+        run: bash run-e2e.sh
