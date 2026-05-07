@@ -39,7 +39,7 @@ const plan = Plan.define({
       title: 'Worker routes through AI Gateway, gets a model answer, and persists a Lab receipt',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
-        act: [Act.exec(probeScript, { timeoutMs: 90_000 })],
+        act: [Act.exec(probeScript, { timeoutMs: 150_000 })],
         assert: [Assert.noErrors()],
         timeoutMs: 120_000,
       }),

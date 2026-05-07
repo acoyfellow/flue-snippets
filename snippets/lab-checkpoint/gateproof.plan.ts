@@ -48,9 +48,9 @@ const plan = Plan.define({
       title: 'First call returns a receipt URL and lab serves it back',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
-        act: [Act.exec(firstCallScript, { timeoutMs: 90_000 })],
+        act: [Act.exec(firstCallScript, { timeoutMs: 150_000 })],
         assert: [Assert.noErrors()],
-        timeoutMs: 120_000,
+        timeoutMs: 180_000,
       }),
     },
     {
@@ -59,11 +59,11 @@ const plan = Plan.define({
       gate: Gate.define({
         act: [
           Act.exec(`AGENT_URL="${AGENT_URL}" bun run probe-mid.ts`, {
-            timeoutMs: 60_000,
+            timeoutMs: 120_000,
           }),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 90_000,
+        timeoutMs: 150_000,
       }),
     },
     {

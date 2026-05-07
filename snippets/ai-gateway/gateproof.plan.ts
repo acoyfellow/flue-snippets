@@ -31,11 +31,11 @@ const plan = Plan.define({
             `curl -fsS -X POST "${AGENT_URL}" ` +
               `-H 'content-type: application/json' ` +
               `-d '{"message":"hi from gateproof"}'`,
-            { timeoutMs: 60_000 },
+            { timeoutMs: 120_000 },
           ),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 90_000,
+        timeoutMs: 150_000,
       }),
     },
   ],

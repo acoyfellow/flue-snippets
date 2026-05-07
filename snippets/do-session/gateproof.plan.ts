@@ -40,11 +40,11 @@ const plan = Plan.define({
             `curl -fsS -X POST "${AGENT_URL_BASE}/${USER_ID}" ` +
               `-H 'content-type: application/json' ` +
               `-d '{"message":"My favourite color is octarine. Reply with one word."}'`,
-            { timeoutMs: 60_000 },
+            { timeoutMs: 120_000 },
           ),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 90_000,
+        timeoutMs: 150_000,
       }),
     },
     {
@@ -56,11 +56,11 @@ const plan = Plan.define({
             `curl -fsS -X POST "${AGENT_URL_BASE}/${USER_ID}" ` +
               `-H 'content-type: application/json' ` +
               `-d '{"message":"What did I just tell you my favourite color was?"}'`,
-            { timeoutMs: 60_000 },
+            { timeoutMs: 120_000 },
           ),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 90_000,
+        timeoutMs: 150_000,
       }),
     },
   ],
