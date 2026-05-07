@@ -31,6 +31,12 @@ jobs:
 
     strategy:
       fail-fast: false
+      # Sequential. Workers AI on the personal CF account rate-limits
+      # heavily under parallel load — running all snippets simultaneously
+      # makes the do-governor 5-turn probe time out reliably. Going one
+      # at a time keeps end-to-end wall time around 12 minutes for all
+      # six jobs but every job is reliable.
+      max-parallel: 1
       matrix:
         snippet:
           - lab-receipt
