@@ -1,19 +1,11 @@
 /**
- * gateproof plan for snippet 08 (do-session).
+ * gateproof plan for do-session.
  *
- * Asserts the deployed Worker:
- *   1. POST /agents/do-session/<userId> succeeds with a real model answer
- *   2. The same userId returns a session-aware response on a second call
- *      (the gate just asserts the second call also returns 200; full
- *      memory-recall verification is left to the agent itself, which
- *      Flue's DO session handles internally).
+ * One gate: probe.ts runs two turns against the same userId, asserting
+ * the DO actually held the session state (turn 2 recalls the fact set
+ * in turn 1).
  *
- * Required env:
- *   AGENT_URL_BASE  — deployed worker base + /agents/do-session
- *
- * Run:
- *   AGENT_URL_BASE=https://flue-...workers.dev/agents/do-session \
- *     bun run gateproof.plan.ts
+ * Required env: AGENT_URL_BASE
  */
 
 import { Plan, Gate, Act, Assert, Require } from 'gateproof';
@@ -25,42 +17,20 @@ if (!AGENT_URL_BASE) {
   process.exit(2);
 }
 
-// Same userId across both turns = same DO instance.
-const USER_ID = `gateproof-user-${Date.now()}`;
-
 const plan = Plan.define({
   goals: [
     {
-      id: 'first-turn',
-      title: 'First turn against a fresh session DO returns a model answer',
+      id: 'do-session-persists-across-turns',
+      title: 'Two POSTs to the same userId share state via the per-user DO',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL_BASE', 'deployed worker URL + /agents/do-session')],
         act: [
-          Act.exec(
-            `curl -fsS -X POST "${AGENT_URL_BASE}/${USER_ID}" ` +
-              `-H 'content-type: application/json' ` +
-              `-d '{"message":"My favourite color is octarine. Reply with one word."}'`,
-            { timeoutMs: 120_000 },
-          ),
+          Act.exec(`AGENT_URL_BASE="${AGENT_URL_BASE}" bun run probe.ts`, {
+            timeoutMs: 240_000,
+          }),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 150_000,
-      }),
-    },
-    {
-      id: 'second-turn-same-do',
-      title: 'Second turn against the same userId routes to the same DO and returns 200',
-      gate: Gate.define({
-        act: [
-          Act.exec(
-            `curl -fsS -X POST "${AGENT_URL_BASE}/${USER_ID}" ` +
-              `-H 'content-type: application/json' ` +
-              `-d '{"message":"What did I just tell you my favourite color was?"}'`,
-            { timeoutMs: 120_000 },
-          ),
-        ],
-        assert: [Assert.noErrors()],
-        timeoutMs: 150_000,
+        timeoutMs: 270_000,
       }),
     },
   ],

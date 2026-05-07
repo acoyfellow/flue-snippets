@@ -61,7 +61,7 @@ for i in $(seq 1 30); do
   sleep 1
 done
 for i in $(seq 1 12); do
-  code=$(curl -sS -m 60 -o /dev/null -w '%{http_code}' -X POST \
+  code=$(curl -sS -m 120 -o /tmp/warmup-body -w '%{http_code}' -X POST \
     "$WORKER_URL/agents/gateway-lab/warmup" \
     -H 'content-type: application/json' \
     -d '{"message":"warmup"}' 2>/dev/null || echo "000")
@@ -78,9 +78,9 @@ done
 echo "::endgroup::"
 
 echo "::group::gateproof plan against $WORKER_URL"
-AGENT_URL="${WORKER_URL}/agents/gateway-lab/test-${STAGE}" \
+AGENT_URL="${WORKER_URL}/agents/gateway-lab/gp-${STAGE}" \
 LAB_URL="${LAB_URL}" \
   bun run gateproof.plan.ts
 echo "::endgroup::"
 
-echo "✅ snippet 11 E2E pass"
+echo "✅ snippet gateway-lab E2E pass"

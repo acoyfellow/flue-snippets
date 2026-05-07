@@ -1,13 +1,11 @@
 /**
- * gateproof plan for snippet 06 (ai-gateway).
+ * gateproof plan for ai-gateway.
  *
- * One gate: POST through the deployed worker → which calls Workers AI
- * through the AI Gateway URL → returns a real model answer. The fact
- * that the response is 200 with a non-empty answer.text proves the
- * gateway path is wired correctly.
+ * One gate: probe.ts asserts the worker reaches Workers AI through the
+ * Cloudflare AI Gateway (env.AI binding with `gateway: { id }`) and
+ * returns a real model answer.
  *
- * Required env:
- *   AGENT_URL — full POST target (e.g. https://...workers.dev/agents/ai-gateway/<id>)
+ * Required env: AGENT_URL
  */
 
 import { Plan, Gate, Act, Assert, Require } from 'gateproof';
@@ -23,19 +21,16 @@ const plan = Plan.define({
   goals: [
     {
       id: 'agent-routes-through-gateway',
-      title: 'POST through the worker reaches Workers AI via AI Gateway and returns an answer',
+      title: 'Worker reaches Workers AI via AI Gateway and returns a real answer',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
         act: [
-          Act.exec(
-            `curl -fsS -X POST "${AGENT_URL}" ` +
-              `-H 'content-type: application/json' ` +
-              `-d '{"message":"hi from gateproof"}'`,
-            { timeoutMs: 120_000 },
-          ),
+          Act.exec(`AGENT_URL="${AGENT_URL}" bun run probe.ts`, {
+            timeoutMs: 150_000,
+          }),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 150_000,
+        timeoutMs: 180_000,
       }),
     },
   ],

@@ -1,15 +1,12 @@
 /**
- * gateproof plan for snippet 18 (lab-checkpoint).
+ * gateproof plan for lab-checkpoint.
  *
  * Three gates:
- *   1. First call (cycle=1) checkpoints — response has a `receipt` URL.
- *   2. Mid-cycle call (cycle=2) does NOT checkpoint — no receipt field.
- *   3. The Lab origin actually returns the receipt JSON for the URL we
- *      got in gate 1 (proves the receipt was really persisted).
- *
- * Required env:
- *   AGENT_URL — deployed worker base + /agents/lab-checkpoint/<id>
- *   LAB_URL   — Lab origin (defaults https://lab.coey.dev)
+ *   1. First call (cycle becomes 1) checkpoints — response has a
+ *      `receipt` URL that lab actually serves. (probe-first.ts)
+ *   2. Mid-cycle call (cycle=1 with every=3) does NOT checkpoint —
+ *      response lacks a `receipt` field. (probe-mid.ts)
+ *   3. The Lab origin is reachable and reports its catalog.
  */
 
 import { Plan, Gate, Act, Assert, Require } from 'gateproof';
@@ -22,25 +19,6 @@ if (!AGENT_URL) {
 }
 const LAB_URL = process.env.LAB_URL ?? 'https://lab.coey.dev';
 
-// First call: cycle starts at 0, becomes 1, should checkpoint.
-const firstCallScript = `
-body=$(curl -fsS -X POST "${AGENT_URL}" -H 'content-type: application/json' \
-  -d '{"message":"checkpoint test"}')
-echo "$body"
-# Extract receipt URL and probe it. If receipt is missing or lab returns
-# anything but 200, fail the gate.
-receipt=$(echo "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin)["result"]; print(d.get("receipt",""))')
-if [ -z "$receipt" ]; then
-  echo "first call did not return a receipt URL" >&2
-  exit 1
-fi
-status=$(curl -sS -o /dev/null -w '%{http_code}' "$receipt.json")
-if [ "$status" != "200" ]; then
-  echo "lab did not serve the receipt (got HTTP $status from $receipt.json)" >&2
-  exit 1
-fi
-`;
-
 const plan = Plan.define({
   goals: [
     {
@@ -48,7 +26,11 @@ const plan = Plan.define({
       title: 'First call returns a receipt URL and lab serves it back',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
-        act: [Act.exec(firstCallScript, { timeoutMs: 150_000 })],
+        act: [
+          Act.exec(`AGENT_URL="${AGENT_URL}" bun run probe-first.ts`, {
+            timeoutMs: 150_000,
+          }),
+        ],
         assert: [Assert.noErrors()],
         timeoutMs: 180_000,
       }),
@@ -75,7 +57,7 @@ const plan = Plan.define({
           Assert.httpResponse({ status: 200 }),
           Assert.responseBodyIncludes('"version"'),
         ],
-        timeoutMs: 10_000,
+        timeoutMs: 15_000,
       }),
     },
   ],
