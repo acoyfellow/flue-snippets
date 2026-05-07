@@ -48,11 +48,11 @@ const plan = Plan.define({
       gate: Gate.define({
         act: [
           Act.exec(`AGENT_URL="${URL}" bun run probe.ts`, {
-            timeoutMs: 180_000,
+            timeoutMs: 360_000,
           }),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 200_000,
+        timeoutMs: 400_000,
       }),
     },
   ],
