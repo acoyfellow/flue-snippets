@@ -5,8 +5,12 @@
   "description": "Small Flue agents that compose with Cloudflare primitives. Each snippet ships with a real end-to-end test that deploys an ephemeral Worker, exercises it against live services, and tears it down.",
   "type": "module",
   "scripts": {
-    "e2e:01": "bash batch-a/01-lab-receipt/run-e2e.sh",
-    "e2e:08": "bash batch-b/08-do-session/run-e2e.sh"
+    "e2e:lab-receipt": "bash snippets/lab-receipt/run-e2e.sh",
+    "e2e:do-session": "bash snippets/do-session/run-e2e.sh",
+    "e2e:do-governor": "bash snippets/do-governor/run-e2e.sh",
+    "e2e:lab-checkpoint": "bash snippets/lab-checkpoint/run-e2e.sh",
+    "e2e:ai-gateway": "bash snippets/ai-gateway/run-e2e.sh",
+    "e2e:gateway-lab": "bash snippets/gateway-lab/run-e2e.sh"
   },
   "devDependencies": {
     "@flue/cli": "^0.3.11",
@@ -18,7 +22,6 @@
   "dependencies": {
     "@acoyfellow/lab": "^0.0.3",
     "agents": "^0.12.3",
-    "gateproof": "latest",
-    "unsurf": "latest"
+    "gateproof": "latest"
   }
 }
