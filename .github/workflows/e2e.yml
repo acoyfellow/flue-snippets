@@ -17,6 +17,7 @@ on:
         options:
           - all
           - 01-lab-receipt
+          - 08-do-session
 
 jobs:
   e2e:
@@ -28,6 +29,7 @@ jobs:
       matrix:
         snippet:
           - { id: '01-lab-receipt', dir: 'batch-a/01-lab-receipt' }
+          - { id: '08-do-session', dir: 'batch-b/08-do-session' }
 
     name: ${{ matrix.snippet.id }}
 
