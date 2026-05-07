@@ -1,35 +1,34 @@
-# 01 · Flue + lab
+# lab-receipt
 
-> Run a prompt. Get a permalink. Hand it to the next agent.
+> Run a prompt → get a permalink. The receipt is the artifact.
 
-## What it does
+## Composes
 
-Runs a Flue agent against the user's message. Records the run as a Lab
-receipt. Returns both the answer and the receipt URL.
+- **[Flue](https://flueframework.com)** — the agent shape (`init` → `session` → `prompt`)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-4-scout` for the model call
+- **[`@acoyfellow/lab`](https://lab.coey.dev)** — `createReceipt({...})` for the audit trail
 
-## Why this matters
+## What it proves
 
-Most agent code today produces output that vanishes the moment the request
-ends. There's no audit trail, no shareable URL, no way for the next agent
-to pick up the work. Lab inverts that: the receipt is the artifact.
+- A Flue agent deployed as a Cloudflare Worker returns a real model answer
+- The same call writes a Lab receipt (input + output + capabilities) to `lab.coey.dev`
+- That receipt URL is fetchable from anywhere — past the request, past the agent
 
-This snippet is the floor of the receipts/proof/gates cluster. Every other
-snippet in batch A builds from the same shape: do work in a Flue agent,
-return a URL someone else can read.
+## Run
 
-## Cloudflare primitive in play
-
-None directly, but Lab itself runs on Cloudflare Worker Loaders + KV. The
-receipt URL you get back is served by a CF Worker. The receipt JSON is
-stored in Workers KV. The Flue agent runs anywhere — in this snippet, just
-with `flue dev`.
-
-## Lines of code
-
-22 (excluding header comment).
-
-## Run it
-
-```bash
-LAB_URL=https://lab.coey.dev flue run 01-lab-receipt --payload '{"message":"hello"}'
+```sh
+bash snippets/lab-receipt/run-e2e.sh
 ```
+
+Requires `CLOUDFLARE_API_TOKEN` (Workers Scripts:Edit + Workers AI:Read) and
+`CLOUDFLARE_ACCOUNT_ID` in env.
+
+## Files
+
+| File | LOC | Role |
+|---|---:|---|
+| `agents/lab-receipt.ts` | 22 | the snippet |
+| `alchemy.run.ts` | 27 | resource graph (Worker + DO + vars) |
+| `gateproof.plan.ts` | 47 | 2 gates: agent route + lab origin |
+| `probe.ts` | 35 | pure fetch + JSON assertion |
+| `run-e2e.sh` | 80 | build → deploy → warmup → gateproof → destroy |

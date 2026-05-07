@@ -21,7 +21,10 @@ if (!AGENT_URL_BASE) {
   process.exit(2);
 }
 
-const ID = `gateproof-${Date.now()}`;
+// Use a stable agent ID so this gate hits the SAME DO instance the
+// run-e2e.sh warmup pre-warmed. Without this, every gate pays its own
+// fresh-DO cold start (Workers AI on the personal account: 60-180s).
+const ID = 'warmup';
 const URL = `${AGENT_URL_BASE}/${ID}`;
 
 const plan = Plan.define({

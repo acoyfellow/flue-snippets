@@ -1,42 +1,35 @@
-# 06 · Flue + AI Gateway
+# ai-gateway
 
-> Three lines of config = caching + observability + retry + rate limit
-> for every prompt. Same Flue agent, different baseUrl.
+> Caching, observability, retry, rate limiting — for free, per prompt.
 
-## What it does
+## Composes
 
-A Flue agent calls OpenAI through Cloudflare AI Gateway instead of
-directly. The gateway is a transparent proxy that the OpenAI SDK can't
-tell apart from openai.com.
+- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — `env.AI.run(model, args, { gateway: { id } })` routes the call through a CF gateway
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-3.1-8b-instruct` model
+- **[Flue](https://flueframework.com)** — agent shape (the agent uses the binding directly; doesn't go through pi-ai's HTTP path)
 
-## Why this matters
+## What it proves
 
-Most agent code treats observability as a separate concern: you ship a
-working agent, then later you bolt on logging, then later you add caching,
-then later you discover you've burned $300 on a single buggy loop. AI
-Gateway is the cheapest possible upgrade — three lines — that gives you
-all of that.
+- A Flue agent uses Cloudflare's Workers AI binding (`env.AI`) directly
+- Every prompt routes through the named AI Gateway (`jordan` by default)
+- The gateway resource auto-creates on first hit if it doesn't exist
+- The deploy token doesn't need AI-Gateway-scoped permissions because the binding does its own auth
 
-Combined with Flue's `providers` config, this works for any agent in your
-portfolio. No SDK rewrites, no custom client. Just `baseUrl`.
+## Run
 
-This is the kind of snippet that shows what "Flue agent + Cloudflare
-primitive" looks like at its smallest. ~10 LOC of actual code; the value
-is in what you don't have to write.
+```sh
+# Optional: pick a different gateway than the default 'jordan'
+export CLOUDFLARE_GATEWAY_ID=my-gateway
 
-## Cloudflare primitive in play
-
-[Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/) —
-unified observability + caching + rate limit for any LLM provider. Free
-tier is generous; paid tier scales.
-
-## Lines of code
-
-15.
-
-## Run it
-
-```bash
-CF_ACCOUNT_ID=... AI_GATEWAY_ID=... OPENAI_API_KEY=... \
-  flue run 06-ai-gateway --payload '{"message":"hello"}'
+bash snippets/ai-gateway/run-e2e.sh
 ```
+
+## Files
+
+| File | LOC | Role |
+|---|---:|---|
+| `agents/ai-gateway.ts` | 24 | the snippet |
+| `alchemy.run.ts` | 30 | Worker + AI binding + DO + GATEWAY_ID |
+| `gateproof.plan.ts` | 39 | 1 gate: real model answer through the gateway |
+| `probe.ts` | 43 | asserts answer + gateway echo |
+| `run-e2e.sh` | 90 | standard harness with two-stage warmup |

@@ -1,35 +1,35 @@
-# 16 · DO Run Governor
+# do-governor
 
-> Persistent state is useful when it changes the next action.
+> Persistent run state that changes the next action when the agent loops.
 
-## What it does
+## Composes
 
-The agent records a tiny run state on every turn: cycle count, recent actions,
-and a stuck score. Repeating the same action pushes the governor from
-`continue` to `reanchor` to `ask-human`.
+- **[Flue](https://flueframework.com)** — agent shape
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the run governor state
+- **`govern()`** — a tiny pure-function policy that turns "5 of the same `lastAction` in a row" into `reanchor` then `ask-human`
 
-The minimal snippet takes `payload.state` and returns the next `state`, so it is
-easy to test locally. The Alchemy sketch shows the production shape: move that
-state into a Durable Object binding.
+## What it proves
 
-## Why this matters
+- A Flue agent records cycle count, recent actions, and a stuck score
+- After 3 repeats of the same `lastAction`, decision flips from `continue` → `reanchor`
+- After 4+ repeats, it escalates to `ask-human`
+- The 5-turn probe shows the full progression: `continue → continue → reanchor → ask-human → ask-human`
 
-This is the practical version of a "state layer" in front of an LLM. The state
-does not replace the model. It stops the model from blindly continuing when the
-run is going stale.
+## Run
 
-## Three-way proof
+```sh
+bash snippets/do-governor/run-e2e.sh
+```
 
-- Flue: session-backed agent loop.
-- Alchemy Effect v2: declares the Worker and Durable Object namespace.
-- Dogfood primitive: local `govern()` control policy, small enough to graduate
-  into `@acoyfellow/run-governor` only if other snippets demand it.
+Two gates: a single first-turn POST + a 5-turn loop in `probe.ts` that
+asserts the governor escalates.
 
-## Sources
+## Files
 
-- Alchemy Stack/provider pattern:
-  `~/cloudflare/alchemy-effect/README.md`
-- Cloudflare worker async resource pattern:
-  `~/cloudflare/alchemy-effect/examples/cloudflare-worker-async/alchemy.run.ts`
-- Durable Object session precedent:
-  `batch-b/08-do-session/agent.ts`
+| File | LOC | Role |
+|---|---:|---|
+| `agents/do-governor.ts` | 38 | the snippet (`govern()` + handler) |
+| `alchemy.run.ts` | 24 | Worker + DO binding |
+| `gateproof.plan.ts` | 67 | 2 gates: first-call + escalation loop |
+| `probe.ts` | 65 | 5-turn loop, asserts escalation away from `continue` |
+| `run-e2e.sh` | 53 | standard harness |

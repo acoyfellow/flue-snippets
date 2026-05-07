@@ -1,43 +1,35 @@
-# 11 · Flue + AI Gateway + lab
+# gateway-lab
 
-> Gateway sees the *traffic*. Lab sees the *work*. Two complementary
-> observability planes; one Flue agent.
+> Two observability planes composed: gateway sees traffic, lab sees work.
 
-## What it does
+## Composes
 
-Routes the LLM call through Cloudflare AI Gateway (gets caching, rate
-limits, cost tracking) AND emits a Lab receipt for the run (gets the
-auditable artifact + handoff URL).
+- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — model traffic plane (latency, cost, cache hits, retries)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-3.1-8b-instruct`
+- **[`@acoyfellow/lab`](https://lab.coey.dev)** — work plane (input, output, capabilities)
+- **[Flue](https://flueframework.com)** — agent shape
 
-## Why this matters
+## What it proves
 
-These two observability layers don't compete; they're orthogonal:
-- **AI Gateway** answers "what was the LLM traffic? how much did it cost?
-  was it cached? did it succeed?" — about the *prompt-to-token* layer.
-- **Lab receipts** answer "what was this agent doing? what was the input
-  and output of this *task*? who can pick it up next?" — about the *work*
-  layer.
+- The model call goes through AI Gateway (caching, observability)
+- Each call also writes a Lab receipt with the input + output + gateway id used
+- `lab.coey.dev` serves the receipt back — the agent's claim of "I logged this" is verifiable
+- Same prompt, two complete audit trails: gateway logs the request shape, lab logs the work shape
 
-You want both. The receipt links to the gateway log via metadata. The
-gateway log doesn't know what the agent was trying to accomplish; the
-receipt does. The receipt doesn't know the cache hit rate; the gateway
-does.
+## Run
 
-This is the smallest snippet that demonstrates "Flue + Cloudflare + Jordan
-primitives compose without overlap."
+```sh
+export CLOUDFLARE_GATEWAY_ID=jordan  # or your gateway name
 
-## Cloudflare primitive in play
-
-[AI Gateway](https://developers.cloudflare.com/ai-gateway/) for traffic;
-Lab (built on Workers + KV) for work.
-
-## Lines of code
-
-29.
-
-## Run it
-
-```bash
-CF_ACCOUNT_ID=... AI_GATEWAY_ID=... OPENAI_API_KEY=... LAB_URL=https://lab.coey.dev \
-  flue run 11-gateway-lab --payload '{"message":"hello"}'
+bash snippets/gateway-lab/run-e2e.sh
 ```
+
+## Files
+
+| File | LOC | Role |
+|---|---:|---|
+| `agents/gateway-lab.ts` | 32 | the snippet |
+| `alchemy.run.ts` | 31 | Worker + AI binding + DO + LAB_URL + GATEWAY_ID |
+| `gateproof.plan.ts` | 53 | 2 gates: gateway+lab + lab origin |
+| `probe.ts` | 53 | asserts answer + receipt + gateway echo |
+| `run-e2e.sh` | 88 | standard harness |

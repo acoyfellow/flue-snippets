@@ -1,52 +1,34 @@
-# 08 · Flue + Durable Object sessions
+# do-session
 
-> Per-user agent state survives restarts, geo-pins to the user, scales
-> to a million users. Zero session-store code.
+> One agent per user, persisted across requests, geo-pinned to the user.
 
-## What it does
+## Composes
 
-When deployed to Cloudflare via `flue build --target cloudflare`, every
-unique URL path segment after `/agents/<name>/` becomes a Durable Object
-keyed to that user. Same path = same DO = same history. New path =
-fresh agent.
+- **[Flue](https://flueframework.com)** — agent shape with built-in session storage
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the conversation history
 
-## Why this matters
+## What it proves
 
-Per-user persistent state is usually a separate service: Redis, Postgres,
-DynamoDB, plus the glue code, plus the migration story, plus the
-session-key crypto. With Flue + DOs you get:
+- A Flue agent deployed to Cloudflare auto-wires session storage into a per-agent DO
+- The same `userId` in the URL path routes to the same DO instance
+- Two POSTs to the same user share state — turn 2 recalls a fact set in turn 1
+- Zero Redis, zero Postgres, zero session-store boilerplate
 
-- Single-writer per user (no race conditions on history).
-- Geo-pinned (the DO lives near the user, not in a datacenter halfway
-  around the world).
-- Automatic alarms (the agent can wake itself up to do proactive work).
-- SQLite backing (you can store more than just chat history without a
-  schema migration).
+## Run
 
-This snippet is 9 lines of actual code because the rest is Cloudflare's
-job. The leverage is what's *not* there.
-
-## Cloudflare primitive in play
-
-[Durable Objects](https://developers.cloudflare.com/durable-objects/) +
-[Flue's session model](https://github.com/withastro/flue#agents-and-sessions).
-Sessions are DO-backed automatically when target is Cloudflare.
-
-## Lines of code
-
-12.
-
-## Run it
-
-```bash
-flue dev --target cloudflare
-
-# Start a conversation
-curl http://localhost:3583/agents/08-do-session/alice \
-  -d '{"message":"My name is Alice"}'
-
-# Continue it (same path = same DO)
-curl http://localhost:3583/agents/08-do-session/alice \
-  -d '{"message":"What is my name?"}'
-# → "Your name is Alice"
+```sh
+bash snippets/do-session/run-e2e.sh
 ```
+
+The probe POSTs twice to `/agents/do-session/<userId>` and asserts the
+second turn recalls the first turn's content.
+
+## Files
+
+| File | LOC | Role |
+|---|---:|---|
+| `agents/do-session.ts` | 10 | the snippet (smallest in the repo) |
+| `alchemy.run.ts` | 21 | Worker + DO binding |
+| `gateproof.plan.ts` | 37 | 1 gate: probe asserts session memory |
+| `probe.ts` | 49 | two-turn fetch loop |
+| `run-e2e.sh` | 53 | standard harness |

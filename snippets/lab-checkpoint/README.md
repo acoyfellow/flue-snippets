@@ -1,32 +1,35 @@
-# 18 · Lab Checkpoint Receipts
+# lab-checkpoint
 
-> Long-running agents need receipts, not vibes.
+> Receipts at meaningful moments: start, every Nth cycle, stop.
 
-## What it does
+## Composes
 
-The agent writes a Lab receipt at meaningful moments: first cycle, every Nth
-cycle, or explicit stop. The receipt stores the input, output, cycle, and stop
-reason.
+- **[Flue](https://flueframework.com)** — agent shape
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the cycle counter
+- **[`@acoyfellow/lab`](https://lab.coey.dev)** — receipts persisted per checkpoint
 
-The minimal snippet takes `payload.cycle` and returns the incremented cycle. A
-deployed version stores cycle state in the same DO that backs the Flue session.
+## What it proves
 
-## Why this matters
+- The agent writes a Lab receipt at cycle 1, every Nth cycle, and on explicit `stop: true`
+- Mid-cycle calls (e.g. cycle 2 with `every: 3`) return no `receipt` field
+- `lab.coey.dev` actually persists what the agent claimed to write — the receipt URL the agent returns resolves to a real saved result
 
-Persistence is not useful if you cannot audit it. This snippet turns continuity
-into a replayable trail.
+## Run
 
-## Three-way proof
+```sh
+bash snippets/lab-checkpoint/run-e2e.sh
+```
 
-- Flue: stateful session and prompt.
-- Alchemy Effect v2: Worker + DO + env declared as the deploy graph.
-- Dogfood primitive: `@acoyfellow/lab` receipts.
+Three gates: a checkpoint cycle (proves persist), a non-checkpoint cycle
+(proves selectivity), and a lab-origin reachability check.
 
-## Sources
+## Files
 
-- Existing Lab snippet:
-  `batch-a/01-lab-receipt/agent.ts`
-- Existing Lab Alchemy sketch:
-  `batch-a/01-lab-receipt/alchemy.run.ts`
-- Alchemy Effect README:
-  `~/cloudflare/alchemy-effect/README.md`
+| File | LOC | Role |
+|---|---:|---|
+| `agents/lab-checkpoint.ts` | 31 | the snippet |
+| `alchemy.run.ts` | 25 | Worker + DO + LAB_URL var |
+| `gateproof.plan.ts` | 64 | 3 gates |
+| `probe-first.ts` | 40 | asserts first-cycle receipt persists |
+| `probe-mid.ts` | 30 | asserts mid-cycle skip |
+| `run-e2e.sh` | 53 | standard harness |
