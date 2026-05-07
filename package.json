@@ -2,24 +2,22 @@
   "name": "flue-snippets",
   "version": "0.0.1",
   "private": true,
-  "description": "Hero snippets where each one is a Flue agent + a Jordan primitive + a Cloudflare primitive. Each snippet ships with an E2E test that hits real hosted services. Green = the composition works. Red = the bug list.",
+  "description": "Small Flue agents that compose with Cloudflare primitives. Each snippet ships with a real end-to-end test that deploys an ephemeral Worker, exercises it against live services, and tears it down.",
   "type": "module",
   "scripts": {
-    "e2e:01": "bash batch-a/01-lab-receipt/run-e2e.sh"
+    "e2e:01": "bash batch-a/01-lab-receipt/run-e2e.sh",
+    "e2e:08": "bash batch-b/08-do-session/run-e2e.sh"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.10.0",
     "@flue/cli": "^0.3.11",
     "@flue/sdk": "^0.3.11",
-    "@redwoodjs/agent-ci": "^0.15.0",
     "@types/bun": "latest",
-    "typescript": "^5.9.3",
-    "vitest": "^3.1.0"
+    "alchemy": "^0.93.7",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@acoyfellow/lab": "^0.0.3",
     "agents": "^0.12.3",
-    "deja-jordan": "github:acoyfellow/deja",
     "gateproof": "latest",
     "unsurf": "latest"
   }

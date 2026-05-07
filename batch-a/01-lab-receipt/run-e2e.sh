@@ -2,91 +2,73 @@
 #
 # run-e2e.sh — full end-to-end harness for snippet 01.
 #
-# 1. Build the Flue agent for Cloudflare target.
-# 2. Deploy to a unique Worker name on the personal CF account.
-# 3. Run the gateproof plan against the deployed URL.
-# 4. Tear down the Worker (always, even on failure).
+# Alchemy is the deploy backbone. Wrangler is not used directly anywhere
+# in this repo. The flow:
 #
-# No mocks. No skips. The agent calls a real Workers AI model
-# (llama-3.1-8b) and writes a real receipt to https://lab.coey.dev.
-# Cost per run ≈ $0.0001 (Workers AI llama input tokens).
+# 1. `flue build --target cloudflare` produces `.build/dist/_entry.ts`
+#    (the worker module + per-agent Durable Object class).
+# 2. `alchemy deploy` reads alchemy.run.ts, declares the Worker + DO
+#    binding + vars, bundles _entry.ts, and deploys.
+# 3. The deployed URL is read from alchemy state.
+# 4. We poll until the route is live (CF propagation race).
+# 5. gateproof Plan runs against the URL.
+# 6. `alchemy destroy` tears the worker + state down (always, on exit).
+#
+# No wrangler. No mocks. No skips. Real Workers AI, real Lab receipt.
 #
 # Required env:
-#   CLOUDFLARE_API_TOKEN     — token with Workers Scripts:Edit + Workers AI
-#   CLOUDFLARE_ACCOUNT_ID    — personal account
-#   LAB_URL                  — defaults to https://lab.coey.dev
+#   CLOUDFLARE_API_TOKEN     — token with Workers Scripts:Edit + Workers AI:Read
+#   CLOUDFLARE_ACCOUNT_ID    — personal account id
 #
 # Optional:
-#   GITHUB_SHA               — used in the worker name; defaults to local-<rand>
+#   GITHUB_SHA               — used by alchemy.run.ts to suffix the worker
+#                              name; defaults to "local"
+#   STAGE                    — alchemy stage; defaults to "local"
+#   LAB_URL                  — defaults to https://lab.coey.dev
 
 set -euo pipefail
 cd "$(dirname "$0")"
 
-SHA="${GITHUB_SHA:-local}-$(openssl rand -hex 3)"
-SHA="${SHA:0:14}"
-export WORKER_NAME="flue-01-lab-receipt-${SHA}"
-LAB_URL="${LAB_URL:-https://lab.coey.dev}"
+export STAGE="${STAGE:-local}"
+export LAB_URL="${LAB_URL:-https://lab.coey.dev}"
 
 cleanup() {
   local code=$?
-  echo "::group::cleanup"
-  npx wrangler delete --name "$WORKER_NAME" --force 2>&1 || true
+  echo "::group::cleanup (alchemy destroy)"
+  npx alchemy destroy --stage "$STAGE" 2>&1 || true
   echo "::endgroup::"
   exit $code
 }
 trap cleanup EXIT INT TERM
 
 echo "::group::flue build"
-rm -rf .build
+rm -rf .build .alchemy
 npx flue build --target cloudflare --workspace . --output .build
-# Flue's auto-generated wrangler.jsonc uses the output dir as the name
-# (".build" — invalid). Patch it to the real worker name before deploy.
-node -e "
-  const fs = require('fs');
-  const p = '.build/dist/wrangler.jsonc';
-  const c = JSON.parse(fs.readFileSync(p, 'utf8'));
-  c.name = process.env.WORKER_NAME;
-  fs.writeFileSync(p, JSON.stringify(c, null, 2));
-" || { echo "::error::failed to patch wrangler.jsonc"; exit 1; }
-# Flue also writes .build/.wrangler/deploy/config.json which conflicts
-# with our wrangler.jsonc (different base paths). Remove it.
-rm -rf .build/.wrangler
-echo "patched name to: $WORKER_NAME"
 echo "::endgroup::"
 
-echo "::group::wrangler deploy ($WORKER_NAME)"
-cd .build/dist
-npx wrangler deploy \
-  --name "$WORKER_NAME" \
-  --var "LAB_URL:${LAB_URL}" \
-  --var "CLOUDFLARE_ACCOUNT_ID:${CLOUDFLARE_ACCOUNT_ID}" \
-  --var "CLOUDFLARE_API_KEY:${CLOUDFLARE_API_TOKEN}" \
-  2>&1 | tee /tmp/wrangler-deploy.log
-
-WORKER_URL=$(grep -oE 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' /tmp/wrangler-deploy.log | head -1)
+echo "::group::alchemy deploy (stage=$STAGE)"
+# alchemy.run.ts prints the worker URL on stdout when up succeeds.
+# We need the URL line specifically — alchemy also logs status banners.
+DEPLOY_LOG="$(mktemp)"
+npx alchemy deploy --stage "$STAGE" 2>&1 | tee "$DEPLOY_LOG"
+WORKER_URL=$(grep -oE 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 if [ -z "$WORKER_URL" ]; then
-  echo "::error::failed to capture deployed URL"
+  echo "::error::failed to capture deployed URL from alchemy output"
   exit 1
 fi
-cd ../..
 echo "deployed: $WORKER_URL"
+echo "::endgroup::"
 
-# wrangler returns the URL before global propagation finishes. CI hits
-# it fast enough to 404 (~150ms after deploy returns); local typically
-# has enough hand-latency that the route is live by the time we curl.
-# Poll until the worker stops returning 404, with a 30s ceiling.
-echo "waiting for route propagation…"
+echo "::group::wait for route propagation"
 for i in $(seq 1 30); do
-  code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
-    "${WORKER_URL}/agents/lab-receipt/probe" \
-    -H 'content-type: application/json' \
-    -d '{"message":"probe"}' || echo "000")
-  if [ "$code" != "404" ] && [ "$code" != "000" ]; then
+  code=$(curl -sS -m 5 -o /dev/null -w '%{http_code}' \
+    "$WORKER_URL/health" 2>/dev/null || echo "000")
+  if [ "$code" = "200" ]; then
     echo "route live (HTTP $code) after ${i}s"
     break
   fi
   if [ "$i" = "30" ]; then
-    echo "::error::worker still 404'ing after 30s — deploy is broken, not just propagating"
+    echo "::error::worker still not responding after 30s"
     exit 1
   fi
   sleep 1
@@ -94,7 +76,7 @@ done
 echo "::endgroup::"
 
 echo "::group::gateproof plan against $WORKER_URL"
-AGENT_URL="${WORKER_URL}/agents/lab-receipt/test-run-${SHA}" \
+AGENT_URL="${WORKER_URL}/agents/lab-receipt/test-${STAGE}" \
 LAB_URL="${LAB_URL}" \
   bun run gateproof.plan.ts
 echo "::endgroup::"
