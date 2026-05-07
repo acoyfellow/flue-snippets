@@ -18,6 +18,8 @@ on:
           - all
           - 01-lab-receipt
           - 08-do-session
+          - 16-do-governor
+          - 18-lab-checkpoint
 
 jobs:
   e2e:
@@ -30,6 +32,8 @@ jobs:
         snippet:
           - { id: '01-lab-receipt', dir: 'batch-a/01-lab-receipt' }
           - { id: '08-do-session', dir: 'batch-b/08-do-session' }
+          - { id: '16-do-governor', dir: 'batch-d/16-do-governor' }
+          - { id: '18-lab-checkpoint', dir: 'batch-d/18-lab-checkpoint' }
 
     name: ${{ matrix.snippet.id }}
 

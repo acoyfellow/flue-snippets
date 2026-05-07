@@ -28,6 +28,8 @@ live services, and tears the Worker down. No mocks. No skips.
 | [13](batch-c/13-r2-gateproof) | Edit docs in R2, gate the result | Cloudflare Sandbox + gateproof | 29 | |
 | [14](batch-c/14-queue-unsurf) | Hourly regression checks with video | Queues + unsurf | 35 | |
 | [15](batch-c/15-platforms-capa) | Multi-tenant agents handle money | Workers for Platforms + capa | 37 | |
+| [16](batch-d/16-do-governor) | DO-backed run governor escalates when stuck | Durable Objects | 35 | ✅ |
+| [18](batch-d/18-lab-checkpoint) | Checkpoint receipts at meaningful moments | Durable Objects + lab | 30 | ✅ |
 
 ## Run a snippet's E2E test
 
