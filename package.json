@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.10.0",
+    "@redwoodjs/agent-ci": "^0.15.0",
     "@types/bun": "latest",
     "typescript": "^5.9.3",
     "vitest": "^3.1.0"
