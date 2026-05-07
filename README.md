@@ -143,12 +143,11 @@ Where it gets interesting. The snippets nobody else can write.
 | # | Title | Primitives | LOC |
 |---|---|---|---:|
 | [11](batch-c/11-gateway-lab) | Gateway sees traffic, lab sees work | AI Gateway + lab | 29 |
-| [12](batch-c/12-do-deja) | Two memory layers, no overlap | DO sessions + deja | 30 |
 | [13](batch-c/13-r2-gateproof) | Edit docs in R2, gate the result | R2 + gateproof | 29 |
 | [14](batch-c/14-queue-unsurf) | Hourly regression checks with video | Queues + unsurf | 35 |
 | [15](batch-c/15-platforms-capa) | Multi-tenant agents handle money | Workers for Platforms + capa | 37 |
 
-**Total: 323 LOC across 15 snippets** (excluding comments + blanks).
+**Total: 293 LOC across 14 snippets** (excluding comments + blanks).
 Average: **21 LOC per snippet**.
 
 ---
