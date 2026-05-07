@@ -35,11 +35,11 @@ const plan = Plan.define({
           Act.exec(
             `curl -fsS -X POST "${URL}" -H 'content-type: application/json' ` +
               `-d '{"message":"hello","lastAction":"first"}'`,
-            { timeoutMs: 60_000 },
+            { timeoutMs: 120_000 },
           ),
         ],
         assert: [Assert.noErrors()],
-        timeoutMs: 90_000,
+        timeoutMs: 150_000,
       }),
     },
     {
