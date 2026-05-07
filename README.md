@@ -31,9 +31,20 @@ live services, and tears the Worker down. No mocks. No skips.
 
 ## Run a snippet's E2E test
 
-Each snippet that ships a `run-e2e.sh` deploys a real Worker to your
-Cloudflare account, runs assertions against it, and deletes the Worker
-when done. Required env:
+Each snippet that ships a `run-e2e.sh` does the same five things:
+
+1. `flue build --target cloudflare` produces the worker module.
+2. `alchemy deploy` declares the Worker + DO bindings + vars and
+   bundles the worker. URL is captured from stdout.
+3. Poll the deployed URL until route propagation finishes.
+4. `gateproof.plan.ts` runs against the live URL.
+5. `alchemy destroy` tears the worker + state down (always, on exit).
+
+Wrangler is not invoked anywhere in this repo. Alchemy is the system
+of record for the resource graph; flue produces the entrypoint module
+that alchemy bundles and deploys.
+
+Required env:
 
 ```bash
 export CLOUDFLARE_API_TOKEN=...    # Workers Scripts:Edit + Workers AI:Read
@@ -47,7 +58,7 @@ bun install
 bash batch-a/01-lab-receipt/run-e2e.sh
 ```
 
-A run takes ~30s and costs ~$0.0001 in Workers AI usage.
+A run takes ~30-60s and costs ~$0.0001-$0.0002 in Workers AI usage.
 
 ## CI
 
