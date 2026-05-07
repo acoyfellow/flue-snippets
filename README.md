@@ -1,8 +1,30 @@
 # flue-snippets
 
-Hero snippets where each one is a [Flue](https://flueframework.com) agent
-that uses a Jordan primitive, a Cloudflare primitive, or both — in 15-40
-lines.
+> **The companion repo to [Flue](https://flueframework.com)'s connector
+> ecosystem.** Fred ships sandbox connectors via `flue add anything`
+> (boxd, cloudflare, daytona, e2b, exedev, modal, @vercel/sandbox).
+> This repo ships the **other half:** snippets that combine those
+> connectors with the Cloudflare primitives that already exist
+> (DOs, R2, Queues, Workers AI, AI Gateway, Workers for Platforms)
+> and a small set of receipt/proof/memory libraries (`@acoyfellow/lab`,
+> `gateproof`, `unsurf`, `deja`, `capa`).
+
+Each snippet is a [Flue](https://flueframework.com) agent in 15-40 lines.
+Each one ships with an E2E test that hits real hosted services. Green =
+the composition works. Red = the bug list.
+
+## Connector pattern
+
+Fred's `flue add` is markdown + agent: pipe `flue add @vercel/sandbox
+--print` into Claude/Cursor/Codex/etc., the agent reads the install guide
+and writes the connector files into your project. **The snippets here
+are what you build *next*** — once Fred's connector wires up the sandbox,
+these show what to do with it.
+
+The same shape applies to APIs, not just sandboxes — see
+[`capa`](https://github.com/acoyfellow/capa) for the API-shaped
+counterpart: a manifest + agent + JSRPC service binding, with
+proof-carrying evidence on every call.
 
 > **The thesis:** [Flue](https://flueframework.com) (Fred Schott / Astro /
 > Cloudflare) is the discipline. If a primitive composes cleanly with a Flue

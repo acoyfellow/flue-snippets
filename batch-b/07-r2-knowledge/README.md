@@ -28,8 +28,21 @@ infrastructure to spin up.
 ## Cloudflare primitive in play
 
 [`getVirtualSandbox`](https://github.com/withastro/flue#packages) —
-Flue's Cloudflare-native sandbox. R2 backing, DO SQLite index. No
-container needed.
+Flue's R2-backed virtual filesystem. DO SQLite index. **No container.**
+
+This is one of two Cloudflare-target sandbox primitives in Flue:
+
+- **`getVirtualSandbox(env.R2_BUCKET)`** ← used here. Cheap, fast,
+  read-mostly. Agent has bash for grep/glob/read but no real exec
+  surface. Perfect for knowledge bases.
+- **`getSandbox(env.Sandbox, id)`** ← Cloudflare Containers (DO + real
+  Linux). Use when the agent needs to actually run code, build, edit
+  files, etc. See snippet [13](../../batch-c/13-r2-gateproof) for that
+  pattern.
+
+Pick by the question "does the agent need to RUN things, or just READ
+things?" Knowledge base = virtual sandbox. Doc edits + check command =
+real sandbox.
 
 ## Lines of code
 
