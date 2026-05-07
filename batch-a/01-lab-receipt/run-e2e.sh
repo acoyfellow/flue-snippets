@@ -70,6 +70,27 @@ if [ -z "$WORKER_URL" ]; then
 fi
 cd ../..
 echo "deployed: $WORKER_URL"
+
+# wrangler returns the URL before global propagation finishes. CI hits
+# it fast enough to 404 (~150ms after deploy returns); local typically
+# has enough hand-latency that the route is live by the time we curl.
+# Poll until the worker stops returning 404, with a 30s ceiling.
+echo "waiting for route propagation…"
+for i in $(seq 1 30); do
+  code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+    "${WORKER_URL}/agents/lab-receipt/probe" \
+    -H 'content-type: application/json' \
+    -d '{"message":"probe"}' || echo "000")
+  if [ "$code" != "404" ] && [ "$code" != "000" ]; then
+    echo "route live (HTTP $code) after ${i}s"
+    break
+  fi
+  if [ "$i" = "30" ]; then
+    echo "::error::worker still 404'ing after 30s — deploy is broken, not just propagating"
+    exit 1
+  fi
+  sleep 1
+done
 echo "::endgroup::"
 
 echo "::group::gateproof plan against $WORKER_URL"
