@@ -71,9 +71,9 @@ agents look like.
 Each recipe README is a one-page reference card: what it composes, what
 it proves, how to run it.
 
-## How the harness works
+## End-to-end flow
 
-Every `run-e2e.sh` does the same things:
+Every `run-e2e.sh` orchestrates the same five-step lifecycle:
 
 1. **`flue build --target cloudflare`** produces `_entry.ts` — a Worker
    module plus a Durable Object class per agent.

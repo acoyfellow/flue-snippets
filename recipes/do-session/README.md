@@ -17,7 +17,7 @@
 ## Run
 
 ```sh
-bash snippets/do-session/run-e2e.sh
+bash recipes/do-session/run-e2e.sh
 ```
 
 The probe POSTs twice to `/agents/do-session/<userId>` and asserts the
@@ -31,4 +31,4 @@ second turn recalls the first turn's content.
 | `alchemy.run.ts` | 21 | Worker + DO binding |
 | `gateproof.plan.ts` | 37 | 1 gate: probe asserts session memory |
 | `probe.ts` | 49 | two-turn fetch loop |
-| `run-e2e.sh` | 53 | standard harness |
+| `run-e2e.sh` | 53 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |

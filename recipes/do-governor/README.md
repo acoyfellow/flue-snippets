@@ -18,7 +18,7 @@
 ## Run
 
 ```sh
-bash snippets/do-governor/run-e2e.sh
+bash recipes/do-governor/run-e2e.sh
 ```
 
 Two gates: a single first-turn POST + a 5-turn loop in `probe.ts` that
@@ -32,4 +32,4 @@ asserts the governor escalates.
 | `alchemy.run.ts` | 24 | Worker + DO binding |
 | `gateproof.plan.ts` | 67 | 2 gates: first-call + escalation loop |
 | `probe.ts` | 65 | 5-turn loop, asserts escalation away from `continue` |
-| `run-e2e.sh` | 53 | standard harness |
+| `run-e2e.sh` | 53 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |

@@ -21,7 +21,7 @@
 # Optional: pick a different gateway than the default 'jordan'
 export CLOUDFLARE_GATEWAY_ID=my-gateway
 
-bash snippets/ai-gateway/run-e2e.sh
+bash recipes/ai-gateway/run-e2e.sh
 ```
 
 ## Files
@@ -32,4 +32,4 @@ bash snippets/ai-gateway/run-e2e.sh
 | `alchemy.run.ts` | 30 | Worker + AI binding + DO + GATEWAY_ID |
 | `gateproof.plan.ts` | 39 | 1 gate: real model answer through the gateway |
 | `probe.ts` | 43 | asserts answer + gateway echo |
-| `run-e2e.sh` | 90 | standard harness with two-stage warmup |
+| `run-e2e.sh` | 90 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |

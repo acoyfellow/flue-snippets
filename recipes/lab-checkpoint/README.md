@@ -17,7 +17,7 @@
 ## Run
 
 ```sh
-bash snippets/lab-checkpoint/run-e2e.sh
+bash recipes/lab-checkpoint/run-e2e.sh
 ```
 
 Three gates: a checkpoint cycle (proves persist), a non-checkpoint cycle
@@ -32,4 +32,4 @@ Three gates: a checkpoint cycle (proves persist), a non-checkpoint cycle
 | `gateproof.plan.ts` | 64 | 3 gates |
 | `probe-first.ts` | 40 | asserts first-cycle receipt persists |
 | `probe-mid.ts` | 30 | asserts mid-cycle skip |
-| `run-e2e.sh` | 53 | standard harness |
+| `run-e2e.sh` | 53 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |

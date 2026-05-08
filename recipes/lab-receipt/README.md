@@ -17,7 +17,7 @@
 ## Run
 
 ```sh
-bash snippets/lab-receipt/run-e2e.sh
+bash recipes/lab-receipt/run-e2e.sh
 ```
 
 Requires `CLOUDFLARE_API_TOKEN` (Workers Scripts:Edit + Workers AI:Read) and

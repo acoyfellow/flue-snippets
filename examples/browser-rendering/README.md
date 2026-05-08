@@ -8,4 +8,5 @@ bash examples/browser-rendering/run-e2e.sh
 
 `puppeteer.launch(env.BROWSER)` spins up a headless Chrome session.
 The agent navigates to a URL and returns `<title>`. Cold start is
-heavier than Workers AI; the harness allows 180s.
+heavier than Workers AI; `run-e2e.sh` allows 180s for the warmup
+POST.

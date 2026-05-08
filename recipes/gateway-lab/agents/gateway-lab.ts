@@ -29,7 +29,7 @@ export default async function ({ payload, env }: FlueContext & { env: Env }) {
   );
 
   const r = await lab.createReceipt({
-    source: 'flue-snippets/11-gateway-lab',
+    source: 'flue-snippets/recipes/gateway-lab',
     action: 'prompt',
     input: { message: payload.message },
     output: { answer: ai.response },

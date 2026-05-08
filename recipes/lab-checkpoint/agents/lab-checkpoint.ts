@@ -27,7 +27,7 @@ export default async function ({ init, payload, env }: FlueContext) {
   });
 
   const r = await lab.createReceipt({
-    source: 'flue-snippets/18-lab-checkpoint',
+    source: 'flue-snippets/recipes/lab-checkpoint',
     action: 'agent.checkpoint',
     ok: true,
     input: { message: payload.message },
