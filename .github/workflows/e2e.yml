@@ -1,28 +1,47 @@
 name: e2e (real deploy)
 
 # On-demand only. Each matrix job deploys a real Worker via alchemy,
-# runs gateproof against it, then `alchemy destroy`s it. The account
-# stays clean because every CI run gets its own alchemy stage and the
-# trap-cleanup in run-e2e.sh always destroys.
+# runs the snippet's harness against it, then `alchemy destroy`s it.
 #
-# Cost per snippet per run ≈ $0.0001 (Workers AI llama-scout).
+# Two tiers in the matrix:
+#   - examples/<product>/   — hello-world per CF product (simplest agent)
+#   - recipes/<name>/       — composition snippets (multiple primitives)
+#
+# Cost per snippet per run ≈ $0.0001 (Workers AI llama scout).
 
 on:
   workflow_dispatch:
     inputs:
-      snippet:
-        description: 'Snippet to run (default: all)'
+      target:
+        description: 'Target to run (default: all)'
         required: false
         default: 'all'
         type: choice
         options:
           - all
-          - lab-receipt
-          - do-session
-          - do-governor
-          - lab-checkpoint
-          - ai-gateway
-          - gateway-lab
+          - examples
+          - recipes
+          # examples
+          - examples/workers-ai
+          - examples/kv
+          - examples/r2
+          - examples/d1
+          - examples/durable-objects
+          - examples/ai-gateway
+          - examples/queues
+          - examples/workflows
+          - examples/cron
+          - examples/pipelines
+          - examples/vectorize
+          - examples/browser-rendering
+          - examples/sandbox
+          # recipes
+          - recipes/lab-receipt
+          - recipes/do-session
+          - recipes/do-governor
+          - recipes/lab-checkpoint
+          - recipes/ai-gateway
+          - recipes/gateway-lab
 
 jobs:
   e2e:
@@ -32,26 +51,44 @@ jobs:
     strategy:
       fail-fast: false
       # Sequential. Workers AI on the personal CF account rate-limits
-      # heavily under parallel load — running all snippets simultaneously
-      # makes the do-governor 5-turn probe time out reliably. Going one
-      # at a time keeps end-to-end wall time around 12 minutes for all
-      # six jobs but every job is reliable.
+      # heavily under parallel load.
       max-parallel: 1
       matrix:
-        snippet:
-          - lab-receipt
-          - do-session
-          - do-governor
-          - lab-checkpoint
-          - ai-gateway
-          - gateway-lab
+        target:
+          # examples/
+          - examples/workers-ai
+          - examples/kv
+          - examples/r2
+          - examples/d1
+          - examples/durable-objects
+          - examples/ai-gateway
+          - examples/queues
+          - examples/workflows
+          - examples/cron
+          - examples/pipelines
+          - examples/vectorize
+          - examples/browser-rendering
+          - examples/sandbox
+          # recipes/
+          - recipes/lab-receipt
+          - recipes/do-session
+          - recipes/do-governor
+          - recipes/lab-checkpoint
+          - recipes/ai-gateway
+          - recipes/gateway-lab
 
-    name: ${{ matrix.snippet }}
+    name: ${{ matrix.target }}
 
     steps:
       - name: Skip if not selected
-        if: ${{ github.event.inputs.snippet != 'all' && github.event.inputs.snippet != matrix.snippet }}
-        run: echo "skipped — input asked for ${{ github.event.inputs.snippet }}" && exit 0
+        if: >-
+          ${{
+            github.event.inputs.target != 'all'
+            && github.event.inputs.target != matrix.target
+            && !(github.event.inputs.target == 'examples' && startsWith(matrix.target, 'examples/'))
+            && !(github.event.inputs.target == 'recipes' && startsWith(matrix.target, 'recipes/'))
+          }}
+        run: echo "skipped — input asked for ${{ github.event.inputs.target }}" && exit 0
 
       - uses: actions/checkout@v4
 
@@ -62,19 +99,13 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
-      - name: Run E2E (alchemy deploy + gateproof + alchemy destroy)
-        working-directory: snippets/${{ matrix.snippet }}
+      - name: Run E2E (alchemy deploy + assert + destroy)
+        working-directory: ${{ matrix.target }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID_E2E }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_E2E }}
           LAB_URL: https://lab.coey.dev
           GITHUB_SHA: ${{ github.sha }}
-          # Per-run unique alchemy stage so destroy always scopes to
-          # this run, even if a previous run leaked state.
           STAGE: ci-${{ github.run_id }}
-          # Alchemy's local-fs state store is ephemeral on the runner.
-          # Each job does deploy → assert → destroy in one process, so
-          # persistent state would never be read again. Disable the
-          # CI guardrail.
           ALCHEMY_CI_STATE_STORE_CHECK: 'false'
         run: bash run-e2e.sh
