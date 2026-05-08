@@ -29,12 +29,8 @@ on:
           - examples/durable-objects
           - examples/ai-gateway
           - examples/queues
-          - examples/workflows
-          - examples/cron
-          - examples/pipelines
           - examples/vectorize
           - examples/browser-rendering
-          - examples/sandbox
           # recipes
           - recipes/lab-receipt
           - recipes/do-session
@@ -63,12 +59,8 @@ jobs:
           - examples/durable-objects
           - examples/ai-gateway
           - examples/queues
-          - examples/workflows
-          - examples/cron
-          - examples/pipelines
           - examples/vectorize
           - examples/browser-rendering
-          - examples/sandbox
           # recipes/
           - recipes/lab-receipt
           - recipes/do-session

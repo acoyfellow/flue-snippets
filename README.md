@@ -1,14 +1,19 @@
 # flue-snippets
 
-Small [Flue](https://flueframework.com) agents that compose with Cloudflare
-primitives (Durable Objects, AI Gateway, Workers AI) and a couple of open
-source receipt/proof libraries (`@acoyfellow/lab`, `gateproof`).
+Real, runnable [Flue](https://flueframework.com) agents on
+[Cloudflare](https://developers.cloudflare.com/workers/). Two folders,
+one purpose: **show what Flue + Cloudflare looks like for real.**
 
-Each snippet is a runnable Flue agent in 10-40 lines, paired with a real
-end-to-end test that deploys an ephemeral Worker, exercises it against
-live services, then tears the Worker down. **No mocks. No skips.**
+[![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml)
 
-![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)
+```text
+examples/   one CF product, smallest Flue agent that uses it
+recipes/    compositions — multiple primitives working together
+```
+
+Every snippet ships with an end-to-end test that **deploys a real
+ephemeral Worker, exercises it against live services, then tears the
+Worker down**. No mocks, no skips.
 
 ## Run a snippet in 5 minutes
 
@@ -17,70 +22,106 @@ git clone https://github.com/acoyfellow/flue-snippets
 cd flue-snippets
 bun install
 
-# Workers Scripts:Edit + Workers AI:Read on a CF API token
+# Create a CF API token at https://dash.cloudflare.com/profile/api-tokens
+# (Workers Scripts:Edit + Workers AI:Read are the minimum)
 export CLOUDFLARE_API_TOKEN=...
 export CLOUDFLARE_ACCOUNT_ID=...
 
-bash snippets/lab-receipt/run-e2e.sh
+bash examples/workers-ai/run-e2e.sh
 ```
 
-You get a Worker URL deployed to your account, real model output, a real
-[Lab](https://lab.coey.dev) receipt, then the Worker is destroyed. Run
-takes ~60-90 seconds and costs about $0.0001 in Workers AI usage.
+A run takes ~30–60 seconds and costs about $0.0001 in Workers AI usage.
+A real Worker is deployed to your account, hit, then destroyed. If a
+gate fails, the cleanup still runs.
 
-## Snippets
+## Examples — one CF product per folder
 
-Every folder is a complete, runnable example. Open `agents/<name>.ts` for
-the snippet itself; the rest of the folder is the harness.
+Each folder is the smallest Flue agent that exercises one Cloudflare
+binding. Read them in any order.
 
-| Snippet | Composes |
+| Example | Cloudflare product |
 |---|---|
-| [lab-receipt](snippets/lab-receipt) | Workers AI + lab |
-| [do-session](snippets/do-session) | Durable Objects |
-| [do-governor](snippets/do-governor) | Durable Objects |
-| [lab-checkpoint](snippets/lab-checkpoint) | Durable Objects + lab |
-| [ai-gateway](snippets/ai-gateway) | AI Gateway + Workers AI |
-| [gateway-lab](snippets/gateway-lab) | AI Gateway + Workers AI + lab |
+| [workers-ai](examples/workers-ai) | [Workers AI](https://developers.cloudflare.com/workers-ai/) |
+| [kv](examples/kv) | [Workers KV](https://developers.cloudflare.com/workers/runtime-apis/kv/) |
+| [r2](examples/r2) | [R2](https://developers.cloudflare.com/r2/) |
+| [d1](examples/d1) | [D1](https://developers.cloudflare.com/d1/) |
+| [durable-objects](examples/durable-objects) | [Durable Objects](https://developers.cloudflare.com/durable-objects/) |
+| [ai-gateway](examples/ai-gateway) | [AI Gateway](https://developers.cloudflare.com/ai-gateway/) |
+| [queues](examples/queues) | [Queues](https://developers.cloudflare.com/queues/) |
+| [vectorize](examples/vectorize) | [Vectorize](https://developers.cloudflare.com/vectorize/) |
+| [browser-rendering](examples/browser-rendering) | [Browser Rendering](https://developers.cloudflare.com/browser-rendering/) |
 
-Each snippet's README is a one-page reference card: what it composes, what
-it proves, and how to run it.
+## Recipes — compositions
+
+Each recipe combines Flue with a Cloudflare primitive **and** an
+open-source receipt or proof library
+([`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab) or
+[`gateproof`](https://gateproof.dev)) to show what production-shape
+agents look like.
+
+| Recipe | Composes |
+|---|---|
+| [lab-receipt](recipes/lab-receipt) | Workers AI + lab |
+| [do-session](recipes/do-session) | Durable Objects |
+| [do-governor](recipes/do-governor) | Durable Objects |
+| [lab-checkpoint](recipes/lab-checkpoint) | Durable Objects + lab |
+| [ai-gateway](recipes/ai-gateway) | AI Gateway + Workers AI |
+| [gateway-lab](recipes/gateway-lab) | AI Gateway + Workers AI + lab |
+
+Each recipe README is a one-page reference card: what it composes, what
+it proves, how to run it.
 
 ## How the harness works
 
-Every `run-e2e.sh` does the same five things:
+Every `run-e2e.sh` does the same things:
 
-1. **`flue build --target cloudflare`** produces `_entry.ts` — a worker
+1. **`flue build --target cloudflare`** produces `_entry.ts` — a Worker
    module plus a Durable Object class per agent.
-2. **`alchemy deploy`** declares the Worker, bindings, and vars in
-   [`alchemy.run.ts`](snippets/lab-receipt/alchemy.run.ts), bundles
-   `_entry.ts`, and prints the worker URL.
+2. **`alchemy deploy`** ([`alchemy.run.ts`](examples/workers-ai/alchemy.run.ts))
+   declares the Worker, bindings, and vars; bundles the entry; prints
+   the URL.
 3. **Warmup** polls `/health` then POSTs `/agents/<name>/warmup` with
-   retries — this absorbs the route-propagation race AND the Workers AI
-   cold start (which can be 30-60s on a fresh isolate).
-4. **`gateproof.plan.ts`** runs the snippet's gates against the live URL.
-   Each gate's act is `bun run probe.ts` — a small TypeScript program
-   that does pure `fetch` + JSON. No bash heredocs, no python parsers
-   (those broke on multi-line model output).
-5. **`alchemy destroy`** tears the worker, bindings, and state down.
-   Trapped on `EXIT INT TERM` so the cleanup runs even if a gate fails.
+   retries — absorbing the route-propagation race AND the Workers AI
+   cold start (which can be 30–60s on a fresh isolate).
+4. **Assert** — examples do an inline curl-and-grep; recipes run a
+   `gateproof.plan.ts` with a dedicated `probe.ts` (pure `fetch` + JSON,
+   no bash heredocs, no Python parsers).
+5. **`alchemy destroy`** tears the Worker, bindings, and state down.
+   Trapped on `EXIT INT TERM` so cleanup runs even if a gate fails.
 
-Wrangler is not invoked anywhere in this repo — alchemy is the system of
-record for the resource graph; flue produces the entrypoint module that
-alchemy bundles.
+Wrangler is not invoked anywhere in this repo —
+[alchemy](https://alchemy.run) is the system of record for the resource
+graph; Flue produces the entrypoint module that alchemy bundles.
 
 ## CI
 
-[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) runs on
-`workflow_dispatch` only. Pick `all` or a single snippet from the dropdown
-in the [Actions tab](https://github.com/acoyfellow/flue-snippets/actions).
-Matrix is `max-parallel: 1` because Workers AI on a personal account
-rate-limits hard under parallel load.
+[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) is
+`workflow_dispatch`-only. From the
+[Actions tab](https://github.com/acoyfellow/flue-snippets/actions),
+choose `all`, `examples`, `recipes`, or any single target from the
+dropdown. Matrix is `max-parallel: 1` because Workers AI rate-limits
+hard under parallel load on a personal account.
 
 Required repo secrets:
 
-- `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read
-- `CF_ACCOUNT_ID_E2E` — account ID
+- `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read (plus
+  any product-specific perms used by the matrix entries you enable —
+  R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering)
+- `CF_ACCOUNT_ID_E2E` — Cloudflare account ID
+
+## Local scripts
+
+Equivalent to running each `run-e2e.sh` directly:
+
+```sh
+bun ex:workers-ai   # examples/workers-ai
+bun ex:kv           # examples/kv
+bun ex:r2           # examples/r2
+# … see package.json for the full list
+bun rx:lab-receipt  # recipes/lab-receipt
+# …
+```
 
 ## License
 
-MIT.
+[MIT](LICENSE).

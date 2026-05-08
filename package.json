@@ -2,22 +2,18 @@
   "name": "flue-snippets",
   "version": "0.0.1",
   "private": true,
-  "description": "Hello-world examples + composition recipes: Flue agents on Cloudflare. Each ships a real end-to-end test that deploys an ephemeral Worker, asserts, and tears it down.",
+  "description": "Real, runnable Flue agents on Cloudflare. Each example shows one CF product; each recipe composes several. Every snippet ships an end-to-end test that deploys an ephemeral Worker, asserts, and tears it down.",
   "type": "module",
   "scripts": {
     "ex:workers-ai": "bash examples/workers-ai/run-e2e.sh",
     "ex:kv": "bash examples/kv/run-e2e.sh",
     "ex:r2": "bash examples/r2/run-e2e.sh",
     "ex:d1": "bash examples/d1/run-e2e.sh",
-    "ex:do": "bash examples/durable-objects/run-e2e.sh",
+    "ex:durable-objects": "bash examples/durable-objects/run-e2e.sh",
     "ex:ai-gateway": "bash examples/ai-gateway/run-e2e.sh",
     "ex:queues": "bash examples/queues/run-e2e.sh",
-    "ex:workflows": "bash examples/workflows/run-e2e.sh",
-    "ex:cron": "bash examples/cron/run-e2e.sh",
-    "ex:pipelines": "bash examples/pipelines/run-e2e.sh",
     "ex:vectorize": "bash examples/vectorize/run-e2e.sh",
-    "ex:browser": "bash examples/browser-rendering/run-e2e.sh",
-    "ex:sandbox": "bash examples/sandbox/run-e2e.sh",
+    "ex:browser-rendering": "bash examples/browser-rendering/run-e2e.sh",
     "rx:lab-receipt": "bash recipes/lab-receipt/run-e2e.sh",
     "rx:do-session": "bash recipes/do-session/run-e2e.sh",
     "rx:do-governor": "bash recipes/do-governor/run-e2e.sh",
@@ -34,6 +30,7 @@
   },
   "dependencies": {
     "@acoyfellow/lab": "^0.0.3",
+    "@cloudflare/puppeteer": "^1.1.0",
     "agents": "^0.12.3",
     "gateproof": "latest"
   }
