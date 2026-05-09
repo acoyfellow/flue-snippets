@@ -8,7 +8,9 @@ interface Env {
     run: (model: string, args: unknown) => Promise<{ data?: number[][] }>;
   };
   VECTOR: {
-    upsert: (vectors: Array<{ id: string; values: number[]; metadata?: unknown }>) => Promise<unknown>;
+    upsert: (
+      vectors: Array<{ id: string; values: number[]; metadata?: unknown }>,
+    ) => Promise<unknown>;
     query: (
       values: number[],
       opts?: { topK?: number; returnMetadata?: boolean | 'all' | 'none' | 'indexed' },

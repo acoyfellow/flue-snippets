@@ -14,14 +14,18 @@
     "ex:queues": "bash examples/queues/run-e2e.sh",
     "ex:vectorize": "bash examples/vectorize/run-e2e.sh",
     "ex:browser-rendering": "bash examples/browser-rendering/run-e2e.sh",
+    "ex:worker-loader": "bash examples/worker-loader/run-e2e.sh",
     "rx:lab-receipt": "bash recipes/lab-receipt/run-e2e.sh",
     "rx:do-session": "bash recipes/do-session/run-e2e.sh",
     "rx:do-governor": "bash recipes/do-governor/run-e2e.sh",
     "rx:lab-checkpoint": "bash recipes/lab-checkpoint/run-e2e.sh",
     "rx:ai-gateway": "bash recipes/ai-gateway/run-e2e.sh",
-    "rx:gateway-lab": "bash recipes/gateway-lab/run-e2e.sh"
+    "rx:gateway-lab": "bash recipes/gateway-lab/run-e2e.sh",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
     "@flue/cli": "^0.3.11",
     "@flue/sdk": "^0.3.11",
     "@types/bun": "latest",

@@ -1,8 +1,8 @@
 // examples/browser-rendering — agent opens a real Chromium, fetches a
 // page, returns the title.
 
-import type { FlueContext } from '@flue/sdk/client';
 import puppeteer from '@cloudflare/puppeteer';
+import type { FlueContext } from '@flue/sdk/client';
 
 interface Env {
   BROWSER: Fetcher;

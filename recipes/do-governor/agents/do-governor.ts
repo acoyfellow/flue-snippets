@@ -20,14 +20,20 @@ function govern(state: RunState, event: string) {
 
   if (stuckScore >= 2) {
     return {
-      next: { action: 'ask-human', question: 'I keep repeating the same move. What should change?' },
+      next: {
+        action: 'ask-human',
+        question: 'I keep repeating the same move. What should change?',
+      },
       state: { cycle: state.cycle + 1, recent, stuckScore },
     };
   }
 
   if (stuckScore === 1) {
     return {
-      next: { action: 'reanchor', instruction: 'Stop and restate the goal before trying a different approach.' },
+      next: {
+        action: 'reanchor',
+        instruction: 'Stop and restate the goal before trying a different approach.',
+      },
       state: { cycle: state.cycle + 1, recent, stuckScore },
     };
   }

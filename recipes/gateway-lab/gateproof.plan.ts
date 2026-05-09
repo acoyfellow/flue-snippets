@@ -7,8 +7,8 @@
  *   2. The Lab origin is reachable and reports its catalog.
  */
 
-import { Plan, Gate, Act, Assert, Require } from 'gateproof';
 import { Effect } from 'effect';
+import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
 const AGENT_URL = process.env.AGENT_URL;
 if (!AGENT_URL) {
@@ -38,10 +38,7 @@ const plan = Plan.define({
       title: 'The Lab origin returns its catalog',
       gate: Gate.define({
         observe: { kind: 'http', url: `${LAB_URL}/lab/catalog`, pollInterval: 0 },
-        assert: [
-          Assert.httpResponse({ status: 200 }),
-          Assert.responseBodyIncludes('"version"'),
-        ],
+        assert: [Assert.httpResponse({ status: 200 }), Assert.responseBodyIncludes('"version"')],
         timeoutMs: 15_000,
       }),
     },

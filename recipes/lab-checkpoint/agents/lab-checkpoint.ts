@@ -3,8 +3,8 @@
 // Store receipts at the moments where an agent's state matters: start,
 // checkpoint, and stop.
 
-import type { FlueContext } from '@flue/sdk/client';
 import { createLabClient } from '@acoyfellow/lab';
+import type { FlueContext } from '@flue/sdk/client';
 
 export const triggers = { webhook: true };
 

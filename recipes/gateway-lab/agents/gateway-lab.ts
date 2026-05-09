@@ -8,8 +8,8 @@
 // (instead of pi-ai HTTP) so we can pass the gateway option without
 // needing AI Gateway perms on the deploy token.
 
-import type { FlueContext } from '@flue/sdk/client';
 import { createLabClient } from '@acoyfellow/lab';
+import type { FlueContext } from '@flue/sdk/client';
 
 interface Env {
   AI: { run: (model: string, args: unknown, opts?: unknown) => Promise<{ response: string }> };

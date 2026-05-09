@@ -8,8 +8,8 @@
  * Required env: AGENT_URL_BASE
  */
 
-import { Plan, Gate, Act, Assert, Require } from 'gateproof';
 import { Effect } from 'effect';
+import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
 const AGENT_URL_BASE = process.env.AGENT_URL_BASE;
 if (!AGENT_URL_BASE) {

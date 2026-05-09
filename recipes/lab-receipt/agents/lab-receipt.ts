@@ -7,8 +7,8 @@
 // Uses Workers AI (llama-3.1-8b) for the model call — cheap, idiomatic
 // for the Cloudflare target, no separate vendor key needed.
 
-import type { FlueContext } from '@flue/sdk/client';
 import { createLabClient } from '@acoyfellow/lab';
+import type { FlueContext } from '@flue/sdk/client';
 
 export const triggers = { webhook: true };
 

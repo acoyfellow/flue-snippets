@@ -15,7 +15,24 @@ Every snippet ships with an end-to-end test that **deploys a real
 ephemeral Worker, exercises it against live services, then tears the
 Worker down**. No mocks, no skips.
 
-## Run a snippet in 5 minutes
+```ts
+// examples/workers-ai/agents/workers-ai.ts — the smallest snippet in here
+import type { FlueContext } from '@flue/sdk/client';
+
+export const triggers = { webhook: true };
+
+export default async function ({ payload, env }: FlueContext) {
+  const out = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    prompt: payload.message ?? 'Say hi.',
+  });
+  return { answer: out.response };
+}
+```
+
+That's the whole agent. Each example folder ships an `agents/<name>.ts`
+like this, plus the deploy declaration and the assertion harness.
+
+## Run a snippet
 
 ```sh
 git clone https://github.com/acoyfellow/flue-snippets
@@ -30,9 +47,11 @@ export CLOUDFLARE_ACCOUNT_ID=...
 bash examples/workers-ai/run-e2e.sh
 ```
 
-A run takes ~30–60 seconds and costs about $0.0001 in Workers AI usage.
-A real Worker is deployed to your account, hit, then destroyed. If a
-gate fails, the cleanup still runs.
+Around 30–60 seconds after the script starts you'll see a deployed
+Worker URL, a real model answer in the test output, then the Worker
+gets destroyed. Cost: about $0.0001 in Workers AI usage. If you're new
+to Cloudflare, plan another few minutes for the API token + account ID
+the first time.
 
 ## Examples — one CF product per folder
 
@@ -50,6 +69,7 @@ binding. Read them in any order.
 | [queues](examples/queues) | [Queues](https://developers.cloudflare.com/queues/) |
 | [vectorize](examples/vectorize) | [Vectorize](https://developers.cloudflare.com/vectorize/) |
 | [browser-rendering](examples/browser-rendering) | [Browser Rendering](https://developers.cloudflare.com/browser-rendering/) |
+| [worker-loader](examples/worker-loader) | [Dynamic Workers (Worker Loader)](https://developers.cloudflare.com/dynamic-workers/) |
 
 ## Recipes — compositions
 
@@ -106,7 +126,8 @@ Required repo secrets:
 
 - `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read (plus
   any product-specific perms used by the matrix entries you enable —
-  R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering)
+  R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering /
+  Worker Loader)
 - `CF_ACCOUNT_ID_E2E` — Cloudflare account ID
 
 ## Local scripts
@@ -121,6 +142,17 @@ bun ex:r2           # examples/r2
 bun rx:lab-receipt  # recipes/lab-receipt
 # …
 ```
+
+## Contributing
+
+Issues and PRs welcome. The shape:
+
+- Each new example or recipe is its own folder under `examples/` or `recipes/`.
+- It must ship a `run-e2e.sh` that deploys, asserts, and destroys.
+- It must pass `bun lint` (Biome).
+- See an existing folder for the canonical layout.
+
+Security issues: see [`SECURITY.md`](SECURITY.md).
 
 ## License
 

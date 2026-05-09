@@ -7,12 +7,7 @@
  */
 
 import alchemy from 'alchemy';
-import {
-  Ai,
-  DurableObjectNamespace,
-  VectorizeIndex,
-  Worker,
-} from 'alchemy/cloudflare';
+import { Ai, DurableObjectNamespace, VectorizeIndex, Worker } from 'alchemy/cloudflare';
 
 const STAGE = process.env.STAGE ?? 'local';
 const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';

@@ -3,11 +3,7 @@
  */
 
 import alchemy from 'alchemy';
-import {
-  BrowserRendering,
-  DurableObjectNamespace,
-  Worker,
-} from 'alchemy/cloudflare';
+import { BrowserRendering, DurableObjectNamespace, Worker } from 'alchemy/cloudflare';
 
 const STAGE = process.env.STAGE ?? 'local';
 const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';
