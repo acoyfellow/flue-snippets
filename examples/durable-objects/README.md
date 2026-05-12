@@ -1,3 +1,9 @@
+---
+title: durable-objects
+tagline: "Each path segment is its own DO instance. Two POSTs to the same path share state; different paths don't."
+composes: [Durable Objects]
+---
+
 # durable-objects
 
 > Each path segment is its own DO instance. Two POSTs to `/.../alice`

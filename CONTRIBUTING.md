@@ -3,10 +3,10 @@
 Thanks for considering a contribution. Here's the shape this repo
 expects.
 
-## Adding a new example or recipe
+## Adding a new example, recipe, or template
 
-Each new folder under [`examples/`](examples) or [`recipes/`](recipes)
-must ship the same lifecycle:
+Each new folder under [`examples/`](examples), [`recipes/`](recipes),
+or [`templates/`](templates) must ship the same lifecycle:
 
 ```
 <folder>/
@@ -22,6 +22,12 @@ Recipes additionally have:
 ├── gateproof.plan.ts   # the assertion plan (1+ gates)
 └── probe.ts            # the actual fetch+JSON assertion (one per gate)
 ```
+
+Templates have the same shape as recipes, plus typically: a richer
+README aimed at people who will fork and ship (setup guide, production
+checklist), additional `lib/` helpers, and one or more `skills/*.md`
+prompt files. Templates are "fork me" code, where examples and recipes
+are "read me" code.
 
 ## Tests
 
@@ -44,8 +50,8 @@ After adding a folder, also append it to:
 
 - [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) — both the
   dropdown and the matrix.
-- [`package.json`](package.json) — a new `ex:<name>` or `rx:<name>`
-  script.
+- [`package.json`](package.json) — a new `ex:<name>`, `rx:<name>`, or
+  `tpl:<name>` script.
 - [`README.md`](README.md) — the relevant table.
 
 ## PR checklist

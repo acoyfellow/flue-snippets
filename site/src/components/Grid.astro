@@ -1,0 +1,44 @@
+---
+import Card from './Card.astro';
+import type { Snippet } from '~/lib/snippets';
+
+interface Props {
+  snippets: Snippet[];
+  githubPath: string;
+}
+
+const { snippets, githubPath } = Astro.props as Props;
+---
+
+<div class="grid">
+  {
+    snippets.map((s) => (
+      <Card
+        slug={s.slug}
+        title={s.title}
+        tagline={s.tagline}
+        composes={s.composes}
+        githubPath={githubPath}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,132 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  number: number;
+  title: string;
+  blurb: string;
+  filename: string;
+  code: string;
+  lang?: string;
+  githubPath: string;
+  runCommand: string;
+}
+
+const {
+  number,
+  title,
+  blurb,
+  filename,
+  code,
+  lang = 'ts',
+  githubPath,
+  runCommand,
+} = Astro.props as Props;
+---
+
+<section class="step">
+  <header>
+    <p class="step-num mono">Step {number}</p>
+    <h2>{title}</h2>
+  </header>
+
+  <p class="blurb">{blurb}</p>
+
+  <div class="code-wrap">
+    <div class="code-header mono">
+      <span>{filename}</span>
+      <a href={`https://github.com/acoyfellow/flue-snippets/blob/main/${githubPath}`}>
+        View on GitHub →
+      </a>
+    </div>
+    <Code code={code} lang={lang} theme="github-dark" />
+  </div>
+
+  <div class="run">
+    <span class="mono run-label">Run it:</span>
+    <code>{runCommand}</code>
+    <slot name="run-note" />
+  </div>
+
+  <slot />
+</section>
+
+<style>
+  .step {
+    margin: 3rem 0;
+    padding-top: 1rem;
+  }
+  .step + .step {
+    border-top: 1px solid var(--border);
+    padding-top: 3rem;
+  }
+  .step-num {
+    color: var(--cf-orange);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.25rem;
+  }
+  .step h2 {
+    margin: 0 0 1rem;
+    border: none;
+    padding: 0;
+  }
+  .blurb {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 65ch;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+  }
+  .code-wrap {
+    margin-bottom: 1.25rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+  }
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: #161b22; /* matches github-dark sidebar */
+    color: #8b949e;
+    font-size: 0.8rem;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .code-header a {
+    color: var(--cf-orange);
+    font-size: 0.8rem;
+  }
+  /* Shiki-generated <pre> — strip our generic global styling so the
+     github-dark inline styles render as intended. */
+  .code-wrap :global(pre.astro-code) {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  .run {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    flex-wrap: wrap;
+  }
+  .run-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .run code {
+    background: transparent;
+    padding: 0;
+    font-size: 0.95rem;
+  }
+</style>

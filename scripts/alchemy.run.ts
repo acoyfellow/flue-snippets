@@ -4,6 +4,8 @@ import {
   BrowserRendering,
   D1Database,
   DurableObjectNamespace,
+  EmailSender,
+  Hyperdrive,
   KVNamespace,
   Queue,
   R2Bucket,
@@ -53,6 +55,51 @@ const examples = {
     bindings: {
       DurableObjects: DurableObjectNamespace('DurableObjects', {
         className: 'DurableObjects',
+        sqlite: true,
+      }),
+    },
+  }),
+  'email-workers': async () => {
+    // EMAIL_TO is the only address the binding is allowed to deliver
+    // to. EMAIL_FROM must be a verified sender on a Cloudflare-onboarded
+    // domain (see https://dash.cloudflare.com/?to=/:account/email-service/sending).
+    // If unset, deploy still succeeds; the runtime returns E_MISSING_*.
+    const allowedTo = process.env.EMAIL_TO ? [process.env.EMAIL_TO] : [];
+    const allowedFrom = process.env.EMAIL_FROM ? [process.env.EMAIL_FROM] : [];
+    return {
+      app: 'flue-ex-email-workers',
+      worker: 'flue-ex-email',
+      bindings: {
+        AI: Ai(),
+        EMAIL: EmailSender({
+          allowedDestinationAddresses: allowedTo,
+          allowedSenderAddresses: allowedFrom,
+        }),
+        EMAIL_FROM: process.env.EMAIL_FROM ?? '',
+        EMAIL_TO: process.env.EMAIL_TO ?? '',
+        EmailWorkers: DurableObjectNamespace('EmailWorkers', {
+          className: 'EmailWorkers',
+          sqlite: true,
+        }),
+      },
+    };
+  },
+  hyperdrive: async () => ({
+    app: 'flue-ex-hyperdrive',
+    worker: 'flue-ex-hd',
+    bindings: {
+      // TODO: confirm `Hyperdrive` is the correct alchemy/cloudflare export
+      // name and that its option key is `origin` (vs. `connectionString` /
+      // `origin.connectionString`). The Cloudflare API field is
+      // `origin.connection_string`.
+      HYPERDRIVE: await Hyperdrive(`Hd-${STAGE}`, {
+        name: `flue-ex-hd-${STAGE}`,
+        origin:
+          process.env.HYPERDRIVE_CONNECTION_STRING ??
+          'postgres://placeholder:placeholder@localhost:5432/placeholder',
+      } as never),
+      Hyperdrive: DurableObjectNamespace('Hyperdrive', {
+        className: 'Hyperdrive',
         sqlite: true,
       }),
     },
@@ -127,6 +174,8 @@ const configMeta: Record<string, { app: string; worker: string }> = {
   'browser-rendering': { app: 'flue-ex-browser', worker: 'flue-ex-br' },
   d1: { app: 'flue-ex-d1', worker: 'flue-ex-d1' },
   'durable-objects': { app: 'flue-ex-do', worker: 'flue-ex-do' },
+  'email-workers': { app: 'flue-ex-email-workers', worker: 'flue-ex-email' },
+  hyperdrive: { app: 'flue-ex-hyperdrive', worker: 'flue-ex-hd' },
   kv: { app: 'flue-ex-kv', worker: 'flue-ex-kv' },
   queues: { app: 'flue-ex-queues', worker: 'flue-ex-q' },
   r2: { app: 'flue-ex-r2', worker: 'flue-ex-r2' },

@@ -1,3 +1,9 @@
+---
+title: ai-gateway
+tagline: 'Workers AI through a Cloudflare AI Gateway. Caching, observability, retries — for free.'
+composes: [AI Gateway, Workers AI]
+---
+
 # ai-gateway
 
 > Workers AI through a Cloudflare AI Gateway. Caching, observability,

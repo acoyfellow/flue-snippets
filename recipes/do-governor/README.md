@@ -1,3 +1,9 @@
+---
+title: do-governor
+tagline: 'Persistent run state that changes the next action when the agent loops.'
+composes: [Durable Objects]
+---
+
 # do-governor
 
 > Persistent run state that changes the next action when the agent loops.

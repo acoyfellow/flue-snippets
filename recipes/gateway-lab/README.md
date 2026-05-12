@@ -1,3 +1,9 @@
+---
+title: gateway-lab
+tagline: 'Two observability planes composed: gateway sees traffic, lab sees work.'
+composes: [AI Gateway, Workers AI, lab]
+---
+
 # gateway-lab
 
 > Two observability planes composed: gateway sees traffic, lab sees work.

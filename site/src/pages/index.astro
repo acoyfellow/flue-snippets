@@ -1,0 +1,282 @@
+---
+import '~/styles/global.css';
+import Hero from '~/components/Hero.astro';
+import WhyFlue from '~/components/WhyFlue.astro';
+import Step from '~/components/Step.astro';
+import Grid from '~/components/Grid.astro';
+import FAQ from '~/components/FAQ.astro';
+import { loadSnippets } from '~/lib/snippets';
+
+const examples = await loadSnippets('examples');
+const recipes = await loadSnippets('recipes');
+const templates = await loadSnippets('templates');
+
+// Step 1 — Workers AI in 19 lines
+const workersAiCode = `import type { FlueContext } from '@flue/sdk/client';
+
+interface Env {
+  AI: { run: (model: string, args: unknown) => Promise<{ response: string }> };
+}
+
+export const triggers = { webhook: true };
+
+export default async function ({ payload, env }: FlueContext & { env: Env }) {
+  const out = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    prompt: payload.message ?? 'Say hi.',
+  });
+  return { answer: out.response };
+}`;
+
+// Step 2 — Per-user persistent sessions via DOs
+const doSessionCode = `import type { FlueContext } from '@flue/sdk/client';
+
+export const triggers = { webhook: true };
+
+// POST /agents/do-session/<userId>
+//
+// Flue routes by the path segment after the agent name. Same userId =
+// same Durable Object = same conversation history. New userId = fresh agent.
+export default async function ({ init, payload }: FlueContext) {
+  const agent = await init({
+    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+  });
+  const session = await agent.session();
+
+  // Message history is durable, geo-pinned to the user, restart-safe.
+  // No Redis, no Postgres, no manual session store. Just DO + Flue.
+  const answer = await session.prompt(payload.message);
+  return { answer };
+}`;
+
+// Step 3 — Agent with a real filesystem (R2 via virtual sandbox)
+const virtualSandboxCode = `import type { FlueContext } from '@flue/sdk/client';
+import { getVirtualSandbox } from '@flue/sdk/cloudflare';
+
+interface Env {
+  KB: R2Bucket;
+}
+
+export const triggers = { webhook: true };
+
+export default async function ({ init, payload, env }: FlueContext & { env: Env }) {
+  // Mount the R2 bucket as a virtual filesystem at /workspace.
+  // The agent gets grep / find / read over real R2 objects, backed by
+  // Durable Object SQLite metadata + R2 blobs under the hood.
+  const sandbox = await getVirtualSandbox(env.KB);
+
+  const agent = await init({
+    sandbox,
+    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+  });
+  const session = await agent.session();
+
+  return await session.prompt(
+    \`Answer this using only what you can grep from /workspace/docs: \${payload.message}\`,
+  );
+}`;
+
+// Step 4 — Multi-Worker composition via MCP
+const mcpClientCode = `import { connectMcpServer, type FlueContext } from '@flue/sdk/client';
+
+interface Env {
+  // Full URL of the co-hosted MCP server's /mcp endpoint, injected by
+  // alchemy.run.ts from the server Worker's deployed URL.
+  MCP_URL: string;
+}
+
+export const triggers = { webhook: true };
+
+export default async function ({ init, payload, env }: FlueContext & { env: Env }) {
+  // Connect to a peer Worker that exposes tools via MCP. Streamable HTTP
+  // transport is the default; no headers needed here (server is authless).
+  const mcp = await connectMcpServer('reverser', { url: env.MCP_URL });
+
+  try {
+    const harness = await init({
+      model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+      tools: mcp.tools,
+    });
+    const session = await harness.session();
+    return await session.prompt(\`Reverse this: "\${payload.text}"\`);
+  } finally {
+    await mcp.close();
+  }
+}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Flue on Cloudflare — a demo</title>
+    <meta
+      name="description"
+      content="A guided tour of Flue (the agent harness framework) running on Cloudflare Workers. Four progressively richer examples, all real and deployable."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="container">
+      <Hero />
+      <WhyFlue />
+
+      <section class="tour-intro">
+        <h2>The tour</h2>
+        <p class="muted">
+          Four agents, smallest to largest. Each one adds exactly one new idea on top of the
+          last. All of them deploy to Cloudflare as real Workers.
+        </p>
+      </section>
+
+      <Step
+        number={1}
+        title="The simplest possible Flue agent"
+        blurb="Bind Workers AI, run a model, return the answer. This is the whole agent — 13 lines, no scaffolding. Flue's webhook trigger gives it an HTTP endpoint at /agents/workers-ai/<id>. The env.AI binding is the standard Cloudflare Workers AI binding, declared in alchemy.run.ts."
+        filename="examples/workers-ai/workers-ai.ts"
+        code={workersAiCode}
+        githubPath="examples/workers-ai/workers-ai.ts"
+        runCommand="bun ex:workers-ai"
+      >
+        <p class="aside">
+          The point: <strong>nothing</strong> here is Flue-specific except the
+          <code>triggers</code> export and the <code>FlueContext</code> type. The rest is
+          plain Cloudflare. Flue just gave you routing, an HTTP server, and a place for
+          everything that follows to grow into.
+        </p>
+      </Step>
+
+      <Step
+        number={2}
+        title="Per-user persistent sessions, no infra"
+        blurb="Same agent shape, plus a session() call. Two POSTs to /agents/do-session/alice land on the same Durable Object — message history persists across requests, restarts, and deploys. The same code for a different user (alice → bob) gives them their own isolated DO. This is the part that, on any other runtime, would mean Redis + a session middleware + bug reports about lost conversations."
+        filename="recipes/do-session/agents/do-session.ts"
+        code={doSessionCode}
+        githubPath="recipes/do-session/agents/do-session.ts"
+        runCommand="bun rx:do-session"
+      >
+        <p class="aside">
+          <strong>What CF gives you:</strong> Durable Objects with SQLite storage, geo-pinned
+          to the user.
+          <strong>What Flue gives you:</strong> the <code>session()</code> API that wires the
+          DO transparently — you never touch DO RPC, never write SQL, never think about
+          state.
+        </p>
+      </Step>
+
+      <Step
+        number={3}
+        title="An agent with a real filesystem"
+        blurb="getVirtualSandbox() mounts an R2 bucket as /workspace. The agent now has grep, find, read — bash-shaped tools the model can call mid-prompt. Drop your wiki, docs, support knowledge base into R2 once; the agent searches it from then on. No vector database, no embedding pipeline."
+        filename="recipes/virtual-sandbox/agents/virtual-sandbox.ts"
+        code={virtualSandboxCode}
+        githubPath="recipes/virtual-sandbox/agents/virtual-sandbox.ts"
+        runCommand="bun rx:virtual-sandbox"
+      >
+        <p class="aside">
+          This is the support-agent pattern from Flue's homepage, end-to-end. R2 is the
+          knowledge store; <code>just-bash</code> running inside the Worker is the agent's
+          shell; the model writes one prompt, gets the right answer back. For many internal
+          use cases this replaces a whole RAG stack.
+        </p>
+      </Step>
+
+      <Step
+        number={4}
+        title="Two Workers, one agent"
+        blurb="The same Flue agent connects to a peer Worker that exposes tools via MCP. Both Workers deploy together via alchemy; alchemy.run.ts injects the peer's URL into this one's env. The model sees the peer's tools as native — no hand-written tool wiring, no auth tokens passing through the model context."
+        filename="recipes/mcp-client/agents/mcp-client.ts"
+        code={mcpClientCode}
+        githubPath="recipes/mcp-client/agents/mcp-client.ts"
+        runCommand="bun rx:mcp-client"
+      >
+        <p class="aside">
+          The peer is just another Worker (see
+          <a href="https://github.com/acoyfellow/flue-snippets/blob/main/recipes/mcp-client/mcp-server.ts">
+            mcp-server.ts</a
+          > in the same recipe — uses <code>McpAgent</code> from the
+          <code>agents</code> SDK). This is how you expose internal APIs to an LLM without
+          giving the model raw credentials — the tool layer is the trust boundary.
+        </p>
+      </Step>
+
+      <section class="more">
+        <h2>The rest of the repo</h2>
+        <p class="muted">
+          The tour covered four agents. The repo has 23, organized in three folders. Each one
+          ships a <code>run-e2e.sh</code> that deploys to your CF account, asserts against
+          the live Worker, and tears it down.
+        </p>
+
+        <h3 class="more-h">Examples — one Cloudflare product per folder</h3>
+        <Grid snippets={examples} githubPath="examples" />
+
+        <h3 class="more-h">Recipes — compositions</h3>
+        <Grid snippets={recipes} githubPath="recipes" />
+
+        <h3 class="more-h">Templates — forkable starters</h3>
+        <Grid snippets={templates} githubPath="templates" />
+      </section>
+
+      <FAQ />
+
+      <footer class="footer muted">
+        <p>
+          <a href="https://github.com/acoyfellow/flue-snippets">Source</a>
+          <span> · </span>
+          <a href="https://flueframework.com">Flue</a>
+          <span> · </span>
+          <a href="https://developers.cloudflare.com/workers/">Cloudflare Workers</a>
+          <span> · </span>
+          <a href="https://alchemy.run">alchemy</a>
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
+
+<style>
+  .tour-intro {
+    margin-top: 3rem;
+  }
+  .tour-intro h2 {
+    margin-bottom: 0.75rem;
+  }
+  .aside {
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.25rem;
+    background: var(--card-bg);
+    border-left: 3px solid var(--cf-orange);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  .aside code {
+    background: var(--pill-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+  .more {
+    margin-top: 4rem;
+  }
+  .more-h {
+    font-size: 1.05rem;
+    margin: 2rem 0 1rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+</style>

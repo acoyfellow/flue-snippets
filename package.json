@@ -11,12 +11,19 @@
     "rx:lab-checkpoint": "bash recipes/lab-checkpoint/run-e2e.sh",
     "rx:ai-gateway": "bash recipes/ai-gateway/run-e2e.sh",
     "rx:gateway-lab": "bash recipes/gateway-lab/run-e2e.sh",
+    "rx:github-triage": "bash recipes/github-triage/run-e2e.sh",
+    "rx:chat-thinking": "bash recipes/chat-thinking/run-e2e.sh",
+    "rx:virtual-sandbox": "bash recipes/virtual-sandbox/run-e2e.sh",
+    "rx:mcp-client": "bash recipes/mcp-client/run-e2e.sh",
+    "tpl:github-app": "bash templates/github-app/run-e2e.sh",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "ex:ai-gateway": "bash scripts/run-example.sh ai-gateway",
     "ex:browser-rendering": "bash scripts/run-example.sh browser-rendering",
     "ex:d1": "bash scripts/run-example.sh d1",
     "ex:durable-objects": "bash scripts/run-example.sh durable-objects",
+    "ex:email-workers": "bash scripts/run-example.sh email-workers",
+    "ex:hyperdrive": "bash scripts/run-example.sh hyperdrive",
     "ex:kv": "bash scripts/run-example.sh kv",
     "ex:queues": "bash scripts/run-example.sh queues",
     "ex:r2": "bash scripts/run-example.sh r2",
@@ -36,7 +43,14 @@
   "dependencies": {
     "@acoyfellow/lab": "^0.0.3",
     "@cloudflare/puppeteer": "^1.1.0",
+    "@cloudflare/think": "latest",
+    "@octokit/core": "^6.1.2",
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "agents": "^0.12.3",
-    "gateproof": "latest"
+    "gateproof": "latest",
+    "postgres": "^3.4.4",
+    "valibot": "^1.0.0",
+    "workers-ai-provider": "^0.5.0",
+    "zod": "^3.23.0"
   }
 }

@@ -1,3 +1,9 @@
+---
+title: r2
+tagline: "Write an object, read it back. The agent's filesystem at the edge."
+composes: [R2]
+---
+
 # r2
 
 > Write an object, read it back. The agent's filesystem at the edge.

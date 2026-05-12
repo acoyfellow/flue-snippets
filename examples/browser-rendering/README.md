@@ -1,3 +1,9 @@
+---
+title: browser-rendering
+tagline: 'Real Chromium at the edge. Agent opens a page, returns the title.'
+composes: [Browser Rendering]
+---
+
 # browser-rendering
 
 > Real Chromium at the edge. Agent opens a page, returns the title.

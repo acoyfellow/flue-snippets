@@ -1,3 +1,9 @@
+---
+title: lab-receipt
+tagline: 'Run a prompt → get a permalink. The receipt is the artifact.'
+composes: [Workers AI, lab]
+---
+
 # lab-receipt
 
 > Run a prompt → get a permalink. The receipt is the artifact.

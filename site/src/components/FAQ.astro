@@ -1,0 +1,59 @@
+---
+interface QA {
+  q: string;
+  a: string;
+}
+
+const items: QA[] = [
+  {
+    q: 'Do these agents actually run on Cloudflare?',
+    a: 'Yes. Every snippet in the repo deploys a real Worker via alchemy, asserts against it, then destroys it. No mocks, no skips. CI does the same.',
+  },
+  {
+    q: 'Why no wrangler?',
+    a: 'alchemy owns the resource graph (Workers, bindings, vars — declared in TypeScript). Flue emits the entrypoint module. Wrangler would duplicate alchemy\u2019s job.',
+  },
+  {
+    q: 'Do I need any third-party API keys?',
+    a: 'No. Every example uses Workers AI as the model. No OpenAI / Anthropic key required. Free tier covers the whole matrix.',
+  },
+  {
+    q: 'Can I run just one?',
+    a: 'Yes. bun ex:<name> for examples, bun rx:<name> for recipes, bun tpl:<name> for templates. Each is independent.',
+  },
+  {
+    q: 'Where does Flue itself run?',
+    a: 'Anywhere TypeScript runs. The repo deploys to Cloudflare Workers because that\u2019s the focus of this demo, but Flue agents also build for Node, GitHub Actions, GitLab CI, and Daytona. The agent code is the same; only the deploy target changes.',
+  },
+];
+---
+
+<section>
+  <h2>FAQ</h2>
+  <dl class="faq">
+    {
+      items.map((item) => (
+        <Fragment>
+          <dt>{item.q}</dt>
+          <dd>{item.a}</dd>
+        </Fragment>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .faq {
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  dt {
+    font-weight: 600;
+    color: var(--text);
+  }
+  dd {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+  }
+</style>

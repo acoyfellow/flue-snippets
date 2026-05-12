@@ -6,6 +6,7 @@ name: e2e (real deploy)
 # Two tiers in the matrix:
 #   - examples/<product>/   — hello-world per CF product (simplest agent)
 #   - recipes/<name>/       — composition snippets (multiple primitives)
+#   - templates/<name>/     — forkable starters (production-shape)
 #
 # Cost per snippet per run ≈ $0.0001 (Workers AI llama scout).
 
@@ -21,6 +22,7 @@ on:
           - all
           - examples
           - recipes
+          - templates
           # examples
           - examples/workers-ai
           - examples/kv
@@ -32,6 +34,8 @@ on:
           - examples/vectorize
           - examples/browser-rendering
           - examples/worker-loader
+          - examples/hyperdrive
+          - examples/email-workers
           # recipes
           - recipes/lab-receipt
           - recipes/do-session
@@ -39,6 +43,12 @@ on:
           - recipes/lab-checkpoint
           - recipes/ai-gateway
           - recipes/gateway-lab
+          - recipes/github-triage
+          - recipes/chat-thinking
+          - recipes/virtual-sandbox
+          - recipes/mcp-client
+          # templates
+          - templates/github-app
 
 jobs:
   e2e:
@@ -63,6 +73,8 @@ jobs:
           - examples/vectorize
           - examples/browser-rendering
           - examples/worker-loader
+          - examples/hyperdrive
+          - examples/email-workers
           # recipes/
           - recipes/lab-receipt
           - recipes/do-session
@@ -70,6 +82,12 @@ jobs:
           - recipes/lab-checkpoint
           - recipes/ai-gateway
           - recipes/gateway-lab
+          - recipes/github-triage
+          - recipes/chat-thinking
+          - recipes/virtual-sandbox
+          - recipes/mcp-client
+          # templates/
+          - templates/github-app
 
     name: ${{ matrix.target }}
 
@@ -81,6 +99,7 @@ jobs:
             && github.event.inputs.target != matrix.target
             && !(github.event.inputs.target == 'examples' && startsWith(matrix.target, 'examples/'))
             && !(github.event.inputs.target == 'recipes' && startsWith(matrix.target, 'recipes/'))
+            && !(github.event.inputs.target == 'templates' && startsWith(matrix.target, 'templates/'))
           }}
         run: echo "skipped — input asked for ${{ github.event.inputs.target }}" && exit 0
 
@@ -102,4 +121,9 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
           STAGE: ci-${{ github.run_id }}
           ALCHEMY_CI_STATE_STORE_CHECK: 'false'
+          # examples/email-workers — real Email Service send. If these
+          # secrets aren't set, the agent still deploys and the assert
+          # passes via the "structured error" branch.
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: bash run-e2e.sh

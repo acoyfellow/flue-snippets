@@ -8,3 +8,6 @@ dist
 # alchemy
 .alchemy/
 .build/
+
+# wrangler (site/)
+.wrangler/

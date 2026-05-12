@@ -1,3 +1,9 @@
+---
+title: lab-checkpoint
+tagline: 'Receipts at meaningful moments: start, every Nth cycle, stop.'
+composes: [Durable Objects, lab]
+---
+
 # lab-checkpoint
 
 > Receipts at meaningful moments: start, every Nth cycle, stop.

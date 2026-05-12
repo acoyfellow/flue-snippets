@@ -1,3 +1,9 @@
+---
+title: worker-loader
+tagline: 'Run dynamic code in a child Worker isolate. AI-generated code, user uploads, sandboxed evals.'
+composes: [Dynamic Workers]
+---
+
 # worker-loader
 
 > Run dynamic code in a child Worker isolate. AI-generated code, user

@@ -1,0 +1,41 @@
+---
+const repoUrl = 'https://github.com/acoyfellow/flue-snippets';
+---
+
+<section class="hero">
+  <p class="kicker">A demo</p>
+  <h1>Flue on Cloudflare</h1>
+  <p class="lede">
+    You already know Cloudflare Workers. <a href="https://flueframework.com">Flue</a> is the
+    agent harness that sits on top — turning a Worker into a programmable, Claude-Code-shaped
+    agent runtime. This page walks through four working agents, smallest to largest, to show
+    how the two fit together.
+  </p>
+  <a class="badge" href={repoUrl}>View the source →</a>
+</section>
+
+<style>
+  .hero {
+    padding: 1rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .kicker {
+    color: var(--cf-orange);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.5rem;
+  }
+  .lede {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 60ch;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  .lede a {
+    color: var(--cf-orange);
+  }
+</style>

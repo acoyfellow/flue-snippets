@@ -1,3 +1,9 @@
+---
+title: queues
+tagline: 'Agent enqueues a message. Producer-only hello world.'
+composes: [Queues]
+---
+
 # queues
 
 > Agent enqueues a message. Producer-only hello world.

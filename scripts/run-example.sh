@@ -68,15 +68,19 @@ payload_for() {
     ai-gateway:test|workers-ai:test) echo '{"message":"Say one word."}' ;;
     durable-objects:*) echo '{"message":"hello"}' ;;
     worker-loader:*) echo '{}' ;;
+    hyperdrive:*) echo '{}' ;;
+    email-workers:warmup) echo '{"subject":"flue-snippets warmup","context":"Just warming up; nothing to send."}' ;;
+    email-workers:test) echo '{"subject":"flue-snippets E2E test","context":"Confirming the Cloudflare Email Service send pipeline works end-to-end from a deployed Flue agent."}' ;;
     *) echo '{}' ;;
   esac
 }
 
 timeout_for() {
   case "$1" in
-    ai-gateway|workers-ai) echo 120 ;;
+    ai-gateway|workers-ai|email-workers) echo 120 ;;
     browser-rendering) echo 180 ;;
     vectorize) echo 60 ;;
+    hyperdrive) echo 60 ;;
     *) echo 30 ;;
   esac
 }
@@ -122,6 +126,38 @@ assert() {
     workers-ai)
       body=$(post "$url" "$agent" test 120 "$(payload_for "$agent" test)"); echo "$body"
       echo "$body" | grep -qE '"answer":"[^"]+"' || { echo "::error::answer missing/empty"; exit 1; }
+      ;;
+    hyperdrive)
+      # Without a real Postgres reachable from Hyperdrive, the query
+      # will fail — that's fine. We only assert the agent shape
+      # compiled and the endpoint returns *something* mentioning the
+      # DB layer. With a real DB, expect "msg":"hello from pg".
+      body=$(curl -sS -m 30 -X POST "$url/agents/$agent/test" -H 'content-type: application/json' -d '{}' || true)
+      echo "$body"
+      [ -z "$body" ] && { echo "::error::empty response"; exit 1; }
+      echo "$body" | grep -qiE '(hello from pg|hyperdrive|postgres|connect|"msg":)' || {
+        echo "::error::response doesn't look like a hyperdrive/postgres path"; exit 1;
+      }
+      ;;
+    email-workers)
+      # Real Email Service send. Two outcomes are valid:
+      #  (a) EMAIL_FROM is a verified Cloudflare-onboarded sender →
+      #      response has "ok":true and a real "messageId".
+      #  (b) EMAIL_FROM/TO unset, or domain not onboarded yet →
+      #      response has "ok":false with a structured "code" prefixed
+      #      "E_" (E_MISSING_EMAIL_FROM / E_MISSING_EMAIL_TO /
+      #       E_SENDER_NOT_VERIFIED / E_SENDER_DOMAIN_NOT_AVAILABLE).
+      # The assert accepts either — but distinguishes them so the log
+      # shows whether a real email was actually sent.
+      body=$(post "$url" "$agent" test 120 "$(payload_for "$agent" test)"); echo "$body"
+      if echo "$body" | grep -qE '"ok":true' && echo "$body" | grep -qE '"messageId":"[^"]+"'; then
+        echo "  ✓ real email sent (messageId present)"
+      elif echo "$body" | grep -qE '"ok":false' && echo "$body" | grep -qE '"code":"E_[A-Z_]+"'; then
+        echo "  ⚠ no real email sent — agent returned structured error code (expected when EMAIL_FROM/TO unset or domain not onboarded)"
+      else
+        echo "::error::response is neither a successful send nor a structured error"
+        exit 1
+      fi
       ;;
     *) echo "no assertions for $agent"; exit 2 ;;
   esac

@@ -1,3 +1,9 @@
+---
+title: workers-ai
+tagline: 'The simplest CF Flue agent: call a model, return the answer.'
+composes: [Workers AI]
+---
+
 # workers-ai
 
 > The simplest CF Flue agent: call a model, return the answer.

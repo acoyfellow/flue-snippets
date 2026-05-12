@@ -1,3 +1,9 @@
+---
+title: d1
+tagline: 'SQLite at the edge. INSERT a row, SELECT it back.'
+composes: [D1]
+---
+
 # d1
 
 > SQLite at the edge. INSERT a row, SELECT it back.

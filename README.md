@@ -1,22 +1,40 @@
 # flue-snippets
 
 Real, runnable [Flue](https://flueframework.com) agents on
-[Cloudflare](https://developers.cloudflare.com/workers/). Two folders,
-one purpose: **show what Flue + Cloudflare looks like for real.**
+[Cloudflare](https://developers.cloudflare.com/workers/). Every snippet
+deploys a real ephemeral Worker, exercises it against live services,
+then tears it down. No mocks.
 
 [![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml)
 
+> Demo site: [flue.coey.dev](https://flue.coey.dev) — a guided tour of Flue on Cloudflare, auto-generated from this repo.
+
 ```text
-examples/   one CF product, smallest Flue agent that uses it
-recipes/    compositions — multiple primitives working together
+examples/   one CF product per folder — smallest Flue agent that uses it
+recipes/    compositions — Flue + multiple primitives + receipts/proofs
+templates/  forkable starters — production-shape, fork-and-ship
 ```
 
-Every snippet ships with an end-to-end test that **deploys a real
-ephemeral Worker, exercises it against live services, then tears the
-Worker down**. No mocks, no skips.
+## Run one
+
+```sh
+git clone https://github.com/acoyfellow/flue-snippets
+cd flue-snippets
+bun install
+
+# https://dash.cloudflare.com/profile/api-tokens — Workers Scripts:Edit + Workers AI:Read
+export CLOUDFLARE_API_TOKEN=...
+export CLOUDFLARE_ACCOUNT_ID=...
+
+bun ex:workers-ai
+```
+
+~60 seconds: deploy, run, assert, destroy. ~$0.0001 in Workers AI usage.
+
+The agent it just ran:
 
 ```ts
-// examples/workers-ai/agents/workers-ai.ts — the smallest snippet in here
+// examples/workers-ai/workers-ai.ts
 import type { FlueContext } from '@flue/sdk/client';
 
 export const triggers = { webhook: true };
@@ -29,34 +47,9 @@ export default async function ({ payload, env }: FlueContext) {
 }
 ```
 
-That's the whole agent. Each example folder ships an `agents/<name>.ts`
-like this, plus the deploy declaration and the assertion harness.
+## Examples
 
-## Run a snippet
-
-```sh
-git clone https://github.com/acoyfellow/flue-snippets
-cd flue-snippets
-bun install
-
-# Create a CF API token at https://dash.cloudflare.com/profile/api-tokens
-# (Workers Scripts:Edit + Workers AI:Read are the minimum)
-export CLOUDFLARE_API_TOKEN=...
-export CLOUDFLARE_ACCOUNT_ID=...
-
-bash examples/workers-ai/run-e2e.sh
-```
-
-Around 30–60 seconds after the script starts you'll see a deployed
-Worker URL, a real model answer in the test output, then the Worker
-gets destroyed. Cost: about $0.0001 in Workers AI usage. If you're new
-to Cloudflare, plan another few minutes for the API token + account ID
-the first time.
-
-## Examples — one CF product per folder
-
-Each folder is the smallest Flue agent that exercises one Cloudflare
-binding. Read them in any order.
+One Flue agent, one Cloudflare binding.
 
 | Example | Cloudflare product |
 |---|---|
@@ -69,15 +62,15 @@ binding. Read them in any order.
 | [queues](examples/queues) | [Queues](https://developers.cloudflare.com/queues/) |
 | [vectorize](examples/vectorize) | [Vectorize](https://developers.cloudflare.com/vectorize/) |
 | [browser-rendering](examples/browser-rendering) | [Browser Rendering](https://developers.cloudflare.com/browser-rendering/) |
-| [worker-loader](examples/worker-loader) | [Dynamic Workers (Worker Loader)](https://developers.cloudflare.com/dynamic-workers/) |
+| [worker-loader](examples/worker-loader) | [Dynamic Workers](https://developers.cloudflare.com/dynamic-workers/) |
+| [hyperdrive](examples/hyperdrive) | [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) |
+| [email-workers](examples/email-workers) | [Email Service](https://developers.cloudflare.com/email-service/) |
 
-## Recipes — compositions
+## Recipes
 
-Each recipe combines Flue with a Cloudflare primitive **and** an
-open-source receipt or proof library
-([`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab) or
-[`gateproof`](https://gateproof.dev)) to show what production-shape
-agents look like.
+Flue + a Cloudflare primitive + an open-source receipt/proof layer
+([`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab),
+[`gateproof`](https://gateproof.dev)).
 
 | Recipe | Composes |
 |---|---|
@@ -87,72 +80,60 @@ agents look like.
 | [lab-checkpoint](recipes/lab-checkpoint) | Durable Objects + lab |
 | [ai-gateway](recipes/ai-gateway) | AI Gateway + Workers AI |
 | [gateway-lab](recipes/gateway-lab) | AI Gateway + Workers AI + lab |
+| [github-triage](recipes/github-triage) | Workers AI + Flue skills (structured output) |
+| [chat-thinking](recipes/chat-thinking) | Flue + [Cloudflare Think](https://developers.cloudflare.com/agents/api-reference/think/) (DO chat agent) |
+| [virtual-sandbox](recipes/virtual-sandbox) | Flue virtual sandbox + R2 |
+| [mcp-client](recipes/mcp-client) | Flue + co-hosted MCP server (Workers) |
 
-Each recipe README is a one-page reference card: what it composes, what
-it proves, how to run it.
-
-## End-to-end flow
-
-Every `run-e2e.sh` orchestrates the same five-step lifecycle:
-
-1. **`flue build --target cloudflare`** produces `_entry.ts` — a Worker
-   module plus a Durable Object class per agent.
-2. **`alchemy deploy`** ([`alchemy.run.ts`](examples/workers-ai/alchemy.run.ts))
-   declares the Worker, bindings, and vars; bundles the entry; prints
-   the URL.
-3. **Warmup** polls `/health` then POSTs `/agents/<name>/warmup` with
-   retries — absorbing the route-propagation race AND the Workers AI
-   cold start (which can be 30–60s on a fresh isolate).
-4. **Assert** — examples do an inline curl-and-grep; recipes run a
-   `gateproof.plan.ts` with a dedicated `probe.ts` (pure `fetch` + JSON,
-   no bash heredocs, no Python parsers).
-5. **`alchemy destroy`** tears the Worker, bindings, and state down.
-   Trapped on `EXIT INT TERM` so cleanup runs even if a gate fails.
-
-Wrangler is not invoked anywhere in this repo —
-[alchemy](https://alchemy.run) is the system of record for the resource
-graph; Flue produces the entrypoint module that alchemy bundles.
-
-## CI
-
-[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) is
-`workflow_dispatch`-only. From the
-[Actions tab](https://github.com/acoyfellow/flue-snippets/actions),
-choose `all`, `examples`, `recipes`, or any single target from the
-dropdown. Matrix is `max-parallel: 1` because Workers AI rate-limits
-hard under parallel load on a personal account.
-
-Required repo secrets:
-
-- `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read (plus
-  any product-specific perms used by the matrix entries you enable —
-  R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering /
-  Worker Loader)
-- `CF_ACCOUNT_ID_E2E` — Cloudflare account ID
+Each recipe's README explains what it composes, what it proves, how to run it.
 
 ## Local scripts
 
-Equivalent to running each `run-e2e.sh` directly:
-
 ```sh
-bun ex:workers-ai   # examples/workers-ai
-bun ex:kv           # examples/kv
-bun ex:r2           # examples/r2
-# … see package.json for the full list
-bun rx:lab-receipt  # recipes/lab-receipt
-# …
+bun ex:<name>    # examples/<name>/run-e2e.sh
+bun rx:<name>    # recipes/<name>/run-e2e.sh
+bun tpl:<name>   # templates/<name>/run-e2e.sh
 ```
+
+See [`package.json`](package.json) for the full list.
+
+## End-to-end flow
+
+Every `run-e2e.sh` does the same five things:
+
+1. `flue build --target cloudflare` — emits the Worker entrypoint + per-agent DO classes.
+2. `alchemy deploy` — declares the Worker, bindings, and vars; bundles; prints the URL.
+3. Warmup — polls `/health`, then POSTs `/agents/<name>/warmup` with retries (absorbs route propagation + Workers AI cold start).
+4. Assert — examples curl-and-grep; recipes run a `gateproof.plan.ts` with a `probe.ts` (pure `fetch` + JSON).
+5. `alchemy destroy` — tears the Worker, bindings, and state down. Trapped on `EXIT INT TERM`.
+
+Wrangler is not invoked. [alchemy](https://alchemy.run) owns the resource graph; Flue emits the entrypoint module that alchemy bundles.
+
+## CI
+
+[`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) is `workflow_dispatch`-only. From the [Actions tab](https://github.com/acoyfellow/flue-snippets/actions), pick `all`, `examples`, `recipes`, `templates`, or a single target. `max-parallel: 1` because Workers AI rate-limits hard under parallel load on a personal account.
+
+Secrets:
+
+- `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read, plus permissions for any product-specific targets you enable (R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering / Worker Loader / Hyperdrive / Email).
+- `CF_ACCOUNT_ID_E2E` — Cloudflare account ID.
+- `EMAIL_FROM`, `EMAIL_TO` — only needed if you enable `examples/email-workers`. Without them, the send call returns a structured error and the assertion still passes (it accepts either a real send or a structured `E_*` code).
+
+## FAQ
+
+**Does it really deploy?** Yes. Each `run-e2e.sh` calls `alchemy deploy`, hits a real `*.workers.dev` URL, then `alchemy destroy`s it. CI does the same. There is no mock layer.
+
+**What does it cost?** ~$0.0001 per snippet per run (Workers AI llama-scout call). Free tier is plenty for the entire matrix.
+
+**Why no wrangler?** [alchemy](https://alchemy.run) is the resource graph (Workers + bindings + vars, declared in TypeScript, with destroy). Flue is the agent runtime (emits the Worker entrypoint module). The two compose cleanly; wrangler would duplicate alchemy's job.
+
+**Why does CI run sequentially?** Workers AI rate-limits aggressively on personal accounts under parallel load. `max-parallel: 1` keeps the matrix green.
+
+**Can I run only one?** Yes — every example, recipe, and template is independent. `bun ex:<name>`, `bun rx:<name>`, or `bun tpl:<name>`. Or trigger a single target from the Actions dropdown.
 
 ## Contributing
 
-Issues and PRs welcome. The shape:
-
-- Each new example or recipe is its own folder under `examples/` or `recipes/`.
-- It must ship a `run-e2e.sh` that deploys, asserts, and destroys.
-- It must pass `bun lint` (Biome).
-- See an existing folder for the canonical layout.
-
-Security issues: see [`SECURITY.md`](SECURITY.md).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Security issues: [`SECURITY.md`](SECURITY.md).
 
 ## License
 

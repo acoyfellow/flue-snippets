@@ -1,3 +1,9 @@
+---
+title: do-session
+tagline: 'One agent per user, persisted across requests, geo-pinned to the user.'
+composes: [Durable Objects]
+---
+
 # do-session
 
 > One agent per user, persisted across requests, geo-pinned to the user.

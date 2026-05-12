@@ -1,3 +1,9 @@
+---
+title: ai-gateway
+tagline: 'Caching, observability, retry, rate limiting — for free, per prompt.'
+composes: [AI Gateway, Workers AI]
+---
+
 # ai-gateway
 
 > Caching, observability, retry, rate limiting — for free, per prompt.

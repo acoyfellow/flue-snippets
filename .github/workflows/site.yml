@@ -1,0 +1,58 @@
+name: site (deploy showcase)
+
+# Deploys site/ to flue.coey.dev on Cloudflare Workers via alchemy.
+#
+# Triggers:
+#   - push to main when site/, snippet READMEs, or root README change
+#     (the site auto-renders content from those READMEs)
+#   - workflow_dispatch — manual button in the Actions tab
+#
+# Requires the same secrets as e2e.yml:
+#   - CF_API_TOKEN_E2E (Workers Scripts:Edit + Zone:Edit for coey.dev)
+#   - CF_ACCOUNT_ID_E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'examples/*/README.md'
+      - 'recipes/*/README.md'
+      - 'templates/*/README.md'
+      - 'README.md'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+# Cancel in-flight deploys when a newer push lands.
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install site deps
+        working-directory: site
+        run: bun install --frozen-lockfile
+
+      - name: Build + deploy
+        working-directory: site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_E2E }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID_E2E }}
+          STAGE: prod
+          ALCHEMY_CI_STATE_STORE_CHECK: 'false'
+        run: bun run deploy
+
+      - name: Summary
+        run: |
+          echo "::notice::Deployed to https://flue.coey.dev"

@@ -1,3 +1,9 @@
+---
+title: vectorize
+tagline: 'Embed text via Workers AI, store + query in Vectorize. One upsert, one query, top match.'
+composes: [Vectorize, Workers AI]
+---
+
 # vectorize
 
 > Embed text via Workers AI, store + query in Vectorize. One upsert,
