@@ -10,18 +10,18 @@ composes: [Workers AI, Durable Objects, octokit, valibot]
 
 This is a **template**, not a snippet. Fork the folder, set a few
 secrets, and you have a working GitHub App that triages issues and
-flags PR risk with structured output. Production-shape — signature
+flags PR risk with structured output. Production-shape, signature
 verification, multi-event routing, audit-ready receipts via Flue +
 Cloudflare's Workers AI.
 
 ## What you get
 
 - ✅ HMAC-SHA256 webhook signature verification (constant-time compare)
-- ✅ Multi-event routing — `issues.opened` and `pull_request.opened`
+- ✅ Multi-event routing, `issues.opened` and `pull_request.opened`
 - ✅ Structured-output triage via Flue skills + `valibot` schemas
   (severity / reproducible / summary)
 - ✅ Comment posted back to the issue with the triage result
-- ✅ Workers AI as the model — free-tier friendly, no third-party keys
+- ✅ Workers AI as the model, free-tier friendly, no third-party keys
 - ✅ Durable Object per webhook delivery (geo-pinned, restart-safe)
 - ✅ Gateproof E2E covering rejected-unsigned, rejected-wrong-sig, accepted-signed
 
@@ -55,11 +55,11 @@ npx alchemy deploy --stage prod
 
 ## Composes
 
-- **[Flue](https://flueframework.com)** — agent shape, skills, structured output
-- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6`
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — Flue auto-creates one per webhook delivery
-- **[`@octokit/core`](https://github.com/octokit/core.js)** — tiny GitHub REST client
-- **[`valibot`](https://valibot.dev)** — runtime schema for structured output
+- **[Flue](https://flueframework.com)**, agent shape, skills, structured output
+- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/moonshotai/kimi-k2.6`
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, Flue auto-creates one per webhook delivery
+- **[`@octokit/core`](https://github.com/octokit/core.js)**, tiny GitHub REST client
+- **[`valibot`](https://valibot.dev)**, runtime schema for structured output
 
 ## What's in here
 
@@ -94,7 +94,7 @@ templates/github-app/
    `session.skill('<your-skill>', { args, schema })`.
 
 **Use a different model**: change the `model:` string in `agents/webhook.ts`.
-Any model supported by Flue's runtime works — Workers AI, OpenRouter, etc.
+Any model supported by Flue's runtime works, Workers AI, OpenRouter, etc.
 
 **Skip the comment post**: set `GITHUB_TOKEN` to empty. The webhook
 still triages, but the result only goes back in the HTTP response.
@@ -105,7 +105,7 @@ still triages, but the result only goes back in the HTTP response.
 - [ ] Use a GitHub App installation token (short-lived) instead of a PAT
 - [ ] Add an [AI Gateway](https://developers.cloudflare.com/ai-gateway/)
   binding for cost tracking and rate limiting (see `examples/ai-gateway/`)
-- [ ] Add structured logging — push every `handled` result to D1 or
+- [ ] Add structured logging, push every `handled` result to D1 or
   Analytics Engine for a triage audit log
 - [ ] Add [`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab)
   receipts so each delivery is replay-inspectable (see `recipes/lab-receipt`)

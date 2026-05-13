@@ -1,10 +1,10 @@
 /**
- * probe.ts — three modes asserting webhook signature handling.
+ * probe.ts, three modes asserting webhook signature handling.
  *
  * Modes (selected by argv[2]):
- *   unsigned         — POST with no x-hub-signature-256 header → expect 401
- *   wrong-signature  — POST with sha256=deadbeef…             → expect 401
- *   signed           — POST with correct HMAC                  → expect 200 + handled:issues.opened
+ *   unsigned        , POST with no x-hub-signature-256 header → expect 401
+ *   wrong-signature , POST with sha256=deadbeef…             → expect 401
+ *   signed          , POST with correct HMAC                  → expect 200 + handled:issues.opened
  *
  * The "header" is forwarded inside payload._headers because Flue's
  * FlueContext doesn't currently surface the raw request headers in a

@@ -9,8 +9,8 @@
  *   2. The Lab origin is reachable and reports its catalog.
  *
  * Required env:
- *   AGENT_URL  — full POST target
- *   LAB_URL    — Lab origin (defaults https://lab.coey.dev)
+ *   AGENT_URL , full POST target
+ *   LAB_URL   , Lab origin (defaults https://lab.coey.dev)
  */
 
 import { Effect } from 'effect';

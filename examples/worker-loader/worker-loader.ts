@@ -1,8 +1,8 @@
-// examples/worker-loader — load a child Worker at request time.
+// examples/worker-loader, load a child Worker at request time.
 //
 // `env.LOADER.get(id, factory)` returns a stub for a child Worker
 // running arbitrary code in its own isolate. Each child has its own
-// bindings and globals — none of the parent's. The pattern enables
+// bindings and globals, none of the parent's. The pattern enables
 // "AI agent code mode" or running user-supplied code at the edge.
 //
 // This example takes child code from the request body, loads it, and

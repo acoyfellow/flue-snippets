@@ -18,6 +18,6 @@ isolate. The factory describes what code to load and which bindings
 the child sees (none, by default). The parent calls `child.fetch(req)`
 and forwards the response.
 
-For a stateful variant — child code as a Durable Object with its own
-SQLite storage — see Cloudflare's
+For a stateful variant, child code as a Durable Object with its own
+SQLite storage, see Cloudflare's
 [Durable Object Facets](https://developers.cloudflare.com/dynamic-workers/usage/durable-object-facets/).

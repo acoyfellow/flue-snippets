@@ -1,4 +1,4 @@
-// examples/workers-ai — call Workers AI from a Flue agent.
+// examples/workers-ai, call Workers AI from a Flue agent.
 //
 // The simplest possible CF-deployed Flue agent: bind Workers AI, run a
 // model, return the answer.

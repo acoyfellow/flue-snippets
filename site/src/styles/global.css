@@ -1,10 +1,52 @@
-/* flue-snippets showcase — Cloudflare-adjacent clean light theme */
+/* flue-snippets showcase, tokens first, then base + components. */
+
+/* Self-hosted fonts (latin subset), woff2 only, font-display: swap. */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-700.woff2') format('woff2');
+}
 
 :root {
-  --cf-orange: #f6821f;
+  /* Colors */
+  --cf-orange: #f6821f;       /* borders, accents, icons, large text only */
+  --cf-orange-text: #cc5500;  /* WCAG AA on --bg for body links/inline text */
+
   --bg: #fafafa;
   --card-bg: #ffffff;
   --border: #e5e5e5;
+  --border-strong: #d4d4d4;
   --text: #1a1a1a;
   --muted: #555555;
   --code-bg: #0f0f0f;
@@ -12,11 +54,37 @@
   --pill-bg: #f0f0f0;
   --pill-fg: #1a1a1a;
 
+  /* Type scale */
+  --text-xs: 0.78rem;
+  --text-sm: 0.9rem;
+  --text-md: 1rem;
+  --text-lg: 1.1rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2.5rem;
+
+  /* Spacing (power-of-2-ish) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+
+  /* Fonts */
   --font-body:
     'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   --font-mono:
     'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
+
+/* Reset + base */
 
 * {
   box-sizing: border-box;
@@ -39,7 +107,7 @@ body {
 }
 
 a {
-  color: var(--cf-orange);
+  color: var(--cf-orange-text);
   text-decoration: none;
 }
 
@@ -47,36 +115,66 @@ a:hover {
   text-decoration: underline;
 }
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 2rem;
+a:focus-visible {
+  outline: 2px solid var(--cf-orange);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+/* Skip link, visible only when focused via keyboard */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  background: var(--text);
+  color: var(--bg);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 0.15s;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  text-decoration: none;
+}
+
+/* Headings */
 h1,
 h2,
 h3,
 h4 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
   letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: var(--text-2xl);
   line-height: 1.1;
 }
 
 h2 {
-  font-size: 1.5rem;
-  margin-top: 3rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.5rem;
+  font-size: var(--text-xl);
+  margin-top: var(--space-7);
+}
+
+h3 {
+  font-size: var(--text-lg);
+  margin-top: var(--space-5);
 }
 
 p {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
 }
 
+/* Code */
 code,
 pre,
 .mono {
@@ -86,12 +184,15 @@ pre,
 pre {
   background: var(--code-bg);
   color: var(--code-fg);
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-size: 0.9rem;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   line-height: 1.5;
-  margin: 0 0 1.5rem;
+  margin: 0 0 var(--space-5);
+  /* Allow long lines to wrap rather than horizontally scrolling */
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 2;
 }
 
 pre code {
@@ -103,10 +204,11 @@ pre code {
 :not(pre) > code {
   background: var(--pill-bg);
   padding: 0.1em 0.35em;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.9em;
 }
 
+/* Utility */
 .muted {
   color: var(--muted);
 }
@@ -115,9 +217,9 @@ pre code {
   display: inline-block;
   padding: 0.2rem 0.6rem;
   border: 1px solid var(--cf-orange);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--cf-orange);
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-family: var(--font-mono);
 }
 
@@ -127,38 +229,26 @@ pre code {
   text-decoration: none;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0 0 1.5rem;
-  font-size: 0.95rem;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-}
-
-th {
-  font-weight: 600;
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-td.mono {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-}
-
+/* Mobile */
 @media (max-width: 640px) {
   .container {
-    padding: 1.25rem;
+    padding: var(--space-4);
   }
   h1 {
     font-size: 2rem;
+  }
+  pre {
+    font-size: var(--text-xs);
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

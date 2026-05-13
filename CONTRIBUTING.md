@@ -48,11 +48,11 @@ Biome config is in [`biome.json`](biome.json).
 
 After adding a folder, also append it to:
 
-- [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) — both the
+- [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml), both the
   dropdown and the matrix.
-- [`package.json`](package.json) — a new `ex:<name>`, `rx:<name>`, or
+- [`package.json`](package.json), a new `ex:<name>`, `rx:<name>`, or
   `tpl:<name>` script.
-- [`README.md`](README.md) — the relevant table.
+- [`README.md`](README.md), the relevant table.
 
 ## PR checklist
 

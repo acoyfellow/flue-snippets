@@ -2,9 +2,9 @@
  * gateproof plan for lab-checkpoint.
  *
  * Three gates:
- *   1. First call (cycle becomes 1) checkpoints — response has a
+ *   1. First call (cycle becomes 1) checkpoints, response has a
  *      `receipt` URL that lab actually serves. (probe-first.ts)
- *   2. Mid-cycle call (cycle=1 with every=3) does NOT checkpoint —
+ *   2. Mid-cycle call (cycle=1 with every=3) does NOT checkpoint , 
  *      response lacks a `receipt` field. (probe-mid.ts)
  *   3. The Lab origin is reachable and reports its catalog.
  */

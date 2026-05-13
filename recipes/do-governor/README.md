@@ -10,9 +10,9 @@ composes: [Durable Objects]
 
 ## Composes
 
-- **[Flue](https://flueframework.com)** — agent shape
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the run governor state
-- **`govern()`** — a tiny pure-function policy that turns "5 of the same `lastAction` in a row" into `reanchor` then `ask-human`
+- **[Flue](https://flueframework.com)**, agent shape
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, per-user DO holds the run governor state
+- **`govern()`**, a tiny pure-function policy that turns "5 of the same `lastAction` in a row" into `reanchor` then `ask-human`
 
 ## What it proves
 

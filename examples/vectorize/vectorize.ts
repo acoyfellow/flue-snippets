@@ -1,4 +1,4 @@
-// examples/vectorize — embed text via Workers AI, upsert into Vectorize,
+// examples/vectorize, embed text via Workers AI, upsert into Vectorize,
 // query top-k. The smallest possible "vector search at the edge."
 
 import type { FlueContext } from '@flue/sdk/client';

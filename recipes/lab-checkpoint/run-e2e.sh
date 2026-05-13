@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for the lab-checkpoint snippet.
+# run-e2e.sh, full E2E for the lab-checkpoint snippet.
 
 set -euo pipefail
 cd "$(dirname "$0")"

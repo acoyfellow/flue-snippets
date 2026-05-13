@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full end-to-end harness for the lab-receipt snippet.
+# run-e2e.sh, full end-to-end harness for the lab-receipt snippet.
 #
 # 1. flue build       → .build/dist/_entry.ts
 # 2. alchemy deploy   → declares Worker + DO + vars, prints URL

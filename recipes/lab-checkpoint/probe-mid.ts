@@ -1,10 +1,10 @@
 /**
- * probe-mid.ts — call the lab-checkpoint agent at a non-checkpoint
+ * probe-mid.ts, call the lab-checkpoint agent at a non-checkpoint
  * cycle (cycle=1 with every=3 → next cycle becomes 2, NOT a checkpoint
  * boundary) and assert the response has NO `receipt` field.
  *
  * Required env:
- *   AGENT_URL — full POST target
+ *   AGENT_URL, full POST target
  *
  * Exits 0 only if the response has a result with no receipt field.
  */

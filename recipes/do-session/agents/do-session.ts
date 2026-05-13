@@ -1,7 +1,7 @@
-// batch-b/08-do-session — Flue + Durable Object sessions
+// batch-b/08-do-session, Flue + Durable Object sessions
 //
 // One agent per user, persisted across requests, surviving restarts and
-// geo-pinning to the user's location. Zero session-store code — Flue
+// geo-pinning to the user's location. Zero session-store code, Flue
 // handles it via DOs automatically when deployed to Cloudflare.
 //
 // Uses Workers AI (kimi-k2.6) so this snippet is free-tier-friendly

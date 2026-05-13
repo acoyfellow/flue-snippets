@@ -7,12 +7,12 @@ then tears it down. No mocks.
 
 [![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml)
 
-> Demo site: [flue.coey.dev](https://flue.coey.dev) — a guided tour of Flue on Cloudflare, auto-generated from this repo.
+> Demo site: [flue.coey.dev](https://flue.coey.dev), a guided tour of Flue on Cloudflare, auto-generated from this repo.
 
 ```text
-examples/   one CF product per folder — smallest Flue agent that uses it
-recipes/    compositions — Flue + multiple primitives + receipts/proofs
-templates/  forkable starters — production-shape, fork-and-ship
+examples/   one CF product per folder, smallest Flue agent that uses it
+recipes/    compositions, Flue + multiple primitives + receipts/proofs
+templates/  forkable starters, production-shape, fork-and-ship
 ```
 
 ## Run one
@@ -20,13 +20,13 @@ templates/  forkable starters — production-shape, fork-and-ship
 ```sh
 git clone https://github.com/acoyfellow/flue-snippets
 cd flue-snippets
-bun install
+bun install         # or: npm install
 
-# https://dash.cloudflare.com/profile/api-tokens — Workers Scripts:Edit + Workers AI:Read
+# https://dash.cloudflare.com/profile/api-tokens, Workers Scripts:Edit + Workers AI:Read
 export CLOUDFLARE_API_TOKEN=...
 export CLOUDFLARE_ACCOUNT_ID=...
 
-bun ex:workers-ai
+bun ex:workers-ai   # or: npm run ex:workers-ai
 ```
 
 ~60 seconds: deploy, run, assert, destroy. ~$0.0001 in Workers AI usage.
@@ -101,11 +101,11 @@ See [`package.json`](package.json) for the full list.
 
 Every `run-e2e.sh` does the same five things:
 
-1. `flue build --target cloudflare` — emits the Worker entrypoint + per-agent DO classes.
-2. `alchemy deploy` — declares the Worker, bindings, and vars; bundles; prints the URL.
-3. Warmup — polls `/health`, then POSTs `/agents/<name>/warmup` with retries (absorbs route propagation + Workers AI cold start).
-4. Assert — examples curl-and-grep; recipes run a `gateproof.plan.ts` with a `probe.ts` (pure `fetch` + JSON).
-5. `alchemy destroy` — tears the Worker, bindings, and state down. Trapped on `EXIT INT TERM`.
+1. `flue build --target cloudflare`, emits the Worker entrypoint + per-agent DO classes.
+2. `alchemy deploy`, declares the Worker, bindings, and vars; bundles; prints the URL.
+3. Warmup, polls `/health`, then POSTs `/agents/<name>/warmup` with retries (absorbs route propagation + Workers AI cold start).
+4. Assert, examples curl-and-grep; recipes run a `gateproof.plan.ts` with a `probe.ts` (pure `fetch` + JSON).
+5. `alchemy destroy`, tears the Worker, bindings, and state down. Trapped on `EXIT INT TERM`.
 
 Wrangler is not invoked. [alchemy](https://alchemy.run) owns the resource graph; Flue emits the entrypoint module that alchemy bundles.
 
@@ -115,9 +115,9 @@ Wrangler is not invoked. [alchemy](https://alchemy.run) owns the resource graph;
 
 Secrets:
 
-- `CF_API_TOKEN_E2E` — Workers Scripts:Edit + Workers AI:Read, plus permissions for any product-specific targets you enable (R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering / Worker Loader / Hyperdrive / Email).
-- `CF_ACCOUNT_ID_E2E` — Cloudflare account ID.
-- `EMAIL_FROM`, `EMAIL_TO` — only needed if you enable `examples/email-workers`. Without them, the send call returns a structured error and the assertion still passes (it accepts either a real send or a structured `E_*` code).
+- `CF_API_TOKEN_E2E`, Workers Scripts:Edit + Workers AI:Read, plus permissions for any product-specific targets you enable (R2 / D1 / KV / Queues / AI Gateway / Vectorize / Browser Rendering / Worker Loader / Hyperdrive / Email).
+- `CF_ACCOUNT_ID_E2E`, Cloudflare account ID.
+- `EMAIL_FROM`, `EMAIL_TO`, only needed if you enable `examples/email-workers`. Without them, the send call returns a structured error and the assertion still passes (it accepts either a real send or a structured `E_*` code).
 
 ## FAQ
 
@@ -129,7 +129,7 @@ Secrets:
 
 **Why does CI run sequentially?** Workers AI rate-limits aggressively on personal accounts under parallel load. `max-parallel: 1` keeps the matrix green.
 
-**Can I run only one?** Yes — every example, recipe, and template is independent. `bun ex:<name>`, `bun rx:<name>`, or `bun tpl:<name>`. Or trigger a single target from the Actions dropdown.
+**Can I run only one?** Yes, every example, recipe, and template is independent. `bun ex:<name>`, `bun rx:<name>`, or `bun tpl:<name>`. Or trigger a single target from the Actions dropdown.
 
 ## Contributing
 

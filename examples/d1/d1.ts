@@ -1,4 +1,4 @@
-// examples/d1 — INSERT a row, SELECT it back.
+// examples/d1, INSERT a row, SELECT it back.
 
 import type { FlueContext } from '@flue/sdk/client';
 

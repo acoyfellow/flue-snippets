@@ -1,5 +1,5 @@
 /**
- * probe.ts — the real assertion for chat-thinking.
+ * probe.ts, the real assertion for chat-thinking.
  *
  * Two POSTs to the same chatId path. The Flue agent forwards each call
  * to a per-chat Think DO via RPC; Think persists the conversation in

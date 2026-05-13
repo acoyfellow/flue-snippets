@@ -1,4 +1,4 @@
-// templates/github-app/agents/webhook.ts — main entry.
+// templates/github-app/agents/webhook.ts, main entry.
 //
 // Receives a GitHub App webhook delivery, verifies the HMAC-SHA256
 // signature, then routes by X-GitHub-Event:
@@ -9,7 +9,7 @@
 // TODO: Flue's FlueContext currently surfaces `payload` (parsed JSON) +
 // `env` but not the raw `Request` object. HMAC verification needs the
 // *raw bytes* of the body (or at minimum a byte-stable serialization of
-// the parsed object — JSON.stringify is NOT byte-stable across senders).
+// the parsed object, JSON.stringify is NOT byte-stable across senders).
 // Until Flue exposes the raw request, this template verifies against
 // `JSON.stringify(payload)`. That works in our gateproof probe (the
 // probe controls the serialization), but in production against real

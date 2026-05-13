@@ -1,44 +1,210 @@
 ---
-import Card from './Card.astro';
 import type { Snippet } from '~/lib/snippets';
 
 interface Props {
   snippets: Snippet[];
-  githubPath: string;
+  caption?: string;
 }
 
-const { snippets, githubPath } = Astro.props as Props;
+const { snippets, caption } = Astro.props as Props;
+
+const typeLabel = (kind: Snippet['kind']): string => {
+  if (kind === 'examples') return 'example';
+  if (kind === 'recipes') return 'recipe';
+  return 'template';
+};
 ---
 
-<div class="grid">
-  {
-    snippets.map((s) => (
-      <Card
-        slug={s.slug}
-        title={s.title}
-        tagline={s.tagline}
-        composes={s.composes}
-        githubPath={githubPath}
-      />
-    ))
-  }
+<div class="table-wrap">
+  <table class="snippets">
+    {caption && <caption>{caption}</caption>}
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Type</th>
+        <th scope="col">What it does</th>
+        <th scope="col">Composes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        snippets.map((s) => {
+          const href = `https://github.com/acoyfellow/flue-snippets/tree/main/${s.repoPath}`;
+          return (
+            <tr>
+              <th scope="row" class="name">
+                <a href={href}>
+                  <span>{s.title}</span>
+                </a>
+              </th>
+              <td class="type muted">{typeLabel(s.kind)}</td>
+              <td class="tagline">{s.tagline}</td>
+              <td class="composes">
+                <ul>
+                  {s.composes.map((c) => (
+                    <li>{c}</li>
+                  ))}
+                </ul>
+              </td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
 </div>
 
 <style>
-  .grid {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 1fr;
-    margin-bottom: 1.5rem;
+  .table-wrap {
+    margin: 0 0 var(--space-6);
+    overflow-x: auto;
   }
-  @media (min-width: 640px) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
+
+  table.snippets {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  table.snippets caption {
+    text-align: left;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: var(--space-3);
+  }
+
+  table.snippets th,
+  table.snippets td {
+    text-align: left;
+    padding: var(--space-3) var(--space-2);
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.snippets thead th {
+    font-weight: 500;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border-strong);
+  }
+
+  /* Column behavior on wide screens */
+  table.snippets th[scope='row'] {
+    width: 1%;
+    white-space: nowrap;
+  }
+  table.snippets .type {
+    width: 1%;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+  table.snippets .composes {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  /* Whole-row click target: the <a> wraps just the name visually, but
+     a `tr` hover state reinforces that the row is the unit. */
+  table.snippets tbody tr {
+    transition: background 0.1s;
+  }
+  table.snippets tbody tr:hover {
+    background: var(--card-bg);
+  }
+
+  .name a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--text);
+    text-decoration: none;
+  }
+  .name a span {
+    border-bottom: 1px dashed transparent;
+  }
+  .name a:hover span {
+    color: var(--cf-orange-text);
+    border-bottom-color: var(--cf-orange-text);
+  }
+  .name a:focus-visible {
+    outline: 2px solid var(--cf-orange);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .tagline {
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .composes ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .composes li {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--muted);
+    background: var(--pill-bg);
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Mobile: stack each row into a labeled block. Hide the composes
+     column entirely under 480px, that info is in the README; the
+     site is the curiosity hook, not the reference. */
+  @media (max-width: 640px) {
+    table.snippets thead {
+      display: none;
+    }
+    table.snippets caption {
+      padding-bottom: var(--space-2);
+    }
+    table.snippets,
+    table.snippets tbody,
+    table.snippets tr,
+    table.snippets th,
+    table.snippets td {
+      display: block;
+      width: 100%;
+    }
+    table.snippets tr {
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    table.snippets th,
+    table.snippets td {
+      padding: 0;
+      border: none;
+    }
+    table.snippets th[scope='row'] {
+      white-space: normal;
+      margin-bottom: var(--space-1);
+    }
+    table.snippets .type {
+      margin-bottom: var(--space-2);
+      width: auto;
+    }
+    .tagline {
+      margin-bottom: var(--space-2);
+    }
+    .composes {
+      white-space: normal;
     }
   }
-  @media (min-width: 1024px) {
-    .grid {
-      grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 480px) {
+    table.snippets .composes {
+      display: none;
     }
   }
 </style>

@@ -5,11 +5,11 @@
  *   1. First call (no prior state) returns 200 with a real result.
  *   2. After 5 repeated calls (same `lastAction`), the governor
  *      escalates from "continue" to "reanchor" or "ask-human".
- *      The repeat loop runs in `probe.ts` (a bun script) — keeps
+ *      The repeat loop runs in `probe.ts` (a bun script), keeps
  *      complex JSON threading out of bash heredocs.
  *
  * Required env:
- *   AGENT_URL_BASE — deployed worker base + /agents/do-governor
+ *   AGENT_URL_BASE, deployed worker base + /agents/do-governor
  */
 
 import { Effect } from 'effect';

@@ -1,5 +1,5 @@
 /**
- * probe.ts — assert ai-gateway returns a real model answer routed
+ * probe.ts, assert ai-gateway returns a real model answer routed
  * through the Cloudflare AI Gateway.
  *
  * Required env: AGENT_URL
@@ -34,7 +34,7 @@ if (typeof answer !== 'string' || answer.length === 0) {
   process.exit(1);
 }
 if (typeof gateway !== 'string' || gateway.length === 0) {
-  console.error('result.gateway missing — agent should echo the gateway it used');
+  console.error('result.gateway missing, agent should echo the gateway it used');
   process.exit(1);
 }
 

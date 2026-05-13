@@ -1,5 +1,5 @@
 /**
- * probe.ts — the real assertion for mcp-client.
+ * probe.ts, the real assertion for mcp-client.
  *
  * One POST to the Flue agent with a known input string. The agent is
  * supposed to call the co-hosted MCP server's `reverse_string` tool
@@ -32,7 +32,7 @@ if (!res.ok) {
 
 // Flue wraps the agent's return value under `result`. The agent returns
 // { text, reversed, mcpUrl }. `reversed` is whatever session.prompt()
-// returned — empirically that's usually a string, but Flue/Workers AI
+// returned, empirically that's usually a string, but Flue/Workers AI
 // sometimes return { text: string } depending on the model. Handle both.
 const body = (await res.json()) as {
   result?: { text?: unknown; reversed?: unknown; mcpUrl?: unknown };

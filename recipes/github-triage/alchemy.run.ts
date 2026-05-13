@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for the github-triage recipe.
+ * alchemy.run.ts, declarative deploy for the github-triage recipe.
  *
  * Flue auto-generates a `GithubTriage` Durable Object class (one DO
  * per agent). Alchemy declares it as a SQLite-backed namespace so the

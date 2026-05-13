@@ -1,7 +1,7 @@
-// batch-b/06-ai-gateway — Flue + Cloudflare AI Gateway
+// batch-b/06-ai-gateway, Flue + Cloudflare AI Gateway
 //
 // Every prompt routes through Cloudflare AI Gateway: caching, retry,
-// cost tracking, request logs — all by toggling one option on the
+// cost tracking, request logs, all by toggling one option on the
 // `env.AI` binding.
 //
 // Pattern: a Flue agent is just a request handler with a session shell.

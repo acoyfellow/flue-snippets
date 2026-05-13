@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for the chat-thinking recipe.
+# run-e2e.sh, full E2E for the chat-thinking recipe.
 
 set -euo pipefail
 cd "$(dirname "$0")"

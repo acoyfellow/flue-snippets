@@ -1,14 +1,14 @@
 /**
- * probe.ts — exercises the deployed do-governor agent five times in a
+ * probe.ts, exercises the deployed do-governor agent five times in a
  * row, repeating the same `lastAction`, and asserts the governor
  * eventually escalates away from "continue".
  *
- * Used by gateproof.plan.ts via Act.exec — keeps complex JSON
+ * Used by gateproof.plan.ts via Act.exec, keeps complex JSON
  * threading out of bash heredocs (which can't deal with `\n`-laden
  * model responses cleanly).
  *
  * Required env:
- *   AGENT_URL — full POST target (e.g. https://...workers.dev/agents/do-governor/<id>)
+ *   AGENT_URL, full POST target (e.g. https://...workers.dev/agents/do-governor/<id>)
  *
  * Exits 0 if escalation happened, non-zero otherwise.
  */

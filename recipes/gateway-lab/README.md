@@ -10,16 +10,16 @@ composes: [AI Gateway, Workers AI, lab]
 
 ## Composes
 
-- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — model traffic plane (latency, cost, cache hits, retries)
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6`
-- **[`@acoyfellow/lab`](https://lab.coey.dev)** — work plane (input, output, capabilities)
-- **[Flue](https://flueframework.com)** — agent shape
+- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)**, model traffic plane (latency, cost, cache hits, retries)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/moonshotai/kimi-k2.6`
+- **[`@acoyfellow/lab`](https://lab.coey.dev)**, work plane (input, output, capabilities)
+- **[Flue](https://flueframework.com)**, agent shape
 
 ## What it proves
 
 - The model call goes through AI Gateway (caching, observability)
 - Each call also writes a Lab receipt with the input + output + gateway id used
-- `lab.coey.dev` serves the receipt back — the agent's claim of "I logged this" is verifiable
+- `lab.coey.dev` serves the receipt back, the agent's claim of "I logged this" is verifiable
 - Same prompt, two complete audit trails: gateway logs the request shape, lab logs the work shape
 
 ## Run

@@ -1,4 +1,4 @@
-// worker.ts — minimal asset-serving Worker.
+// worker.ts, minimal asset-serving Worker.
 //
 // The Astro build (./dist) is uploaded as an Assets bundle. The runtime
 // `env.ASSETS.fetch(request)` does the actual serving (content-type,

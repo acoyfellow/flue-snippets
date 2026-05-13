@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 16 (do-governor).
+ * alchemy.run.ts, declarative deploy for snippet 16 (do-governor).
  *
  * Flue auto-generates the `DoGovernor` Durable Object in _entry.ts (one
  * DO per agent file). Alchemy declares it as a SQLite-backed namespace

@@ -1,48 +1,28 @@
 ---
-// Quick "what is Flue" callout for CF-native readers. Three points, no marketing.
+// One-paragraph context for CF-native readers. Was three bullets;
+// shrunk to a single beat after the design audit.
 ---
 
 <section class="why">
-  <h2>Why Flue on top of Workers?</h2>
-  <ul>
-    <li>
-      <strong>It's an agent harness, not an SDK.</strong> Same shape as Claude Code or Codex:
-      sessions, skills, sandboxes, message history, tool calls — but headless and
-      programmable. You write a function, not a chat UI.
-    </li>
-    <li>
-      <strong>Cloudflare is the runtime.</strong> Every agent becomes a Worker. Sessions
-      persist in Durable Objects automatically. R2 is the agent's filesystem. No Redis, no
-      Postgres, no infra to provision.
-    </li>
-    <li>
-      <strong>Build once, deploy anywhere.</strong> Same Flue agent runs on Workers, Node,
-      GitHub Actions, GitLab CI. The examples below all deploy to Workers via{' '}
-      <a href="https://alchemy.run">alchemy</a> (no wrangler config), but the agent code is
-      portable.
-    </li>
-  </ul>
+  <p>
+    Flue feels like Claude Code, but you drive it. Same building blocks (sessions, skills,
+    sandboxes, tool calls), wrapped in a function you write. Each agent compiles to a Worker.
+    Sessions get a Durable Object for free, R2 can be the agent's filesystem, and the same
+    agent code runs on Workers, Node, or any CI. Everything below deploys to Workers via
+    <a href="https://alchemy.run">alchemy</a>, no wrangler config.
+  </p>
 </section>
 
 <style>
-  .why ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 1rem;
-  }
-  .why li {
-    padding: 1rem 1.25rem;
+  .why {
+    margin: 0 0 var(--space-6);
+    padding: var(--space-4) var(--space-5);
     background: var(--card-bg);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    line-height: 1.6;
+    border-radius: var(--radius-md);
+    line-height: 1.65;
   }
-  .why strong {
-    color: var(--text);
-  }
-  .why a {
-    color: var(--cf-orange);
+  .why p {
+    margin: 0;
   }
 </style>

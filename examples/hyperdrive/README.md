@@ -23,7 +23,7 @@ SELECT NOW() as now, 'hello from pg' as msg
 ## Limitation
 
 This example **requires a real Postgres database** that Hyperdrive can
-reach. Set `HYPERDRIVE_CONNECTION_STRING` before running the e2e —
+reach. Set `HYPERDRIVE_CONNECTION_STRING` before running the e2e , 
 without it, alchemy provisions the Hyperdrive resource against a
 placeholder and the actual query will fail (though the binding wiring,
 build, and deploy still succeed).

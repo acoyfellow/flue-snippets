@@ -1,10 +1,10 @@
-// batch-a/01-lab-receipt — Flue + lab
+// batch-a/01-lab-receipt, Flue + lab
 //
 // A Flue agent that runs a prompt and emits a Lab receipt for the run.
 // One URL is the entire interface to anyone who wants to audit, fork,
 // or hand the work off to the next agent.
 //
-// Uses Workers AI (kimi-k2.6) for the model call — cheap, idiomatic
+// Uses Workers AI (kimi-k2.6) for the model call, cheap, idiomatic
 // for the Cloudflare target, no separate vendor key needed.
 
 import { createLabClient } from '@acoyfellow/lab';

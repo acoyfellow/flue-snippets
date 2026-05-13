@@ -1,4 +1,4 @@
-// examples/r2 — write an object, read it back.
+// examples/r2, write an object, read it back.
 
 import type { FlueContext } from '@flue/sdk/client';
 

@@ -1,4 +1,4 @@
-// batch-d/16-do-governor — Flue + persistent run governor
+// batch-d/16-do-governor, Flue + persistent run governor
 //
 // A tiny control layer for long-running agents: record each cycle, detect
 // repetition, and change the next instruction when the agent starts looping.

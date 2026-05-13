@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 18 (lab-checkpoint).
+ * alchemy.run.ts, declarative deploy for snippet 18 (lab-checkpoint).
  *
  * Flue auto-generates the `LabCheckpoint` Durable Object in _entry.ts.
  * Alchemy declares it + the LAB_URL var so the agent can post receipts.

@@ -1,4 +1,4 @@
-// batch-d/18-lab-checkpoint — Flue + lab checkpoints
+// batch-d/18-lab-checkpoint, Flue + lab checkpoints
 //
 // Store receipts at the moments where an agent's state matters: start,
 // checkpoint, and stop.

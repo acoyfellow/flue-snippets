@@ -2,7 +2,7 @@
  * gateproof plan for mcp-client.
  *
  * One gate: probe.ts POSTs a known string to the Flue agent and asserts
- * the agent's response contains the reversed string — proving the model
+ * the agent's response contains the reversed string, proving the model
  * actually called the co-hosted MCP server's `reverse_string` tool and
  * returned its output.
  *

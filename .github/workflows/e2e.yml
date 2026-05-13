@@ -4,9 +4,9 @@ name: e2e (real deploy)
 # runs the snippet's harness against it, then `alchemy destroy`s it.
 #
 # Two tiers in the matrix:
-#   - examples/<product>/   — hello-world per CF product (simplest agent)
-#   - recipes/<name>/       — composition snippets (multiple primitives)
-#   - templates/<name>/     — forkable starters (production-shape)
+#   - examples/<product>/  , hello-world per CF product (simplest agent)
+#   - recipes/<name>/      , composition snippets (multiple primitives)
+#   - templates/<name>/    , forkable starters (production-shape)
 #
 # Cost per snippet per run ≈ $0.0001 (Workers AI llama scout).
 
@@ -101,7 +101,7 @@ jobs:
             && !(github.event.inputs.target == 'recipes' && startsWith(matrix.target, 'recipes/'))
             && !(github.event.inputs.target == 'templates' && startsWith(matrix.target, 'templates/'))
           }}
-        run: echo "skipped — input asked for ${{ github.event.inputs.target }}" && exit 0
+        run: echo "skipped, input asked for ${{ github.event.inputs.target }}" && exit 0
 
       - uses: actions/checkout@v4
 
@@ -121,7 +121,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
           STAGE: ci-${{ github.run_id }}
           ALCHEMY_CI_STATE_STORE_CHECK: 'false'
-          # examples/email-workers — real Email Service send. If these
+          # examples/email-workers, real Email Service send. If these
           # secrets aren't set, the agent still deploys and the assert
           # passes via the "structured error" branch.
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}

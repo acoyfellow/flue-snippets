@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for snippet 06 (ai-gateway).
+# run-e2e.sh, full E2E for snippet 06 (ai-gateway).
 #
 # 1. flue build → .build/dist/_entry.ts
 # 2. alchemy deploy
@@ -8,18 +8,18 @@
 # 4. gateproof Plan asserts the worker reaches Workers AI through the gateway
 # 5. alchemy destroy (always, on exit)
 #
-# The AI Gateway resource is auto-created on first request — no separate
+# The AI Gateway resource is auto-created on first request, no separate
 # step needed. Just pick a stable name in CLOUDFLARE_GATEWAY_ID and CF
 # materializes it.
 #
 # Required env:
-#   CLOUDFLARE_API_TOKEN     — Workers Scripts:Edit + Workers AI:Read
+#   CLOUDFLARE_API_TOKEN    , Workers Scripts:Edit + Workers AI:Read
 #   CLOUDFLARE_ACCOUNT_ID
 #
 # Optional:
-#   CLOUDFLARE_GATEWAY_ID    — defaults to "flue-snippets"
-#   GITHUB_SHA               — suffixes the worker name; defaults to "local"
-#   STAGE                    — alchemy stage; defaults to "local"
+#   CLOUDFLARE_GATEWAY_ID   , defaults to "flue-snippets"
+#   GITHUB_SHA              , suffixes the worker name; defaults to "local"
+#   STAGE                   , alchemy stage; defaults to "local"
 
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -53,7 +53,7 @@ echo "deployed: $WORKER_URL"
 echo "::endgroup::"
 
 echo "::group::wait for route propagation"
-# Health check first (cheap), then probe the agent route — the agent
+# Health check first (cheap), then probe the agent route, the agent
 # route lives behind the partyserver dispatcher which warms up later
 # than the bare /health handler. Without this two-step, gateproof
 # can race and hit a 500 on first POST.

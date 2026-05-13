@@ -1,25 +1,25 @@
 /**
- * alchemy.run.ts — declarative deploy for the mcp-client recipe.
+ * alchemy.run.ts, declarative deploy for the mcp-client recipe.
  *
  * Deploys TWO Workers in one lifecycle:
  *
- *   1. flue-rx-mcp-srv  — the MCP server (raw Worker). Entrypoint is
+ *   1. flue-rx-mcp-srv , the MCP server (raw Worker). Entrypoint is
  *      `./mcp-server.ts` at the recipe root; alchemy bundles it without
  *      going through `flue build`. Exposes one tool (`reverse_string`)
  *      at /mcp via the Streamable HTTP MCP transport.
  *
- *   2. flue-rx-mcp-cli  — the Flue agent that consumes the server. Built
+ *   2. flue-rx-mcp-cli , the Flue agent that consumes the server. Built
  *      by `flue build` into `.build/dist/_entry.ts`, deployed with its
  *      own DO namespace + Workers AI binding, and given the server's
  *      `/mcp` URL via the MCP_URL var.
  *
  * Both Workers are created and destroyed by the same `alchemy deploy`
- * / `alchemy destroy` pair. The recipe is self-contained — no external
+ * / `alchemy destroy` pair. The recipe is self-contained, no external
  * MCP server, no third-party dependency.
  *
  * TODO: confirm alchemy's `Worker({ entrypoint: './mcp-server.ts' })`
- * happily bundles a raw .ts file at the recipe root. It should — alchemy
- * runs an esbuild pass on the entrypoint regardless of source — but if
+ * happily bundles a raw .ts file at the recipe root. It should, alchemy
+ * runs an esbuild pass on the entrypoint regardless of source, but if
  * the lifecycle ever fails at the build step, the fallback is to put
  * the server in its own folder with its own tsconfig/wrangler-shaped
  * config.
@@ -32,7 +32,7 @@ const STAGE = process.env.STAGE ?? 'local';
 
 const app = await alchemy('flue-rx-mcp-client', { stage: STAGE });
 
-// 1. MCP server. Not a Flue agent — raw Worker built directly from
+// 1. MCP server. Not a Flue agent, raw Worker built directly from
 //    ./mcp-server.ts. The DO namespace name must match the class name
 //    exported from that file (`ReverseServer`) so McpAgent.serve()
 //    can find its per-session DO.

@@ -1,15 +1,15 @@
 /**
- * alchemy.run.ts — deploy for templates/github-app.
+ * alchemy.run.ts, deploy for templates/github-app.
  *
  * The webhook agent is exported by `agents/webhook.ts`. Flue's build
  * pipeline auto-generates the Webhook DO. We add a `Triage` DO too in
- * case the webhook spawns a triage subagent — Flue creates one per
+ * case the webhook spawns a triage subagent, Flue creates one per
  * agent file referenced.
  *
  * Secrets:
- *   GITHUB_WEBHOOK_SECRET — required for HMAC verification. Set via
+ *   GITHUB_WEBHOOK_SECRET, required for HMAC verification. Set via
  *     `wrangler secret put` in prod, or via env when running e2e.
- *   GITHUB_TOKEN — installation access token for the GH App. Leave
+ *   GITHUB_TOKEN, installation access token for the GH App. Leave
  *     empty in the e2e (the agent skips the comment post when empty).
  */
 

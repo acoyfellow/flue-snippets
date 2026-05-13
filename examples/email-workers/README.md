@@ -9,7 +9,7 @@ composes: [Email Service, Workers AI]
 > Send a real email via Cloudflare Email Service from a Flue agent.
 
 The Flue agent receives a webhook payload, asks Workers AI to draft a
-short body, then sends the email with `env.EMAIL.send()` — the
+short body, then sends the email with `env.EMAIL.send()`, the
 Cloudflare Email Service Workers binding. No simulation: the call hits
 the real Email Service pipeline and returns a `messageId`.
 
@@ -69,20 +69,20 @@ const { messageId } = await env.EMAIL.send({
 });
 ```
 
-That's the whole thing — the binding does the heavy lifting (auth,
+That's the whole thing, the binding does the heavy lifting (auth,
 SPF/DKIM signing, queueing, retries, delivery telemetry).
 
 ## Files
 
 | File | Role |
 |---|---|
-| `email-workers.ts` | the Flue agent — AI body + real `EMAIL.send()` |
+| `email-workers.ts` | the Flue agent, AI body + real `EMAIL.send()` |
 | `run-e2e.sh` | shim into the shared `scripts/run-example.sh` |
 | `README.md` | this file |
 
 ## See also
 
-- [Workers API for Email Sending](https://developers.cloudflare.com/email-service/api/send-emails/workers-api/) — full `send()` interface, attachments, headers
-- [REST API for Email Sending](https://developers.cloudflare.com/email-service/api/send-emails/rest-api/) — same thing from non-Workers contexts
+- [Workers API for Email Sending](https://developers.cloudflare.com/email-service/api/send-emails/workers-api/), full `send()` interface, attachments, headers
+- [REST API for Email Sending](https://developers.cloudflare.com/email-service/api/send-emails/rest-api/), same thing from non-Workers contexts
 - [Onboarding a domain](https://developers.cloudflare.com/email-service/get-started/send-emails/#set-up-your-domain)
-- The legacy [Email Routing → email() handler](https://developers.cloudflare.com/email-routing/email-workers/) pattern (inbound). That's a different example — Flue owns the Worker entrypoint, so receiving mail requires wrapping its generated entry, which is out of scope for this minimal snippet.
+- The legacy [Email Routing → email() handler](https://developers.cloudflare.com/email-routing/email-workers/) pattern (inbound). That's a different example, Flue owns the Worker entrypoint, so receiving mail requires wrapping its generated entry, which is out of scope for this minimal snippet.

@@ -3,9 +3,9 @@
 Classify an incoming GitHub issue.
 
 ## Args
-- issueTitle: string — the issue title
-- issueBody: string — the issue body markdown
-- issueNumber: number — the issue number
+- issueTitle: string, the issue title
+- issueBody: string, the issue body markdown
+- issueNumber: number, the issue number
 
 ## Steps
 1. Read the title and body.

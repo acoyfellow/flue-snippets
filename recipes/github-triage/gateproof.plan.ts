@@ -2,7 +2,7 @@
  * gateproof plan for github-triage.
  *
  * One gate: probe.ts POSTs a synthetic issue payload and asserts the
- * structured triage shape — severity is one of the enum values,
+ * structured triage shape, severity is one of the enum values,
  * reproducible is a boolean (and true for the chosen fixture),
  * summary is a non-empty string.
  *

@@ -10,14 +10,14 @@ composes: [Durable Objects]
 
 ## Composes
 
-- **[Flue](https://flueframework.com)** — agent shape with built-in session storage
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the conversation history
+- **[Flue](https://flueframework.com)**, agent shape with built-in session storage
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, per-user DO holds the conversation history
 
 ## What it proves
 
 - A Flue agent deployed to Cloudflare auto-wires session storage into a per-agent DO
 - The same `userId` in the URL path routes to the same DO instance
-- Two POSTs to the same user share state — turn 2 recalls a fact set in turn 1
+- Two POSTs to the same user share state, turn 2 recalls a fact set in turn 1
 - Zero Redis, zero Postgres, zero session-store boilerplate
 
 ## Run

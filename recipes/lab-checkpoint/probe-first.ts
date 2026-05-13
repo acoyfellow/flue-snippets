@@ -1,5 +1,5 @@
 /**
- * probe-first.ts — assert the FIRST call to lab-checkpoint persists a receipt.
+ * probe-first.ts, assert the FIRST call to lab-checkpoint persists a receipt.
  *
  * cycle starts at 0, becomes 1 → checkpoint condition (cycle === 1) is
  * true → response should include a receipt URL that lab.coey.dev serves.

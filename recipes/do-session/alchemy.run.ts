@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 08 (do-session).
+ * alchemy.run.ts, declarative deploy for snippet 08 (do-session).
  *
  * Flue auto-generates a `DoSession` Durable Object class (one DO per
  * agent). Alchemy declares it as a SQLite-backed namespace so each user

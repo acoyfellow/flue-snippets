@@ -1,7 +1,7 @@
-// examples/ai-gateway — Workers AI through a Cloudflare AI Gateway.
+// examples/ai-gateway, Workers AI through a Cloudflare AI Gateway.
 //
 // `env.AI.run(model, args, { gateway: { id } })` routes the call through
-// the named gateway. Caching, observability, retries — for free.
+// the named gateway. Caching, observability, retries, for free.
 
 import type { FlueContext } from '@flue/sdk/client';
 

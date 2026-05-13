@@ -5,7 +5,7 @@ name: site (deploy showcase)
 # Triggers:
 #   - push to main when site/, snippet READMEs, or root README change
 #     (the site auto-renders content from those READMEs)
-#   - workflow_dispatch — manual button in the Actions tab
+#   - workflow_dispatch, manual button in the Actions tab
 #
 # Requires the same secrets as e2e.yml:
 #   - CF_API_TOKEN_E2E (Workers Scripts:Edit + Zone:Edit for coey.dev)

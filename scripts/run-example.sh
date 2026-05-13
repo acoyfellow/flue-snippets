@@ -129,7 +129,7 @@ assert() {
       ;;
     hyperdrive)
       # Without a real Postgres reachable from Hyperdrive, the query
-      # will fail — that's fine. We only assert the agent shape
+      # will fail, that's fine. We only assert the agent shape
       # compiled and the endpoint returns *something* mentioning the
       # DB layer. With a real DB, expect "msg":"hello from pg".
       body=$(curl -sS -m 30 -X POST "$url/agents/$agent/test" -H 'content-type: application/json' -d '{}' || true)
@@ -147,13 +147,13 @@ assert() {
       #      response has "ok":false with a structured "code" prefixed
       #      "E_" (E_MISSING_EMAIL_FROM / E_MISSING_EMAIL_TO /
       #       E_SENDER_NOT_VERIFIED / E_SENDER_DOMAIN_NOT_AVAILABLE).
-      # The assert accepts either — but distinguishes them so the log
+      # The assert accepts either, but distinguishes them so the log
       # shows whether a real email was actually sent.
       body=$(post "$url" "$agent" test 120 "$(payload_for "$agent" test)"); echo "$body"
       if echo "$body" | grep -qE '"ok":true' && echo "$body" | grep -qE '"messageId":"[^"]+"'; then
         echo "  ✓ real email sent (messageId present)"
       elif echo "$body" | grep -qE '"ok":false' && echo "$body" | grep -qE '"code":"E_[A-Z_]+"'; then
-        echo "  ⚠ no real email sent — agent returned structured error code (expected when EMAIL_FROM/TO unset or domain not onboarded)"
+        echo "  ⚠ no real email sent, agent returned structured error code (expected when EMAIL_FROM/TO unset or domain not onboarded)"
       else
         echo "::error::response is neither a successful send nor a structured error"
         exit 1

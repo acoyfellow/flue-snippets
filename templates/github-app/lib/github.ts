@@ -1,4 +1,4 @@
-// templates/github-app/lib/github.ts — minimal Octokit wrapper.
+// templates/github-app/lib/github.ts, minimal Octokit wrapper.
 //
 // We import only what we use to keep the bundle small. For more APIs
 // (commit statuses, labels, reviews) see https://octokit.github.io/rest.js/.

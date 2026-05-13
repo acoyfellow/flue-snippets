@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for the github-app template.
+# run-e2e.sh, full E2E for the github-app template.
 #
 # Deploys an ephemeral Worker, runs three signature-handling gates,
 # then destroys the Worker. The probe creates its own valid signature
@@ -45,7 +45,7 @@ for i in $(seq 1 30); do
   if [ "$i" = "30" ]; then echo "::error::/health not responding after 30s"; exit 1; fi
   sleep 1
 done
-# The webhook endpoint 401s without a signature — that's the desired
+# The webhook endpoint 401s without a signature, that's the desired
 # behaviour. We can't do a "happy-path" warmup ping without computing a
 # signature, so we trust /health and let the first gate (which expects
 # a 401) double as the route-warmup.

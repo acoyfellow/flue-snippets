@@ -1,9 +1,9 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 06 (ai-gateway).
+ * alchemy.run.ts, declarative deploy for snippet 06 (ai-gateway).
  *
  * Routes Workers AI prompts through a Cloudflare AI Gateway. The
  * gateway is created lazily by Cloudflare on first request to the
- * gateway URL — no separate API call needed. Just pick a stable name
+ * gateway URL, no separate API call needed. Just pick a stable name
  * and use it.
  *
  * No wrangler. Alchemy is the system of record.
@@ -16,7 +16,7 @@ const STAGE = process.env.STAGE ?? 'local';
 const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';
 // 'jordan' is the personal account's existing AI Gateway. The agent
 // uses env.AI.run(..., { gateway: { id } }), which auto-creates if
-// missing — but we point at a real one for cleaner test signal.
+// missing, but we point at a real one for cleaner test signal.
 const GATEWAY_ID = process.env.CLOUDFLARE_GATEWAY_ID ?? 'jordan';
 
 const app = await alchemy('flue-06-ai-gateway', { stage: STAGE });

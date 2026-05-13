@@ -10,15 +10,15 @@ composes: [Workers AI, lab]
 
 ## Composes
 
-- **[Flue](https://flueframework.com)** — the agent shape (`init` → `session` → `prompt`)
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/kimi-k2.6` for the model call
-- **[`@acoyfellow/lab`](https://lab.coey.dev)** — `createReceipt({...})` for the audit trail
+- **[Flue](https://flueframework.com)**, the agent shape (`init` → `session` → `prompt`)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/meta/kimi-k2.6` for the model call
+- **[`@acoyfellow/lab`](https://lab.coey.dev)**, `createReceipt({...})` for the audit trail
 
 ## What it proves
 
 - A Flue agent deployed as a Cloudflare Worker returns a real model answer
 - The same call writes a Lab receipt (input + output + capabilities) to `lab.coey.dev`
-- That receipt URL is fetchable from anywhere — past the request, past the agent
+- That receipt URL is fetchable from anywhere, past the request, past the agent
 
 ## Run
 

@@ -10,15 +10,15 @@ composes: [Durable Objects, lab]
 
 ## Composes
 
-- **[Flue](https://flueframework.com)** — agent shape
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — per-user DO holds the cycle counter
-- **[`@acoyfellow/lab`](https://lab.coey.dev)** — receipts persisted per checkpoint
+- **[Flue](https://flueframework.com)**, agent shape
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, per-user DO holds the cycle counter
+- **[`@acoyfellow/lab`](https://lab.coey.dev)**, receipts persisted per checkpoint
 
 ## What it proves
 
 - The agent writes a Lab receipt at cycle 1, every Nth cycle, and on explicit `stop: true`
 - Mid-cycle calls (e.g. cycle 2 with `every: 3`) return no `receipt` field
-- `lab.coey.dev` actually persists what the agent claimed to write — the receipt URL the agent returns resolves to a real saved result
+- `lab.coey.dev` actually persists what the agent claimed to write, the receipt URL the agent returns resolves to a real saved result
 
 ## Run
 

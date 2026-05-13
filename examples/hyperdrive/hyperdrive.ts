@@ -1,11 +1,11 @@
-// examples/hyperdrive — query Postgres via a Hyperdrive binding.
+// examples/hyperdrive, query Postgres via a Hyperdrive binding.
 //
 // Hyperdrive proxies + pools Postgres so Workers can talk to it from
 // the edge. We use the `postgres` driver against `env.HYPERDRIVE`'s
 // `connectionString`. Returns `{ now, msg }` from a trivial query.
 //
 // This example only fully runs with a real Postgres reachable from
-// the Hyperdrive config — see README. Without one, the deploy
+// the Hyperdrive config, see README. Without one, the deploy
 // succeeds and the endpoint returns an error mentioning hyperdrive,
 // which is enough to verify the binding wiring.
 

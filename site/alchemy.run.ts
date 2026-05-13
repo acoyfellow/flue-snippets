@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — deploy the flue-snippets showcase site.
+ * alchemy.run.ts, deploy the flue-snippets showcase site.
  *
  * Topology:
  *   - The Astro build emits ./dist (a static SPA, no SSR).
@@ -12,12 +12,12 @@
  * in the authenticated account). No zoneId hardcoded here.
  *
  * Required env:
- *   CLOUDFLARE_API_TOKEN   — Workers Scripts:Edit + Zone:Edit (for coey.dev)
+ *   CLOUDFLARE_API_TOKEN  , Workers Scripts:Edit + Zone:Edit (for coey.dev)
  *   CLOUDFLARE_ACCOUNT_ID
  *
  * Optional env:
- *   STAGE                  — staging-vs-prod separator, default "prod"
- *   SITE_HOSTNAME          — override the default hostname for previews
+ *   STAGE                 , staging-vs-prod separator, default "prod"
+ *   SITE_HOSTNAME         , override the default hostname for previews
  */
 
 import alchemy from 'alchemy';

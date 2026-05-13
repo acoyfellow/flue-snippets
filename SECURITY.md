@@ -17,7 +17,7 @@ steps. Don't open a public issue.
 
 ## What's out of scope
 
-- Vulnerabilities in upstream packages — report those to the package
+- Vulnerabilities in upstream packages, report those to the package
   authors:
   - [Flue](https://github.com/withastro/flue)
   - [alchemy](https://github.com/sam-goodwin/alchemy)

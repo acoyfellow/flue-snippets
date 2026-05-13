@@ -5,28 +5,32 @@ const repoUrl = 'https://github.com/acoyfellow/flue-snippets';
 <section class="hero">
   <h1>Flue on Cloudflare</h1>
   <p class="lede">
-    You already know Cloudflare Workers. <a href="https://flueframework.com">Flue</a> is the
-    agent harness that sits on top — turning a Worker into a programmable, Claude-Code-shaped
-    agent runtime. This page walks through four working agents, smallest to largest, to show
-    how the two fit together.
+    I wanted to see what it actually looks like to build agents with
+    <a href="https://flueframework.com">Flue</a> on Cloudflare Workers. Turns out the answer
+    is mostly: less code than I expected. Four agents I built, smallest to largest.
   </p>
-  <a class="badge" href={repoUrl}>View the source →</a>
+  <p class="meta muted">
+    Every snippet really deploys to a real Worker. Around $0.0001 per run, the e2e
+    destroys the Worker after it asserts.
+    <a href={repoUrl}>Repo →</a>
+  </p>
 </section>
 
 <style>
   .hero {
-    padding: 1rem 0 2rem;
+    padding: var(--space-3) 0 var(--space-6);
     border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-6);
   }
   .lede {
-    font-size: 1.1rem;
-    color: var(--muted);
+    font-size: var(--text-lg);
+    color: var(--text);
     max-width: 60ch;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-3);
     line-height: 1.6;
   }
-  .lede a {
-    color: var(--cf-orange);
+  .meta {
+    font-size: var(--text-sm);
+    margin: 0;
   }
 </style>

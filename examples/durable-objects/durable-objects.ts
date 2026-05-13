@@ -1,11 +1,11 @@
-// examples/durable-objects — per-user agent routing.
+// examples/durable-objects, per-user agent routing.
 //
 // Flue auto-creates a Durable Object class per agent file. Every path
 // segment after `/agents/durable-objects/` becomes a separate DO
 // instance with its own session storage. Two POSTs to the same path
 // hit the same DO; two different paths hit different DOs.
 //
-// This example doesn't write to DO storage directly — it just shows
+// This example doesn't write to DO storage directly, it just shows
 // the routing. See recipes/do-session for memory across turns and
 // recipes/do-governor for explicit state machines.
 

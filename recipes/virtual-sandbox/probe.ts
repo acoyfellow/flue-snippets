@@ -1,5 +1,5 @@
 /**
- * probe.ts — the real assertion for virtual-sandbox.
+ * probe.ts, the real assertion for virtual-sandbox.
  *
  * One POST to the agent with a question whose answer only exists in the
  * seeded R2 doc `/workspace/docs/colours.md`. If the agent can grep the

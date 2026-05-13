@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for snippet 11 (gateway-lab).
+# run-e2e.sh, full E2E for snippet 11 (gateway-lab).
 #
 # Snippet 06 (gateway) + Lab receipt. Same harness shape as 01.
 #
 # Required env:
-#   CLOUDFLARE_API_TOKEN     — Workers Scripts:Edit + Workers AI:Read
+#   CLOUDFLARE_API_TOKEN    , Workers Scripts:Edit + Workers AI:Read
 #   CLOUDFLARE_ACCOUNT_ID
 #
 # Optional:
-#   CLOUDFLARE_GATEWAY_ID    — defaults to "flue-snippets"
-#   GITHUB_SHA               — suffixes the worker name; defaults to "local"
-#   STAGE                    — alchemy stage; defaults to "local"
-#   LAB_URL                  — defaults to https://lab.coey.dev
+#   CLOUDFLARE_GATEWAY_ID   , defaults to "flue-snippets"
+#   GITHUB_SHA              , suffixes the worker name; defaults to "local"
+#   STAGE                   , alchemy stage; defaults to "local"
+#   LAB_URL                 , defaults to https://lab.coey.dev
 
 set -euo pipefail
 cd "$(dirname "$0")"

@@ -1,12 +1,12 @@
 /**
- * probe.ts — the real assertion for github-triage.
+ * probe.ts, the real assertion for github-triage.
  *
  * POST a synthetic issue payload at a unique id (so each run hits a
  * fresh DO). Assert the response carries a structured triage object
  * whose shape matches the valibot schema in the agent.
  *
  * The chosen fixture has obvious reproduction steps, so we can also
- * assert reproducible === true — that catches LLM drift on the
+ * assert reproducible === true, that catches LLM drift on the
  * Boolean field even when the schema would otherwise accept either.
  *
  * Pure fetch + JSON. No bash heredocs, no python one-liners.
@@ -75,7 +75,7 @@ if (typeof reproducible !== 'boolean') {
 }
 if (reproducible !== true) {
   console.error(
-    'result.triage.reproducible === false, but fixture has clear repro steps — LLM drift',
+    'result.triage.reproducible === false, but fixture has clear repro steps, LLM drift',
   );
   process.exit(1);
 }

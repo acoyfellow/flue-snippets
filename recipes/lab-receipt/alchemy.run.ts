@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 01.
+ * alchemy.run.ts, declarative deploy for snippet 01.
  *
  * Run order:
  *   1. `flue build --target cloudflare` produces `.build/dist/_entry.ts`

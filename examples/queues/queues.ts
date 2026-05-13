@@ -1,4 +1,4 @@
-// examples/queues — agent sends a message to a Queue.
+// examples/queues, agent sends a message to a Queue.
 //
 // `env.QUEUE.send(...)` enqueues. Cloudflare Queues acks immediately;
 // processing happens later in a consumer Worker. This example only

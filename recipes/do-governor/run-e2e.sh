@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for the do-governor snippet.
+# run-e2e.sh, full E2E for the do-governor snippet.
 
 set -euo pipefail
 cd "$(dirname "$0")"

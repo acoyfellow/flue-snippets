@@ -1,13 +1,13 @@
 ---
 title: ai-gateway
-tagline: 'Workers AI through a Cloudflare AI Gateway. Caching, observability, retries — for free.'
+tagline: 'Workers AI through a Cloudflare AI Gateway. Caching, observability, retries, for free.'
 composes: [AI Gateway, Workers AI]
 ---
 
 # ai-gateway
 
 > Workers AI through a Cloudflare AI Gateway. Caching, observability,
-> retries — for free.
+> retries, for free.
 
 ```sh
 export CLOUDFLARE_GATEWAY_ID=jordan  # or your gateway name

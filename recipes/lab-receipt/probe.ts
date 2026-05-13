@@ -1,12 +1,12 @@
 /**
- * probe.ts — the real assertion for lab-receipt.
+ * probe.ts, the real assertion for lab-receipt.
  *
  * POST a prompt, expect:
  *   - HTTP 200
  *   - body.result.answer.text is a non-empty string
  *   - body.result.receipt is a https://lab... URL that itself returns 200
  *
- * Pure fetch + JSON. No bash heredocs, no python one-liners — model
+ * Pure fetch + JSON. No bash heredocs, no python one-liners, model
  * responses with literal newlines breaks both.
  *
  * Required env: AGENT_URL

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# run-e2e.sh — full E2E for the mcp-client snippet.
+# run-e2e.sh, full E2E for the mcp-client snippet.
 #
 # Deploys TWO Workers (MCP server + Flue client), warms up the client,
 # runs the gateproof plan against it, then destroys both.

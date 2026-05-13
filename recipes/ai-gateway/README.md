@@ -1,18 +1,18 @@
 ---
 title: ai-gateway
-tagline: 'Caching, observability, retry, rate limiting — for free, per prompt.'
+tagline: 'Caching, observability, retry, rate limiting, for free, per prompt.'
 composes: [AI Gateway, Workers AI]
 ---
 
 # ai-gateway
 
-> Caching, observability, retry, rate limiting — for free, per prompt.
+> Caching, observability, retry, rate limiting, for free, per prompt.
 
 ## Composes
 
-- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — `env.AI.run(model, args, { gateway: { id } })` routes the call through a CF gateway
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6` model
-- **[Flue](https://flueframework.com)** — agent shape (the agent uses the binding directly; doesn't go through pi-ai's HTTP path)
+- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)**, `env.AI.run(model, args, { gateway: { id } })` routes the call through a CF gateway
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/moonshotai/kimi-k2.6` model
+- **[Flue](https://flueframework.com)**, agent shape (the agent uses the binding directly; doesn't go through pi-ai's HTTP path)
 
 ## What it proves
 

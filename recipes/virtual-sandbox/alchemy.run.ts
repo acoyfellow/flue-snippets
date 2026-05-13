@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for the virtual-sandbox recipe.
+ * alchemy.run.ts, declarative deploy for the virtual-sandbox recipe.
  *
  * Flue's virtual sandbox mounts an R2 bucket as the agent's filesystem.
  * Alchemy declares:

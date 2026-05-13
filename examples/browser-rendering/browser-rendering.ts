@@ -1,4 +1,4 @@
-// examples/browser-rendering — agent opens a real Chromium, fetches a
+// examples/browser-rendering, agent opens a real Chromium, fetches a
 // page, returns the title.
 
 import puppeteer from '@cloudflare/puppeteer';

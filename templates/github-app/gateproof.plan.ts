@@ -1,5 +1,5 @@
 /**
- * gateproof plan for templates/github-app — three gates:
+ * gateproof plan for templates/github-app, three gates:
  *   1. rejects-unsigned-requests
  *   2. rejects-wrong-signature
  *   3. accepts-signed-request

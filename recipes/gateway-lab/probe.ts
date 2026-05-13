@@ -1,5 +1,5 @@
 /**
- * probe.ts — assert gateway-lab returns a model answer (via gateway)
+ * probe.ts, assert gateway-lab returns a model answer (via gateway)
  * AND emits a Lab receipt that lab.coey.dev actually persists.
  *
  * Required env: AGENT_URL
@@ -41,7 +41,7 @@ if (!receipt || !/^https:\/\/[^/]+\/results\/[^/]+$/.test(receipt)) {
   process.exit(1);
 }
 if (typeof gateway !== 'string' || gateway.length === 0) {
-  console.error('result.gateway missing — agent should echo the gateway it used');
+  console.error('result.gateway missing, agent should echo the gateway it used');
   process.exit(1);
 }
 

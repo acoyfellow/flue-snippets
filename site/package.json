@@ -10,7 +10,8 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
-    "astro": "^5.0.0"
+    "astro": "^5.0.0",
+    "astro-og-canvas": "^0.11.1"
   },
   "devDependencies": {
     "@types/bun": "latest",

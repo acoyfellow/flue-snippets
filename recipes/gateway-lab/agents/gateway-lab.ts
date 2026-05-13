@@ -1,4 +1,4 @@
-// batch-c/11-gateway-lab — Flue + AI Gateway + lab
+// batch-c/11-gateway-lab, Flue + AI Gateway + lab
 //
 // Two observability planes composed:
 //   - AI Gateway sees the model traffic (latency, cost, cache hits, retries)

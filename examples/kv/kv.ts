@@ -1,4 +1,4 @@
-// examples/kv — write a key, read it back.
+// examples/kv, write a key, read it back.
 
 import type { FlueContext } from '@flue/sdk/client';
 

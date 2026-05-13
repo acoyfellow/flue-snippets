@@ -1,5 +1,5 @@
 /**
- * alchemy.run.ts — declarative deploy for snippet 11 (gateway-lab).
+ * alchemy.run.ts, declarative deploy for snippet 11 (gateway-lab).
  *
  * Snippet 06 (gateway) + Lab receipt env. Same harness shape as 01
  * with AI Gateway routing added.

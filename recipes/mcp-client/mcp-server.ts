@@ -1,11 +1,11 @@
-// recipes/mcp-client/mcp-server.ts — co-hosted MCP server Worker.
+// recipes/mcp-client/mcp-server.ts, co-hosted MCP server Worker.
 //
 // This is NOT a Flue agent. It's a raw Cloudflare Worker that uses the
 // `agents/mcp` package's McpAgent class to expose one tool over the
 // MCP Streamable HTTP transport at /mcp.
 //
 // We deliberately keep this file at the recipe root (NOT under agents/)
-// so the `flue build` pipeline ignores it — flue only scans agents/
+// so the `flue build` pipeline ignores it, flue only scans agents/
 // for Flue-style modules. alchemy.run.ts points at this file as a
 // separate Worker entrypoint and bundles it directly.
 //
@@ -14,7 +14,7 @@
 // Tool exposed:
 //   reverse_string(input: string) → { content: [{ type: 'text', text }] }
 //
-// The implementation is deterministic — no model call, no I/O. The
+// The implementation is deterministic, no model call, no I/O. The
 // recipe asserts the Flue agent (on the other Worker) successfully
 // round-trips a string through this tool via MCP.
 

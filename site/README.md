@@ -5,9 +5,9 @@ Cloudflare Workers, deployed to [flue.coey.dev](https://flue.coey.dev).
 
 ## Stack
 
-- [Astro 5](https://astro.build) — static site generation, content collections, Shiki syntax highlighting
-- [alchemy](https://alchemy.run) — declarative Worker + Assets + CustomDomain
-- [Cloudflare Workers static assets](https://developers.cloudflare.com/workers/static-assets/) — hosting
+- [Astro 5](https://astro.build), static site generation, content collections, Shiki syntax highlighting
+- [alchemy](https://alchemy.run), declarative Worker + Assets + CustomDomain
+- [Cloudflare Workers static assets](https://developers.cloudflare.com/workers/static-assets/), hosting
 
 No CSS framework, no React, no client-side runtime. Just `.astro` files
 with scoped styles and one inline `<script>` for the search input.
@@ -52,7 +52,7 @@ picked up on the next request.
 ## Deploy
 
 CI does this automatically on every push to `main` that touches `site/`
-or any snippet README — see [`.github/workflows/site.yml`](../.github/workflows/site.yml).
+or any snippet README, see [`.github/workflows/site.yml`](../.github/workflows/site.yml).
 
 To deploy manually from your laptop:
 

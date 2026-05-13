@@ -1,5 +1,5 @@
 /**
- * probe.ts — the real assertion for do-session.
+ * probe.ts, the real assertion for do-session.
  *
  * Two POSTs to the same userId path. The Flue agent stores conversation
  * history in a per-DO session, so the second turn should still be able
