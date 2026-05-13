@@ -1,0 +1,23 @@
+site/alchemy.run.ts
+  67f56c4faff3d173 37-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "f9ea08df3a423b332c96402e4742ce33d1a03ddc",
+  "prompts": {
+    "67f56c4faff3d173": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e803ff57ffeMqhPXwN6McimfM",
+        "model": "anthropic/claude-opus-4-7"
+      },
+      "human_author": "Jordan Coeyman",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 0,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}
