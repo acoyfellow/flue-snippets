@@ -1,0 +1,231 @@
+examples/worker-loader/README.md
+  67f56c4faff3d173 21-22
+recipes/do-session/README.md
+  67f56c4faff3d173 13-14,20
+examples/email-workers/README.md
+  67f56c4faff3d173 12,72,79,85-86,88
+recipes/chat-thinking/alchemy.run.ts
+  67f56c4faff3d173 2,5,7
+recipes/lab-receipt/probe.ts
+  67f56c4faff3d173 2,9
+recipes/gateway-lab/run-e2e.sh
+  67f56c4faff3d173 3,8,12-15
+examples/hyperdrive/README.md
+  67f56c4faff3d173 26
+recipes/chat-thinking/README.md
+  67f56c4faff3d173 13-16,23,29,31-34,54
+scripts/run-example.sh
+  67f56c4faff3d173 132,150,156
+site/src/components/Grid.astro
+  67f56c4faff3d173 6,9-15,18-54,58-125,127-201,204-207
+site/src/styles/global.css
+  67f56c4faff3d173 1-39,42-45,49,57-80,87-88,110,118-121,125,127-146,149,154,159,164-170,174,177,187-189,191-195,207,211,220,222,232,235,240-252
+site/src/pages/index.astro
+  67f56c4faff3d173 8,14-21,42,62-63,106,109-118,120-131,133-136,138-140,143,148-149,151-152,154-159,163-165,170-173,178-179,184-187,192-193,198-201,206-207,212-213,216-218,225-226,228,241,249-250,252-253,255-256,259,262-263,265
+site/worker.ts
+  67f56c4faff3d173 1
+templates/github-app/alchemy.run.ts
+  67f56c4faff3d173 2,6,10,12
+recipes/mcp-client/README.md
+  67f56c4faff3d173 13-17,21,24,54,66,72
+examples/r2/r2.ts
+  67f56c4faff3d173 1
+templates/github-app/probe.ts
+  67f56c4faff3d173 2,5-7
+recipes/github-triage/alchemy.run.ts
+  67f56c4faff3d173 2
+recipes/github-triage/run-e2e.sh
+  67f56c4faff3d173 3
+examples/hyperdrive/hyperdrive.ts
+  67f56c4faff3d173 1,8
+examples/hyperdrive/run-e2e.sh
+  67f56c4faff3d173 2
+SECURITY.md
+  67f56c4faff3d173 20
+recipes/do-session/probe.ts
+  67f56c4faff3d173 2
+recipes/lab-receipt/agents/lab-receipt.ts
+  67f56c4faff3d173 1,7
+recipes/lab-receipt/README.md
+  67f56c4faff3d173 13-15,21
+recipes/github-triage/agents/github-triage.ts
+  67f56c4faff3d173 1-3,22
+examples/vectorize/vectorize.ts
+  67f56c4faff3d173 1
+site/src/components/Step.astro
+  67f56c4faff3d173 11,14-15,18-19,23-24,37,41,44-45,48,51-52,54,60-71,74-80,85,87-89,91-95
+recipes/ai-gateway/agents/ai-gateway.ts
+  67f56c4faff3d173 1,4
+site/package.json
+  67f56c4faff3d173 13-14
+examples/durable-objects/durable-objects.ts
+  67f56c4faff3d173 1,8
+recipes/ai-gateway/run-e2e.sh
+  67f56c4faff3d173 3,11,16,20-22,56
+recipes/github-triage/gateproof.plan.ts
+  67f56c4faff3d173 5
+recipes/lab-checkpoint/probe-mid.ts
+  67f56c4faff3d173 2,7
+examples/email-workers/email-workers.ts
+  67f56c4faff3d173 1-4,28,33,40-41,44,60
+recipes/virtual-sandbox/agents/virtual-sandbox.ts
+  67f56c4faff3d173 1-3,18-19
+templates/github-app/README.md
+  67f56c4faff3d173 13,20,24,58-62,97,108
+templates/github-app/run-e2e.sh
+  67f56c4faff3d173 3,48
+site/alchemy.run.ts
+  67f56c4faff3d173 2,15,19-20
+site/README.md
+  67f56c4faff3d173 8-10,55
+templates/github-app/skills/pr-review.md
+  67f56c4faff3d173 6-8,13-15
+templates/github-app/skills/triage.md
+  67f56c4faff3d173 6-8,13-16
+templates/github-app/lib/github.ts
+  67f56c4faff3d173 1
+recipes/lab-checkpoint/README.md
+  67f56c4faff3d173 13-15,21
+site/src/components/FAQ.astro
+  67f56c4faff3d173 14
+templates/github-app/agents/webhook.ts
+  67f56c4faff3d173 1,12
+recipes/chat-thinking/probe.ts
+  67f56c4faff3d173 2
+templates/github-app/gateproof.plan.ts
+  67f56c4faff3d173 2
+recipes/github-triage/skills/triage.md
+  67f56c4faff3d173 6-8
+examples/d1/d1.ts
+  67f56c4faff3d173 1
+examples/worker-loader/worker-loader.ts
+  67f56c4faff3d173 1,5
+recipes/virtual-sandbox/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/ai-gateway/alchemy.run.ts
+  67f56c4faff3d173 2,6,19
+recipes/mcp-client/probe.ts
+  67f56c4faff3d173 2,35
+recipes/lab-checkpoint/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/mcp-client/agents/mcp-client.ts
+  67f56c4faff3d173 1-4,9,15,17-19,21-22
+recipes/virtual-sandbox/alchemy.run.ts
+  67f56c4faff3d173 2
+examples/kv/kv.ts
+  67f56c4faff3d173 1
+recipes/github-triage/README.md
+  67f56c4faff3d173 3,9,13-15,20,23,42,45,61,68
+recipes/lab-receipt/gateproof.plan.ts
+  67f56c4faff3d173 12-13
+.github/workflows/e2e.yml
+  67f56c4faff3d173 7-9,104,124
+CONTRIBUTING.md
+  67f56c4faff3d173 51,53,55
+recipes/do-governor/alchemy.run.ts
+  67f56c4faff3d173 2
+examples/browser-rendering/browser-rendering.ts
+  67f56c4faff3d173 1
+examples/queues/queues.ts
+  67f56c4faff3d173 1
+recipes/do-governor/probe.ts
+  67f56c4faff3d173 2,6,11
+recipes/virtual-sandbox/probe.ts
+  67f56c4faff3d173 2
+recipes/do-session/alchemy.run.ts
+  67f56c4faff3d173 2
+.github/workflows/site.yml
+  67f56c4faff3d173 8
+recipes/ai-gateway/README.md
+  67f56c4faff3d173 3,9,13-15
+recipes/chat-thinking/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/do-governor/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/mcp-client/mcp-server.ts
+  67f56c4faff3d173 1,8,17
+recipes/do-session/agents/do-session.ts
+  67f56c4faff3d173 1,4
+recipes/gateway-lab/alchemy.run.ts
+  67f56c4faff3d173 2
+examples/ai-gateway/README.md
+  67f56c4faff3d173 3,10
+recipes/virtual-sandbox/README.md
+  67f56c4faff3d173 13-16,21,23,39
+site/.astro/data-store.json
+  67f56c4faff3d173 1
+recipes/ai-gateway/probe.ts
+  67f56c4faff3d173 2,37
+recipes/gateway-lab/agents/gateway-lab.ts
+  67f56c4faff3d173 1
+recipes/mcp-client/alchemy.run.ts
+  67f56c4faff3d173 2,6,11,17,21-22,35
+recipes/lab-checkpoint/agents/lab-checkpoint.ts
+  67f56c4faff3d173 1
+recipes/lab-checkpoint/alchemy.run.ts
+  67f56c4faff3d173 2
+recipes/chat-thinking/agents/chat-thinking.ts
+  67f56c4faff3d173 1-3,23-25,35,37,47,50,52,55,58
+recipes/lab-receipt/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/do-session/run-e2e.sh
+  67f56c4faff3d173 3
+recipes/do-governor/README.md
+  67f56c4faff3d173 13-15
+examples/workers-ai/workers-ai.ts
+  67f56c4faff3d173 1
+recipes/github-triage/probe.ts
+  67f56c4faff3d173 2,9,78
+recipes/mcp-client/run-e2e.sh
+  67f56c4faff3d173 3
+examples/ai-gateway/ai-gateway.ts
+  67f56c4faff3d173 1,4
+recipes/lab-checkpoint/gateproof.plan.ts
+  67f56c4faff3d173 5,7
+recipes/lab-receipt/alchemy.run.ts
+  67f56c4faff3d173 2
+site/.astro/settings.json
+  67f56c4faff3d173 3
+site/src/components/Hero.astro
+  67f56c4faff3d173 8-10,12-15,21,23,26-27,29,32-34
+site/src/pages/og/[route].ts
+  67f56c4faff3d173 1-19,21,24-29,31-67
+recipes/gateway-lab/README.md
+  67f56c4faff3d173 13-16,22
+examples/email-workers/run-e2e.sh
+  67f56c4faff3d173 2
+recipes/do-governor/agents/do-governor.ts
+  67f56c4faff3d173 1
+README.md
+  67f56c4faff3d173 10,13-15,23,25,29,104-108,118-120,132
+recipes/do-governor/gateproof.plan.ts
+  67f56c4faff3d173 8,12
+recipes/gateway-lab/probe.ts
+  67f56c4faff3d173 2,44
+recipes/mcp-client/gateproof.plan.ts
+  67f56c4faff3d173 5
+site/src/components/WhyFlue.astro
+  67f56c4faff3d173 2-3,7-13,17-19,22-23,25-26
+recipes/lab-checkpoint/probe-first.ts
+  67f56c4faff3d173 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "391f2607567cbf40278e7909a95ae030e8f29982",
+  "prompts": {
+    "67f56c4faff3d173": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e803ff57ffeMqhPXwN6McimfM",
+        "model": "anthropic/claude-opus-4-7"
+      },
+      "human_author": "Jordan Coeyman",
+      "messages": [],
+      "total_additions": 3263,
+      "total_deletions": 819,
+      "accepted_lines": 3263,
+      "overriden_lines": 0
+    }
+  }
+}
