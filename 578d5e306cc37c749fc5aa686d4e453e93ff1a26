@@ -1,0 +1,23 @@
+.github/workflows/site.yml
+  67f56c4faff3d173 41-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "578d5e306cc37c749fc5aa686d4e453e93ff1a26",
+  "prompts": {
+    "67f56c4faff3d173": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e803ff57ffeMqhPXwN6McimfM",
+        "model": "anthropic/claude-opus-4-7"
+      },
+      "human_author": "Jordan Coeyman",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 1,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}
