@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "c813f0f739c8ea2712cc9babd782e489b85abcb6",
+  "prompts": {
+    "67f56c4faff3d173": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e803ff57ffeMqhPXwN6McimfM",
+        "model": "anthropic/claude-opus-4-7"
+      },
+      "human_author": "Jordan Coeyman",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 9,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
