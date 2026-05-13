@@ -11,7 +11,7 @@ composes: [Workers AI, Durable Objects, Flue skills]
 ## Composes
 
 - **[Flue](https://flueframework.com)** — agent shape, skills, structured output via a [valibot](https://valibot.dev) schema
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — the model (`@cf/meta/llama-4-scout-17b-16e-instruct`)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — the model (`@cf/moonshotai/kimi-k2.6`)
 - **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — Flue auto-creates one per agent
 
 ## What it proves

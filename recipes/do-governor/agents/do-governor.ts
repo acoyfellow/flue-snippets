@@ -43,7 +43,7 @@ function govern(state: RunState, event: string) {
 
 export default async function ({ init, payload }: FlueContext) {
   const agent = await init({
-    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
   });
   const session = await agent.session();
 

@@ -12,7 +12,7 @@ composes: [R2, Workers AI, Durable Objects]
 
 - **[Flue](https://flueframework.com)** — `getVirtualSandbox()` mounts a bucket at `/workspace`
 - **[R2](https://developers.cloudflare.com/r2/)** — the backing blob store for the virtual filesystem
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-4-scout-17b-16e-instruct` as the model
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6` as the model
 - **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — auto-wired by Flue for sandbox metadata + session
 
 ## What it proves

@@ -68,7 +68,7 @@ export default async function ({ payload, env }: FlueContext & { env: Env }) {
     return { ok: false, code: 'E_MISSING_EMAIL_TO', error: 'EMAIL_TO not configured and no payload.to' };
   }
 
-  const ai = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+  const ai = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
     prompt: `Draft a short, plain-text email body (2-4 sentences, no greeting, no signature) about:\n\n${context}`,
   });
   const text = ai.response.trim();

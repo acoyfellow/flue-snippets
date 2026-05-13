@@ -57,7 +57,7 @@ What happens:
 ## What the agent does
 
 ```ts
-const ai = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+const ai = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
   prompt: `Draft a short, plain-text email body about: ${context}`,
 });
 const { messageId } = await env.EMAIL.send({

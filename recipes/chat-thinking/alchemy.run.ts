@@ -8,7 +8,7 @@
  *     `agents/chat-thinking.ts`. Holds the persistent chat history per
  *     chatId (SQLite-backed, geo-pinned, restart-safe).
  *
- * Plus the `AI` binding for Workers AI (the llama-4-scout completion
+ * Plus the `AI` binding for Workers AI (the kimi-k2.6 completion
  * model Think calls via `workers-ai-provider`).
  *
  * No wrangler. `alchemy deploy` owns the resource graph;

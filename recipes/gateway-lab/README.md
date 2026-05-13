@@ -11,7 +11,7 @@ composes: [AI Gateway, Workers AI, lab]
 ## Composes
 
 - **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — model traffic plane (latency, cost, cache hits, retries)
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-3.1-8b-instruct`
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6`
 - **[`@acoyfellow/lab`](https://lab.coey.dev)** — work plane (input, output, capabilities)
 - **[Flue](https://flueframework.com)** — agent shape
 

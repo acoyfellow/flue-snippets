@@ -5,7 +5,7 @@
 // spinning up a real container — backed by a DO + SQLite metadata layer
 // and R2 blobs under the hood.
 //
-// Uses Workers AI (llama-4-scout) so this snippet is free-tier-friendly
+// Uses Workers AI (kimi-k2.6) so this snippet is free-tier-friendly
 // and has no third-party vendor key requirement.
 
 import type { FlueContext } from '@flue/sdk/client';
@@ -35,7 +35,7 @@ export default async function ({ init, payload, env }: FlueContext & { env: Env 
 
   const agent = await init({
     sandbox,
-    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
   });
   const session = await agent.session();
 

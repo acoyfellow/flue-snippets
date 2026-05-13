@@ -35,7 +35,7 @@ export class Thinker extends Think<Env> {
     const workersAi = createWorkersAI({
       binding: this.env.AI as Parameters<typeof createWorkersAI>[0]['binding'],
     });
-    return workersAi('@cf/meta/llama-4-scout-17b-16e-instruct');
+    return workersAi('@cf/moonshotai/kimi-k2.6');
   }
 }
 

@@ -11,7 +11,7 @@ composes: [Workers AI, lab]
 ## Composes
 
 - **[Flue](https://flueframework.com)** — the agent shape (`init` → `session` → `prompt`)
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-4-scout` for the model call
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/kimi-k2.6` for the model call
 - **[`@acoyfellow/lab`](https://lab.coey.dev)** — `createReceipt({...})` for the audit trail
 
 ## What it proves

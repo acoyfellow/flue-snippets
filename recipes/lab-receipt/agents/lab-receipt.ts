@@ -4,7 +4,7 @@
 // One URL is the entire interface to anyone who wants to audit, fork,
 // or hand the work off to the next agent.
 //
-// Uses Workers AI (llama-3.1-8b) for the model call — cheap, idiomatic
+// Uses Workers AI (kimi-k2.6) for the model call — cheap, idiomatic
 // for the Cloudflare target, no separate vendor key needed.
 
 import { createLabClient } from '@acoyfellow/lab';
@@ -16,7 +16,7 @@ export default async function ({ init, payload, env }: FlueContext) {
   const lab = createLabClient({ baseUrl: env.LAB_URL });
 
   const agent = await init({
-    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
   });
   const session = await agent.session();
 

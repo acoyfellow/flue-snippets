@@ -56,7 +56,7 @@ npx alchemy deploy --stage prod
 ## Composes
 
 - **[Flue](https://flueframework.com)** — agent shape, skills, structured output
-- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-4-scout-17b-16e-instruct`
+- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6`
 - **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — Flue auto-creates one per webhook delivery
 - **[`@octokit/core`](https://github.com/octokit/core.js)** — tiny GitHub REST client
 - **[`valibot`](https://valibot.dev)** — runtime schema for structured output

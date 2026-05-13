@@ -10,7 +10,7 @@ export const triggers = { webhook: true };
 
 export default async function ({ init, payload, env }: FlueContext) {
   const agent = await init({
-    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
   });
   const session = await agent.session();
   const cycle = (payload.cycle ?? 0) + 1;

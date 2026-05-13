@@ -21,7 +21,7 @@ export const triggers = { webhook: true };
 
 export default async function ({ payload, env }: FlueContext & { env: Env }) {
   const result = await env.AI.run(
-    '@cf/meta/llama-3.1-8b-instruct',
+    '@cf/moonshotai/kimi-k2.6',
     { prompt: payload.message },
     {
       gateway: {

@@ -4,7 +4,7 @@
 // geo-pinning to the user's location. Zero session-store code — Flue
 // handles it via DOs automatically when deployed to Cloudflare.
 //
-// Uses Workers AI (llama-4-scout) so this snippet is free-tier-friendly
+// Uses Workers AI (kimi-k2.6) so this snippet is free-tier-friendly
 // and has no third-party vendor key requirement.
 
 import type { FlueContext } from '@flue/sdk/client';
@@ -17,7 +17,7 @@ export const triggers = { webhook: true };
 // same DO = same conversation history. New userId = fresh agent.
 export default async function ({ init, payload }: FlueContext) {
   const agent = await init({
-    model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
   });
   const session = await agent.session();
 

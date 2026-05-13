@@ -23,7 +23,7 @@ export default async function ({ payload, env }: FlueContext & { env: Env }) {
   const lab = createLabClient({ baseUrl: env.LAB_URL });
 
   const ai = await env.AI.run(
-    '@cf/meta/llama-3.1-8b-instruct',
+    '@cf/moonshotai/kimi-k2.6',
     { prompt: payload.message },
     { gateway: { id: env.CLOUDFLARE_GATEWAY_ID } },
   );
@@ -36,7 +36,7 @@ export default async function ({ payload, env }: FlueContext & { env: Env }) {
     capabilities: ['model.workers-ai-via-gateway'],
     metadata: {
       gatewayId: env.CLOUDFLARE_GATEWAY_ID,
-      model: '@cf/meta/llama-3.1-8b-instruct',
+      model: '@cf/moonshotai/kimi-k2.6',
     },
   });
 

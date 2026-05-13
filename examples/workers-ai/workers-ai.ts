@@ -12,7 +12,7 @@ interface Env {
 export const triggers = { webhook: true };
 
 export default async function ({ payload, env }: FlueContext & { env: Env }) {
-  const out = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+  const out = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
     prompt: payload.message ?? 'Say hi.',
   });
   return { answer: out.response };

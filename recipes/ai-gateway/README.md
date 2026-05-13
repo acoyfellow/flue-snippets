@@ -11,7 +11,7 @@ composes: [AI Gateway, Workers AI]
 ## Composes
 
 - **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)** — `env.AI.run(model, args, { gateway: { id } })` routes the call through a CF gateway
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/meta/llama-3.1-8b-instruct` model
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — `@cf/moonshotai/kimi-k2.6` model
 - **[Flue](https://flueframework.com)** — agent shape (the agent uses the binding directly; doesn't go through pi-ai's HTTP path)
 
 ## What it proves

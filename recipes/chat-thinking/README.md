@@ -13,7 +13,7 @@ composes: [Cloudflare Think, Durable Objects, Workers AI]
 - **[Flue](https://flueframework.com)** — webhook agent, the autonomous/headless entry point
 - **[`@cloudflare/think`](https://developers.cloudflare.com/agents/api-reference/think/)** — opinionated chat agent base class with tree-structured messages, context blocks, FTS5 search, and non-destructive compaction
 - **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — SQLite-backed namespace that gives every chatId its own persistent Think instance
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — llama-4-scout via [`workers-ai-provider`](https://www.npmjs.com/package/workers-ai-provider)
+- **[Workers AI](https://developers.cloudflare.com/workers-ai/)** — kimi-k2.6 via [`workers-ai-provider`](https://www.npmjs.com/package/workers-ai-provider)
 
 ## What it proves
 

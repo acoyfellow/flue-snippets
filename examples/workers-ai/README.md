@@ -12,5 +12,5 @@ composes: [Workers AI]
 bash examples/workers-ai/run-e2e.sh
 ```
 
-The agent binds `env.AI` and runs `@cf/meta/llama-3.1-8b-instruct`.
+The agent binds `env.AI` and runs `@cf/moonshotai/kimi-k2.6`.
 That's it.

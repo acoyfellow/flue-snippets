@@ -14,7 +14,7 @@ export const triggers = { webhook: true };
 
 export default async function ({ payload, env }: FlueContext & { env: Env }) {
   const out = await env.AI.run(
-    '@cf/meta/llama-3.1-8b-instruct',
+    '@cf/moonshotai/kimi-k2.6',
     { prompt: payload.message ?? 'Say hi.' },
     { gateway: { id: env.CLOUDFLARE_GATEWAY_ID, skipCache: false, cacheTtl: 3600 } },
   );

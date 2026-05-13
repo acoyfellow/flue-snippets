@@ -99,7 +99,7 @@ export default async function ({
 
   if (event === 'issues' && hook.action === 'opened' && hook.issue) {
     const agent = await init({
-      model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+      model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
     });
     const session = await agent.session();
     const { data } = await session.skill('triage', {
@@ -128,7 +128,7 @@ export default async function ({
 
   if (event === 'pull_request' && hook.action === 'opened' && hook.pull_request) {
     const agent = await init({
-      model: 'cloudflare-workers-ai/@cf/meta/llama-4-scout-17b-16e-instruct',
+      model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
     });
     const session = await agent.session();
     const { data } = await session.skill('pr-review', {
