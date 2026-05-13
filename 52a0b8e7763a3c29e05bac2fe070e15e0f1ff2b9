@@ -1,0 +1,75 @@
+recipes/gateway-lab/README.md
+  67f56c4faff3d173 14
+templates/github-app/README.md
+  67f56c4faff3d173 59
+examples/email-workers/email-workers.ts
+  67f56c4faff3d173 71
+recipes/github-triage/README.md
+  67f56c4faff3d173 14
+recipes/chat-thinking/agents/chat-thinking.ts
+  67f56c4faff3d173 38
+recipes/gateway-lab/agents/gateway-lab.ts
+  67f56c4faff3d173 26,39
+examples/ai-gateway/ai-gateway.ts
+  67f56c4faff3d173 17
+site/src/pages/index.astro
+  67f56c4faff3d173 24,41,69,96
+examples/email-workers/README.md
+  67f56c4faff3d173 60
+recipes/do-session/agents/do-session.ts
+  67f56c4faff3d173 7,20
+recipes/lab-checkpoint/agents/lab-checkpoint.ts
+  67f56c4faff3d173 13
+recipes/virtual-sandbox/README.md
+  67f56c4faff3d173 15
+examples/workers-ai/README.md
+  67f56c4faff3d173 15
+recipes/lab-receipt/agents/lab-receipt.ts
+  67f56c4faff3d173 7,19
+templates/github-app/agents/webhook.ts
+  67f56c4faff3d173 102,131
+recipes/chat-thinking/alchemy.run.ts
+  67f56c4faff3d173 11
+examples/workers-ai/workers-ai.ts
+  67f56c4faff3d173 15
+recipes/ai-gateway/README.md
+  67f56c4faff3d173 14
+site/.astro/data-store.json
+  67f56c4faff3d173 1
+README.md
+  67f56c4faff3d173 43
+recipes/ai-gateway/agents/ai-gateway.ts
+  67f56c4faff3d173 24
+recipes/do-governor/agents/do-governor.ts
+  67f56c4faff3d173 46
+recipes/chat-thinking/README.md
+  67f56c4faff3d173 16
+recipes/github-triage/agents/github-triage.ts
+  67f56c4faff3d173 39
+recipes/lab-receipt/README.md
+  67f56c4faff3d173 14
+recipes/virtual-sandbox/agents/virtual-sandbox.ts
+  67f56c4faff3d173 8,38
+recipes/mcp-client/agents/mcp-client.ts
+  67f56c4faff3d173 13,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "52a0b8e7763a3c29e05bac2fe070e15e0f1ff2b9",
+  "prompts": {
+    "67f56c4faff3d173": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1e803ff57ffeMqhPXwN6McimfM",
+        "model": "anthropic/claude-opus-4-7"
+      },
+      "human_author": "Jordan Coeyman",
+      "messages": [],
+      "total_additions": 36,
+      "total_deletions": 36,
+      "accepted_lines": 36,
+      "overriden_lines": 0
+    }
+  }
+}
