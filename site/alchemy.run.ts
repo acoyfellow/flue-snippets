@@ -34,6 +34,11 @@ const worker = await Worker(`flue-snippets-site-${STAGE}`, {
   entrypoint: './worker.ts',
   compatibilityDate: '2026-04-23',
   compatibility: 'node',
+  // adopt: take ownership of an existing Worker by this name if one
+  // is already deployed (e.g. from a previous CI run). Without this,
+  // alchemy on a fresh runner has no local state and fails the second
+  // deploy with a name collision.
+  adopt: true,
   bindings: {
     ASSETS: assets,
   },
