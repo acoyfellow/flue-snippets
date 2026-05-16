@@ -39,7 +39,7 @@
     "@flue/sdk": "^0.3.11",
     "@types/bun": "latest",
     "alchemy": "^0.93.7",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@acoyfellow/lab": "^0.0.3",
