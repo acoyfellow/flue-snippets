@@ -84,6 +84,7 @@ Flue + a Cloudflare primitive + an open-source receipt/proof layer
 | [chat-thinking](recipes/chat-thinking) | Flue + [Cloudflare Think](https://developers.cloudflare.com/agents/api-reference/think/) (DO chat agent) |
 | [virtual-sandbox](recipes/virtual-sandbox) | Flue virtual sandbox + R2 |
 | [mcp-client](recipes/mcp-client) | Flue + co-hosted MCP server (Workers) |
+| [dynamic-workflow](recipes/dynamic-workflow) | Durable Objects + [Workflows](https://developers.cloudflare.com/workflows/) |
 
 Each recipe's README explains what it composes, what it proves, how to run it.
 

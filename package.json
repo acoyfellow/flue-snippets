@@ -15,6 +15,7 @@
     "rx:chat-thinking": "bash recipes/chat-thinking/run-e2e.sh",
     "rx:virtual-sandbox": "bash recipes/virtual-sandbox/run-e2e.sh",
     "rx:mcp-client": "bash recipes/mcp-client/run-e2e.sh",
+    "rx:dynamic-workflow": "bash recipes/dynamic-workflow/run-e2e.sh",
     "tpl:github-app": "bash templates/github-app/run-e2e.sh",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

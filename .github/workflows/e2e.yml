@@ -47,6 +47,7 @@ on:
           - recipes/chat-thinking
           - recipes/virtual-sandbox
           - recipes/mcp-client
+          - recipes/dynamic-workflow
           # templates
           - templates/github-app
 
@@ -86,6 +87,7 @@ jobs:
           - recipes/chat-thinking
           - recipes/virtual-sandbox
           - recipes/mcp-client
+          - recipes/dynamic-workflow
           # templates/
           - templates/github-app
 
