@@ -53,7 +53,7 @@ const runner = await Worker(`flue-rx-dynwf-run-${SHA}`, {
 // 2. Flue agent Worker — talks to the runner via a service binding.
 //    `flue build` emits the DynamicWorkflow DO class (one per agent file).
 const client = await Worker(`flue-rx-dynwf-cli-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

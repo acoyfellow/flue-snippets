@@ -9,7 +9,7 @@
  *      at /mcp via the Streamable HTTP MCP transport.
  *
  *   2. flue-rx-mcp-cli , the Flue agent that consumes the server. Built
- *      by `flue build` into `.build/dist/_entry.ts`, deployed with its
+ *      by `flue build` into `.build/_entry.ts`, deployed with its
  *      own DO namespace + Workers AI binding, and given the server's
  *      `/mcp` URL via the MCP_URL var.
  *
@@ -53,7 +53,7 @@ const server = await Worker(`flue-rx-mcp-srv-${STAGE}`, {
 //    where to connect. McpClient is the auto-generated DO class name
 //    Flue emits for the `mcp-client` agent.
 const client = await Worker(`flue-rx-mcp-cli-${STAGE}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

@@ -18,7 +18,7 @@ const GATEWAY_ID = process.env.CLOUDFLARE_GATEWAY_ID ?? 'jordan';
 const app = await alchemy('flue-11-gateway-lab', { stage: STAGE });
 
 const worker = await Worker(`flue-11-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

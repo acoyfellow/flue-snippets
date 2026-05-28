@@ -17,7 +17,7 @@ const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';
 const app = await alchemy('flue-18-lab-checkpoint', { stage: STAGE });
 
 const worker = await Worker(`flue-18-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

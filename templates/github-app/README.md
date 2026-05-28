@@ -43,7 +43,7 @@ export GITHUB_TOKEN=<your GH App installation token>
 
 # 4. Deploy
 bun install
-npx flue build --target cloudflare --workspace . --output .build
+npx flue build --target cloudflare --root . --output .build
 npx alchemy deploy --stage prod
 
 # 5. Register the GitHub App on github.com

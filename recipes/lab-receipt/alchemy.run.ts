@@ -2,7 +2,7 @@
  * alchemy.run.ts, declarative deploy for snippet 01.
  *
  * Run order:
- *   1. `flue build --target cloudflare` produces `.build/dist/_entry.ts`
+ *   1. `flue build --target cloudflare` produces `.build/_entry.ts`
  *      (the bundled-by-wrangler-downstream module that exports the worker
  *      default + the `LabReceipt` Durable Object class).
  *   2. `bun run alchemy.run.ts` deploys via alchemy:
@@ -27,7 +27,7 @@ const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';
 const app = await alchemy('flue-01-lab-receipt', { stage: STAGE });
 
 const worker = await Worker(`flue-01-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

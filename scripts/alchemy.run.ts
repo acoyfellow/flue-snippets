@@ -160,6 +160,14 @@ const examples = {
       WorkersAi: DurableObjectNamespace('WorkersAi', { className: 'WorkersAi', sqlite: true }),
     },
   }),
+  'effect-hello': async () => ({
+    app: 'flue-ex-effect-hello',
+    worker: 'flue-ex-effhello',
+    bindings: {
+      AI: Ai(),
+      EffectHello: DurableObjectNamespace('EffectHello', { className: 'EffectHello', sqlite: true }),
+    },
+  }),
 } satisfies Record<
   string,
   () => Promise<{ app: string; worker: string; bindings: Record<string, unknown> }>
@@ -182,12 +190,13 @@ const configMeta: Record<string, { app: string; worker: string }> = {
   vectorize: { app: 'flue-ex-vectorize', worker: 'flue-ex-vec' },
   'worker-loader': { app: 'flue-ex-worker-loader', worker: 'flue-ex-wl' },
   'workers-ai': { app: 'flue-ex-workers-ai', worker: 'flue-ex-wai' },
+  'effect-hello': { app: 'flue-ex-effect-hello', worker: 'flue-ex-effhello' },
 };
 
 const app = await alchemy(configMeta[EXAMPLE].app, { stage: STAGE });
 const { worker: workerName, bindings } = await config();
 const worker = await Worker(`${workerName}-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings,

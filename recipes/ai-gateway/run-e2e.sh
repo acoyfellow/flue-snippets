@@ -2,7 +2,7 @@
 #
 # run-e2e.sh, full E2E for snippet 06 (ai-gateway).
 #
-# 1. flue build → .build/dist/_entry.ts
+# 1. flue build → .build/_entry.ts
 # 2. alchemy deploy
 # 3. Poll for route propagation
 # 4. gateproof Plan asserts the worker reaches Workers AI through the gateway
@@ -38,7 +38,7 @@ trap cleanup EXIT INT TERM
 
 echo "::group::flue build"
 rm -rf .build .alchemy
-npx flue build --target cloudflare --workspace . --output .build
+npx flue build --target cloudflare --root . --output .build
 echo "::endgroup::"
 
 echo "::group::alchemy deploy (stage=$STAGE)"

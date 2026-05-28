@@ -17,6 +17,8 @@
     "rx:mcp-client": "bash recipes/mcp-client/run-e2e.sh",
     "rx:dynamic-workflow": "bash recipes/dynamic-workflow/run-e2e.sh",
     "tpl:github-app": "bash templates/github-app/run-e2e.sh",
+    "update": "bun scripts/update.ts",
+    "check:update": "cd site && bun run build",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "ex:ai-gateway": "bash scripts/run-example.sh ai-gateway",
@@ -31,12 +33,13 @@
     "ex:vectorize": "bash scripts/run-example.sh vectorize",
     "ex:worker-loader": "bash scripts/run-example.sh worker-loader",
     "ex:workers-ai": "bash scripts/run-example.sh workers-ai",
+    "ex:effect-hello": "bash scripts/run-example.sh effect-hello",
     "ex": "bash scripts/run-example.sh"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "@flue/cli": "^0.3.11",
-    "@flue/sdk": "^0.3.11",
+    "@biomejs/biome": "^2.4.15",
+    "@flue/cli": "^0.7.0",
+    "@flue/sdk": "^0.7.0",
     "@types/bun": "latest",
     "alchemy": "^0.93.7",
     "typescript": "^6.0.3"
@@ -45,13 +48,13 @@
     "@acoyfellow/lab": "^0.0.3",
     "@cloudflare/puppeteer": "^1.1.0",
     "@cloudflare/think": "latest",
-    "@octokit/core": "^6.1.2",
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "agents": "^0.12.3",
+    "@octokit/core": "^6.1.6",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "agents": "^0.12.4",
     "gateproof": "latest",
-    "postgres": "^3.4.4",
-    "valibot": "^1.0.0",
-    "workers-ai-provider": "^0.5.0",
-    "zod": "^3.23.0"
+    "postgres": "^3.4.9",
+    "valibot": "^1.4.0",
+    "workers-ai-provider": "^0.5.3",
+    "zod": "^3.25.76"
   }
 }

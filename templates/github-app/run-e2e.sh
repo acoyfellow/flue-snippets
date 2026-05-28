@@ -24,7 +24,7 @@ trap cleanup EXIT INT TERM
 
 echo "::group::flue build"
 rm -rf .build .alchemy
-npx flue build --target cloudflare --workspace . --output .build
+npx flue build --target cloudflare --root . --output .build
 echo "::endgroup::"
 
 echo "::group::alchemy deploy (stage=$STAGE)"

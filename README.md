@@ -54,6 +54,7 @@ One Flue agent, one Cloudflare binding.
 | Example | Cloudflare product |
 |---|---|
 | [workers-ai](examples/workers-ai) | [Workers AI](https://developers.cloudflare.com/workers-ai/) |
+| [effect-hello](examples/effect-hello) | [Workers AI](https://developers.cloudflare.com/workers-ai/) + [Effect v4](https://github.com/Effect-TS/effect-smol) (smallest Flue agent whose body is an Effect program) |
 | [kv](examples/kv) | [Workers KV](https://developers.cloudflare.com/workers/runtime-apis/kv/) |
 | [r2](examples/r2) | [R2](https://developers.cloudflare.com/r2/) |
 | [d1](examples/d1) | [D1](https://developers.cloudflare.com/d1/) |
@@ -97,6 +98,19 @@ bun tpl:<name>   # templates/<name>/run-e2e.sh
 ```
 
 See [`package.json`](package.json) for the full list.
+
+## Refresh dependencies
+
+```sh
+bun run update
+```
+
+That repeatable maintenance command runs `bun update` in the repo and in
+[`site/`](site), refreshes the homepage's visible “Last dependency refresh”
+timestamp when Bun bumps package manifest versions, then runs the site production
+build. If the Flue CLI/runtime or a dependency used by a snippet changes shape,
+also update the affected example/recipe/template and run its live E2E (`bun
+ex:<name>`, `bun rx:<name>`, or `bun tpl:<name>`) before shipping.
 
 ## End-to-end flow
 

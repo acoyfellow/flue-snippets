@@ -2,7 +2,7 @@
 #
 # run-e2e.sh, full end-to-end harness for the lab-receipt snippet.
 #
-# 1. flue build       → .build/dist/_entry.ts
+# 1. flue build       → .build/_entry.ts
 # 2. alchemy deploy   → declares Worker + DO + vars, prints URL
 # 3. Warmup           → poll /health, then POST agent route until 200
 #                       (covers both edge propagation and Workers AI cold
@@ -30,7 +30,7 @@ trap cleanup EXIT INT TERM
 
 echo "::group::flue build"
 rm -rf .build .alchemy
-npx flue build --target cloudflare --workspace . --output .build
+npx flue build --target cloudflare --root . --output .build
 echo "::endgroup::"
 
 echo "::group::alchemy deploy (stage=$STAGE)"

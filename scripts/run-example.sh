@@ -24,7 +24,7 @@ echo "::group::flue build"
 rm -rf "$WORKSPACE/.build" "$WORKSPACE/.alchemy" "$WORKSPACE/agents"
 mkdir -p "$WORKSPACE/agents"
 ln -sf "../$EXAMPLE.ts" "$WORKSPACE/agents/$EXAMPLE.ts"
-npx flue build --target cloudflare --workspace "$WORKSPACE" --output "$WORKSPACE/.build"
+npx flue build --target cloudflare --root "$WORKSPACE" --output "$WORKSPACE/.build"
 echo "::endgroup::"
 
 echo "::group::alchemy deploy"
@@ -66,6 +66,8 @@ payload_for() {
     browser-rendering:*) echo '{"url":"https://example.com"}' ;;
     ai-gateway:warmup|workers-ai:warmup) echo '{"message":"warmup"}' ;;
     ai-gateway:test|workers-ai:test) echo '{"message":"Say one word."}' ;;
+    effect-hello:warmup) echo '{"name":"warmup"}' ;;
+    effect-hello:test) echo '{"name":"Alice"}' ;;
     durable-objects:*) echo '{"message":"hello"}' ;;
     worker-loader:*) echo '{}' ;;
     hyperdrive:*) echo '{}' ;;
@@ -77,7 +79,7 @@ payload_for() {
 
 timeout_for() {
   case "$1" in
-    ai-gateway|workers-ai|email-workers) echo 120 ;;
+    ai-gateway|workers-ai|email-workers|effect-hello) echo 120 ;;
     browser-rendering) echo 180 ;;
     vectorize) echo 60 ;;
     hyperdrive) echo 60 ;;
@@ -126,6 +128,10 @@ assert() {
     workers-ai)
       body=$(post "$url" "$agent" test 120 "$(payload_for "$agent" test)"); echo "$body"
       echo "$body" | grep -qE '"answer":"[^"]+"' || { echo "::error::answer missing/empty"; exit 1; }
+      ;;
+    effect-hello)
+      body=$(post "$url" "$agent" test 120 "$(payload_for "$agent" test)"); echo "$body"
+      echo "$body" | grep -qE '"greeting":"[^"]+"' || { echo "::error::greeting missing/empty"; exit 1; }
       ;;
     hyperdrive)
       # Without a real Postgres reachable from Hyperdrive, the query

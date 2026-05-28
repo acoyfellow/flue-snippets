@@ -17,7 +17,7 @@ const SHA = process.env.GITHUB_SHA?.slice(0, 7) ?? 'local';
 const app = await alchemy('flue-16-do-governor', { stage: STAGE });
 
 const worker = await Worker(`flue-16-${SHA}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {

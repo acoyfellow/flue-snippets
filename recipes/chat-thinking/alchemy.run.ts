@@ -23,7 +23,7 @@ const STAGE = process.env.STAGE ?? 'local';
 const app = await alchemy('flue-rx-chat-thinking', { stage: STAGE });
 
 const worker = await Worker(`flue-rx-ct-${STAGE}`, {
-  entrypoint: '.build/dist/_entry.ts',
+  entrypoint: '.build/_entry.ts',
   compatibilityDate: '2026-04-01',
   compatibility: 'node',
   bindings: {
