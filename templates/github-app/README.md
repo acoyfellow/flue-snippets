@@ -1,134 +1,114 @@
 ---
 title: github-app
-tagline: 'A forkable GitHub App webhook handler on Cloudflare Workers, powered by Flue.'
-composes: [Workers AI, Durable Objects, octokit, valibot]
+tagline: 'A forkable GitHub App on Cloudflare Workers, powered by Flue channels.'
+composes: [Flue channels, Workers AI, Durable Objects, @flue/github]
 ---
 
 # github-app
 
-> A forkable GitHub App webhook handler on Cloudflare Workers, powered by Flue.
+> A forkable GitHub App on Cloudflare Workers, powered by a Flue **channel**.
 
-This is a **template**, not a snippet. Fork the folder, set a few
-secrets, and you have a working GitHub App that triages issues and
-flags PR risk with structured output. Production-shape, signature
-verification, multi-event routing, audit-ready receipts via Flue +
-Cloudflare's Workers AI.
+This is a **template**, not a snippet. Fork the folder, set a webhook
+secret, and you have a working GitHub App: verified webhook ingress that
+dispatches issue and pull-request opens to a triage agent. Production-shape,
+real HMAC signature verification, multi-event routing — on Flue 1.0 +
+Cloudflare Workers AI.
 
 ## What you get
 
-- ✅ HMAC-SHA256 webhook signature verification (constant-time compare)
-- ✅ Multi-event routing, `issues.opened` and `pull_request.opened`
-- ✅ Structured-output triage via Flue skills + `valibot` schemas
-  (severity / reproducible / summary)
-- ✅ Comment posted back to the issue with the triage result
+- ✅ Real HMAC-SHA256 verification over the **raw request body** via
+  [`@flue/github`](https://flueframework.com) (`x-hub-signature-256`) — no
+  re-serialization hacks; bad/missing signature → `401`
+- ✅ Multi-event routing: `issues.opened` and `pull_request.opened`
+- ✅ Each event `dispatch()`es to a per-issue/PR **agent instance**
+  (keyed by the channel's `conversationKey`)
 - ✅ Workers AI as the model, free-tier friendly, no third-party keys
-- ✅ Durable Object per webhook delivery (geo-pinned, restart-safe)
 - ✅ Gateproof E2E covering rejected-unsigned, rejected-wrong-sig, accepted-signed
 
 ## Fork & deploy
 
 ```sh
 # 1. Clone or copy this folder into your repo
-cp -r templates/github-app my-gh-app
-cd my-gh-app
+cp -r templates/github-app my-gh-app && cd my-gh-app
 
 # 2. Generate a strong webhook secret (keep it safe)
 openssl rand -hex 32
 
-# 3. Set deployment env vars
-export CLOUDFLARE_API_TOKEN=...
-export CLOUDFLARE_ACCOUNT_ID=...
-export GITHUB_WEBHOOK_SECRET=<the secret from step 2>
-export GITHUB_TOKEN=<your GH App installation token>
-
-# 4. Deploy
+# 3. Build + deploy (inject the secret as a var/secret)
 bun install
-npx flue build --target cloudflare --root . --output .build
-npx alchemy deploy --stage prod
+npx flue build --target cloudflare
+npx wrangler deploy --config dist/flue-tpl-github-app/wrangler.json \
+  --var "GITHUB_WEBHOOK_SECRET:<the secret from step 2>"
+# For production, prefer: npx wrangler secret put GITHUB_WEBHOOK_SECRET
 
-# 5. Register the GitHub App on github.com
-#    - Webhook URL: https://<your-worker>.workers.dev/agents/webhook/main
+# 4. Register the GitHub App on github.com
+#    - Webhook URL: https://<your-worker>.workers.dev/channels/github/webhook
 #    - Webhook secret: <the secret from step 2>
 #    - Permissions: Issues (R/W), Pull requests (R/W), Metadata (R)
 #    - Events: Issues, Pull request
+#    - Content type: application/json
 ```
+
+To comment back on GitHub, add an `@octokit/rest` client + a
+[tool](https://flueframework.com) bound to the triage agent (see the
+upstream `@flue/github` channel example); this template keeps the agent
+dispatch-only so the E2E stays key-free.
 
 ## Composes
 
-- **[Flue](https://flueframework.com)**, agent shape, skills, structured output
-- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/moonshotai/kimi-k2.6`
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, Flue auto-creates one per webhook delivery
-- **[`@octokit/core`](https://github.com/octokit/core.js)**, tiny GitHub REST client
-- **[`valibot`](https://valibot.dev)**, runtime schema for structured output
+- **[Flue channels](https://flueframework.com)** — `@flue/github`'s `createGitHubChannel` owns the verified ingress boundary (HMAC over raw body, typed deliveries) at `POST /channels/github/webhook`
+- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** — `cloudflare/@cf/moonshotai/kimi-k2.6`
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — one triage agent instance per issue/PR (auto-generated `FlueTriageAgent`)
 
 ## What's in here
 
 ```
 templates/github-app/
 ├── README.md
-├── agents/webhook.ts        # entry: verify signature, route by event, call skill
-├── lib/
-│   ├── verify-signature.ts  # HMAC-SHA256 via Web Crypto, constant-time compare
-│   └── github.ts            # Octokit wrapper (post issue comment)
-├── skills/
-│   ├── triage.md            # severity + reproducible + summary
-│   └── pr-review.md         # risk + summary + suggested reviewers
-├── alchemy.run.ts           # Worker + DO bindings + secrets
+├── src/
+│   ├── channels/github.ts   # createGitHubChannel: verify → dispatch to triage agent
+│   └── agents/triage.ts     # the agent each issue/PR is dispatched to
+├── wrangler.jsonc           # name, nodejs_compat, migrations, ai binding
 ├── gateproof.plan.ts        # 3 gates: unsigned / wrong-sig / signed
-├── probe.ts                 # multi-mode fetch probe
-└── run-e2e.sh               # deploy → assert → destroy
+├── probe.ts                 # signs a real x-hub-signature-256 delivery
+└── run-e2e.sh               # build → deploy → assert → delete
 ```
 
 ## Customising
 
-**Add a new event handler** (3 steps):
+**Add a new event handler**: in `src/channels/github.ts`, add a branch on
+`delivery.name` / `delivery.payload.action` and `dispatch()` to an agent
+with a stable instance id (use `channel.conversationKey(ref)` so the same
+issue/PR always lands in the same agent instance).
 
-1. In `agents/webhook.ts`, add a branch:
-   ```ts
-   if (event === 'release' && hook.action === 'published') {
-     // call a new skill, post a comment somewhere, etc.
-   }
-   ```
-2. Drop a new skill prompt in `skills/<your-skill>.md`.
-3. Add a matching `valibot` schema in `agents/webhook.ts` and call
-   `session.skill('<your-skill>', { args, schema })`.
+**Comment back**: initialize an `@octokit/rest` client from a
+`GITHUB_TOKEN` and expose a narrow `defineTool` on the triage agent that
+calls `issues.createComment` for the bound issue/PR.
 
-**Use a different model**: change the `model:` string in `agents/webhook.ts`.
-Any model supported by Flue's runtime works, Workers AI, OpenRouter, etc.
-
-**Skip the comment post**: set `GITHUB_TOKEN` to empty. The webhook
-still triages, but the result only goes back in the HTTP response.
+**Use a different model**: change the `model:` string in
+`src/agents/triage.ts`.
 
 ## Production checklist
 
-- [ ] Rotate `GITHUB_WEBHOOK_SECRET` periodically (use `wrangler secret put`)
-- [ ] Use a GitHub App installation token (short-lived) instead of a PAT
-- [ ] Add an [AI Gateway](https://developers.cloudflare.com/ai-gateway/)
-  binding for cost tracking and rate limiting (see `examples/ai-gateway/`)
-- [ ] Add structured logging, push every `handled` result to D1 or
-  Analytics Engine for a triage audit log
-- [ ] Add [`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab)
-  receipts so each delivery is replay-inspectable (see `recipes/lab-receipt`)
-- [ ] Set up [Cloudflare Workers Logs](https://developers.cloudflare.com/workers/observability/logs/)
-  to retain failures
-- [ ] Add a circuit-breaker for upstream GitHub rate limits
-
-## Known caveats
-
-- **HMAC against parsed JSON.** Flue's current `FlueContext` exposes
-  `payload` (parsed JSON), not the raw request bytes. This template
-  re-serializes the payload with `JSON.stringify` before HMAC. The
-  probe controls the wire format, so the E2E passes; in production
-  against real GitHub deliveries you'll want to switch to a custom
-  Worker fetch handler that calls `request.text()` and verifies before
-  parsing. See the TODO at the top of `agents/webhook.ts`. Track this
-  on the Flue side at https://flueframework.com.
+- [ ] Set `GITHUB_WEBHOOK_SECRET` via `wrangler secret put` (rotate periodically)
+- [ ] Use a GitHub App installation token (short-lived) for outbound Octokit calls
+- [ ] Route the model through an [AI Gateway](https://developers.cloudflare.com/ai-gateway/) (see `recipes/ai-gateway`)
+- [ ] Deduplicate on `delivery.deliveryId` — GitHub retries deliveries
+- [ ] Add [`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab) receipts for a replay-inspectable audit trail (see `recipes/lab-receipt`)
+- [ ] Set up [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/) to retain failures
 
 ## Test it locally
 
 ```sh
-bash templates/github-app/run-e2e.sh
+bun tpl:github-app
+# or: cd templates/github-app && bash run-e2e.sh
 ```
 
-The harness deploys an ephemeral Worker, runs all three gates against
-it, and tears it down. Takes ~60s, costs ~$0.0001.
+The harness builds, deploys an ephemeral Worker, runs three signature
+gates against `/channels/github/webhook` (the probe signs a real
+`x-hub-signature-256` HMAC), then deletes it. ~60s, ~$0.0001.
+
+Because `@flue/github` verifies the **raw** request body, unsigned and
+wrong-signature deliveries get a genuine `401` at the edge — and a
+correctly-signed `issues.opened` returns `200` after dispatching to the
+triage agent.
