@@ -15,8 +15,8 @@ if (!BASE) {
   process.exit(2);
 }
 
-const probeId = `mcp-${Date.now()}`;
-const url = `${BASE}/${probeId}`;
+// Flue 1.0 workflow: POST <base>?wait=result
+const url = `${BASE}?wait=result`;
 const testText = 'octarine';
 const expected = testText.split('').reverse().join(''); // 'eniratco'
 

@@ -47,10 +47,7 @@ const plan = Plan.define({
       id: 'rejects-wrong-signature',
       title: 'POST with a malformed signature is rejected with 401',
       gate: Gate.define({
-        prerequisites: [
-          Require.env('AGENT_URL_BASE'),
-          Require.env('GITHUB_WEBHOOK_SECRET'),
-        ],
+        prerequisites: [Require.env('AGENT_URL_BASE'), Require.env('GITHUB_WEBHOOK_SECRET')],
         act: [exec('wrong-signature')],
         assert: [Assert.noErrors()],
         timeoutMs: 270_000,
@@ -60,10 +57,7 @@ const plan = Plan.define({
       id: 'accepts-signed-request',
       title: 'Correctly signed issues.opened payload is triaged and returns 200',
       gate: Gate.define({
-        prerequisites: [
-          Require.env('AGENT_URL_BASE'),
-          Require.env('GITHUB_WEBHOOK_SECRET'),
-        ],
+        prerequisites: [Require.env('AGENT_URL_BASE'), Require.env('GITHUB_WEBHOOK_SECRET')],
         act: [exec('signed')],
         assert: [Assert.noErrors()],
         timeoutMs: 270_000,

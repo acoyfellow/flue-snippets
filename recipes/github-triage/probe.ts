@@ -11,7 +11,7 @@
  *
  * Pure fetch + JSON. No bash heredocs, no python one-liners.
  *
- * Required env: AGENT_URL_BASE (e.g. https://...workers.dev/agents/github-triage)
+ * Required env: AGENT_URL_BASE (e.g. https://...workers.dev/workflows/github-triage)
  */
 
 const BASE = process.env.AGENT_URL_BASE;
@@ -23,7 +23,9 @@ if (!BASE) {
 const SEVERITIES = ['low', 'medium', 'high', 'critical'] as const;
 type Severity = (typeof SEVERITIES)[number];
 
-const url = `${BASE}/probe-${Date.now()}`;
+// Flue 1.0 workflow: synchronous invocation is POST <base>?wait=result,
+// returning { result, runId }. (No per-instance id segment like agents.)
+const url = `${BASE}?wait=result`;
 
 const body = {
   issueTitle: 'App crashes when uploading large files',

@@ -9,5 +9,16 @@ dist
 .alchemy/
 .build/
 
-# wrangler (site/)
+# flue 1.0 build artifacts
+.flue-vite/
+.flue-vite.wrangler.jsonc
+
+# wrangler
 .wrangler/
+
+# Per-snippet lockfiles are install artifacts (each snippet self-installs via
+# run-e2e.sh). Not committed — avoids leaking the internal @cloudflare registry
+# URL into public lockfiles and keeps the tree lean.
+examples/*/bun.lock
+recipes/*/bun.lock
+templates/*/bun.lock

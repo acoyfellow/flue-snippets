@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-do-governor",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueDoGovernorWorkflow", "new_sqlite_classes": ["FlueDoGovernorWorkflow"] }
+  ],
+  "ai": { "binding": "AI" }
+}

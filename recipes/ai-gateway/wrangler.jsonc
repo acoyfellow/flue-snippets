@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-recipe-ai-gateway",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueAiGatewayWorkflow", "new_sqlite_classes": ["FlueAiGatewayWorkflow"] }
+  ],
+  "ai": { "binding": "AI" },
+  "vars": { "CLOUDFLARE_GATEWAY_ID": "jordan" }
+}

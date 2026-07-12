@@ -1,88 +1,65 @@
 #!/usr/bin/env bash
-#
-# run-e2e.sh, full end-to-end harness for the lab-receipt snippet.
-#
-# 1. flue build       → .build/_entry.ts
-# 2. alchemy deploy   → declares Worker + DO + vars, prints URL
-# 3. Warmup           → poll /health, then POST agent route until 200
-#                       (covers both edge propagation and Workers AI cold
-#                       start; without this every fresh deploy flakes
-#                       under matrix contention)
-# 4. gateproof        → run probe.ts to assert the snippet's contract
-# 5. alchemy destroy  → tears worker + R2 + state down on exit
-#
-# No mocks. No skips.
-
+# run-e2e.sh, full E2E for the lab-receipt recipe (Flue 1.0 workflow + Lab).
 set -euo pipefail
 cd "$(dirname "$0")"
+ROOT="$(cd ../.. && pwd)"
+# Local dev sources .env; CI provides these as real env vars.
+if [ -f "$ROOT/.env" ]; then set -a; source "$ROOT/.env"; set +a; fi
 
-export STAGE="${STAGE:-local}"
-export LAB_URL="${LAB_URL:-https://lab.coey.dev}"
+# Self-contained: install this snippet's own 1.0 deps if missing.
+[ -d node_modules ] || bun install
+
+: "${LAB_URL:?LAB_URL must be set in .env}"
+WORKER_NAME=$(node -p "require('./package.json').name")
+DEPLOY_LOG=$(mktemp)
+WORKERS_FILE=$(mktemp)
+SOURCE_CONFIG="$(pwd)/wrangler.jsonc"
+BACKUP_CONFIG=$(mktemp)
+cp "$SOURCE_CONFIG" "$BACKUP_CONFIG"
 
 cleanup() {
-  local code=$?
-  echo "::group::cleanup (alchemy destroy)"
-  npx alchemy destroy --stage "$STAGE" 2>&1 || true
-  echo "::endgroup::"
-  exit $code
+  set +e
+  [[ -n "${WORKER_NAME:-}" ]] && npx wrangler delete --name "$WORKER_NAME" --force >/dev/null 2>&1 || true
+  if curl --fail --silent --show-error -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+    "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" >"$WORKERS_FILE"; then
+    if grep -Fq "\"$WORKER_NAME\"" "$WORKERS_FILE"; then echo "worker remains after teardown: $WORKER_NAME" >&2
+    else echo "zero leftover workers after teardown: $WORKER_NAME absent"; fi
+  fi
+  cp "$BACKUP_CONFIG" "$SOURCE_CONFIG"
+  rm -f "$BACKUP_CONFIG" "$DEPLOY_LOG" "$WORKERS_FILE"
 }
 trap cleanup EXIT INT TERM
 
+# LAB_URL is a runtime var; substitute the placeholder from .env.
+node -e 'const fs=require("fs"),p="wrangler.jsonc";fs.writeFileSync(p,fs.readFileSync(p,"utf8").replace("REPLACE_LAB_URL",process.argv[1]));' "$LAB_URL"
+
 echo "::group::flue build"
-rm -rf .build .alchemy
-npx flue build --target cloudflare --root . --output .build
+npx flue build --target cloudflare
 echo "::endgroup::"
 
-echo "::group::alchemy deploy (stage=$STAGE)"
-DEPLOY_LOG="$(mktemp)"
-npx alchemy deploy --stage "$STAGE" 2>&1 | tee "$DEPLOY_LOG"
-WORKER_URL=$(grep -oE 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
-if [ -z "$WORKER_URL" ]; then
-  echo "::error::failed to capture deployed URL"
-  exit 1
-fi
+echo "::group::wrangler deploy"
+DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
+DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
+npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
+npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+WORKER_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
+test -n "$WORKER_URL"
 echo "deployed: $WORKER_URL"
 echo "::endgroup::"
 
 echo "::group::warmup"
-# Two-stage warmup: cheap /health first, then real agent POST. Both have
-# generous per-request timeouts and exponential-ish backoff.
-for i in $(seq 1 30); do
-  code=$(curl -sS -m 5 -o /dev/null -w '%{http_code}' \
-    "$WORKER_URL/health" 2>/dev/null || echo "000")
-  if [ "$code" = "200" ]; then
-    echo "  /health live after ${i}s"
-    break
-  fi
-  if [ "$i" = "30" ]; then
-    echo "::error::/health not responding after 30s"
-    exit 1
-  fi
-  sleep 1
-done
-for i in $(seq 1 12); do
-  code=$(curl -sS -m 120 -o /tmp/warmup-body -w '%{http_code}' -X POST \
-    "$WORKER_URL/agents/lab-receipt/warmup" \
-    -H 'content-type: application/json' \
-    -d '{"message":"warmup"}' 2>/dev/null || echo "000")
-  if [ "$code" = "200" ]; then
-    echo "  agent route live after $i attempts"
-    break
-  fi
-  if [ "$i" = "12" ]; then
-    echo "::error::agent route still failing (HTTP $code)"
-    head -c 400 /tmp/warmup-body 2>/dev/null
-    exit 1
-  fi
-  echo "  attempt $i: HTTP $code; retrying in 5s"
-  sleep 5
+for i in $(seq 1 20); do
+  code=$(curl -sS -m 120 -o /tmp/warmup-body -w '%{http_code}' \
+    "$WORKER_URL/workflows/lab-receipt?wait=result" \
+    -H 'content-type: application/json' -d '{"message":"warmup"}' 2>/dev/null || echo "000")
+  if [ "$code" = "200" ]; then echo "  workflow route live after $i attempts"; break; fi
+  if [ "$i" = "20" ]; then echo "::error::workflow route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
+  sleep 4
 done
 echo "::endgroup::"
 
 echo "::group::gateproof plan against $WORKER_URL"
-AGENT_URL="${WORKER_URL}/agents/lab-receipt/gp-${STAGE}" \
-LAB_URL="${LAB_URL}" \
-  bun run gateproof.plan.ts
+AGENT_URL="${WORKER_URL}/workflows/lab-receipt?wait=result" bun run gateproof.plan.ts
 echo "::endgroup::"
 
-echo "✅ snippet lab-receipt E2E pass"
+echo "✅ recipe lab-receipt E2E pass"

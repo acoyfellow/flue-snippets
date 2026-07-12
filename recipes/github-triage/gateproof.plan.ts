@@ -22,7 +22,7 @@ const plan = Plan.define({
   goals: [
     {
       id: 'github-triage-structured-output',
-      title: 'Flue skill() with a valibot schema returns a typed triage object',
+      title: 'Flue workflow prompt() with a valibot schema returns a typed triage object',
       gate: Gate.define({
         prerequisites: [
           Require.env('AGENT_URL_BASE', 'deployed worker URL + /agents/github-triage'),

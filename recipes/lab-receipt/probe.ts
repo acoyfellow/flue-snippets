@@ -31,9 +31,9 @@ if (!res.ok) {
 }
 
 const body = (await res.json()) as {
-  result?: { answer?: { text?: string }; receipt?: string };
+  result?: { answer?: string; receipt?: string };
 };
-const text = body.result?.answer?.text;
+const text = body.result?.answer;
 const receipt = body.result?.receipt;
 
 console.log(JSON.stringify(body));

@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-braintrust-ai-gateway",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    {
+      "tag": "flue-class-FlueBraintrustAiGatewayWorkflow",
+      "new_sqlite_classes": ["FlueBraintrustAiGatewayWorkflow"]
+    }
+  ],
+  "ai": { "binding": "AI" },
+  "vars": {
+    "BRAINTRUST_GATEWAY_URL": "https://gateway.braintrust.dev",
+    "BRAINTRUST_MODEL": "gpt-4o-mini",
+    "BRAINTRUST_PROJECT": "flue-snippets"
+  }
+}

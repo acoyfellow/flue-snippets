@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-d1",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueD1Workflow", "new_sqlite_classes": ["FlueD1Workflow"] }
+  ],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "REPLACE_D1_NAME", "database_id": "REPLACE_D1_ID" }
+  ]
+}

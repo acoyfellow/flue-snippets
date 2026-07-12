@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-queues",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueQueuesWorkflow", "new_sqlite_classes": ["FlueQueuesWorkflow"] }
+  ],
+  "queues": {
+    "producers": [{ "binding": "QUEUE", "queue": "REPLACE_QUEUE_NAME" }]
+  }
+}

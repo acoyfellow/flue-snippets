@@ -1,7 +1,7 @@
 name: e2e (real deploy)
 
-# On-demand only. Each matrix job deploys a real Worker via alchemy,
-# runs the snippet's harness against it, then `alchemy destroy`s it.
+# On-demand only. Each matrix job builds with flue + deploys a real Worker
+# via wrangler, runs the snippet's harness, then wrangler deletes it.
 #
 # Two tiers in the matrix:
 #   - examples/<product>/  , hello-world per CF product (simplest agent)
@@ -111,18 +111,17 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install
-        run: bun install --frozen-lockfile
+      - name: Install (per-snippet, self-contained 1.0 deps)
+        working-directory: ${{ matrix.target }}
+        run: bun install
 
-      - name: Run E2E (alchemy deploy + assert + destroy)
+      - name: Run E2E (flue build + wrangler deploy + assert + delete)
         working-directory: ${{ matrix.target }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID_E2E }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN_E2E }}
           LAB_URL: https://lab.coey.dev
           GITHUB_SHA: ${{ github.sha }}
-          STAGE: ci-${{ github.run_id }}
-          ALCHEMY_CI_STATE_STORE_CHECK: 'false'
           # examples/email-workers, real Email Service send. If these
           # secrets aren't set, the agent still deploys and the assert
           # passes via the "structured error" branch.

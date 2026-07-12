@@ -23,7 +23,9 @@ const plan = Plan.define({
       id: 'chat-thinking-memory-persists',
       title: 'Two POSTs to the same chatId share state via the per-chat Think DO',
       gate: Gate.define({
-        prerequisites: [Require.env('AGENT_URL_BASE', 'deployed worker URL + /agents/chat-thinking')],
+        prerequisites: [
+          Require.env('AGENT_URL_BASE', 'deployed worker URL + /agents/chat-thinking'),
+        ],
         act: [
           Act.exec(`AGENT_URL_BASE="${AGENT_URL_BASE}" bun run probe.ts`, {
             timeoutMs: 240_000,

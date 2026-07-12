@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-effect-hello",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    {
+      "tag": "flue-class-FlueEffectHelloWorkflow",
+      "new_sqlite_classes": ["FlueEffectHelloWorkflow"]
+    }
+  ],
+  "ai": { "binding": "AI" }
+}

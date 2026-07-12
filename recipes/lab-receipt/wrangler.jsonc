@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-lab-receipt",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueLabReceiptWorkflow", "new_sqlite_classes": ["FlueLabReceiptWorkflow"] }
+  ],
+  "ai": { "binding": "AI" },
+  "vars": { "LAB_URL": "REPLACE_LAB_URL" }
+}

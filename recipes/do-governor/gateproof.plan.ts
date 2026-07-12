@@ -21,11 +21,10 @@ if (!AGENT_URL_BASE) {
   process.exit(2);
 }
 
-// Use a stable agent ID so this gate hits the SAME DO instance the
-// run-e2e.sh warmup pre-warmed. Without this, every gate pays its own
-// fresh-DO cold start (Workers AI on the personal account: 60-180s).
-const ID = 'warmup';
-const URL = `${AGENT_URL_BASE}/${ID}`;
+// Flue 1.0 workflow: synchronous invocation is POST <base>?wait=result,
+// returning { result, runId }. State is threaded through the request body,
+// so no per-instance id is needed.
+const URL = `${AGENT_URL_BASE}?wait=result`;
 
 const plan = Plan.define({
   goals: [

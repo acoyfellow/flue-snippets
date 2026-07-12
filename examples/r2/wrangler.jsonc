@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-r2",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "migrations": [
+    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
+    { "tag": "flue-class-FlueR2Workflow", "new_sqlite_classes": ["FlueR2Workflow"] }
+  ],
+  "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "REPLACE_R2_BUCKET_NAME" }]
+}
