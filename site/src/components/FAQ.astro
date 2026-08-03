@@ -7,11 +7,11 @@ interface QA {
 const items: QA[] = [
   {
     q: 'Do these agents actually run on Cloudflare?',
-    a: 'Yes. Every snippet in the repo deploys a real Worker via alchemy, asserts against it, then destroys it. No mocks, no skips. CI does the same.',
+    a: 'Yes. Every snippet in the repo builds with vite, deploys a real Worker with wrangler, asserts against it, then destroys it. No mocks, no skips. CI does the same.',
   },
   {
-    q: 'Why no wrangler?',
-    a: 'alchemy owns the resource graph (Workers, bindings, vars, declared in TypeScript). Flue emits the entrypoint module. Wrangler would duplicate alchemy\u2019s job.',
+    q: 'How does it build and deploy?',
+    a: 'Flue 2 builds through Vite: the flue() plugin scans for \'use agent\' modules and emits dist/<name>/wrangler.json with bindings and Durable Object migrations merged in. wrangler deploy --config ships that artifact.',
   },
   {
     q: 'Do I need any third-party API keys?',

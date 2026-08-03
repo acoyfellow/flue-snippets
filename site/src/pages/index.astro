@@ -187,7 +187,7 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
 
       <Step
         title="4. Talk to another Worker over MCP"
-        blurb="This Flue agent connects to a peer Worker that exposes tools via MCP. alchemy deploys both side by side and passes the peer's URL into this one's env. The model can now call the peer's tools mid-prompt. I didn't have to wire each one up manually."
+        blurb="This Flue agent connects to a peer Worker that exposes tools via MCP. One wrangler deploy ships both side by side and passes the peer's URL into this one's env. The model can now call the peer's tools mid-prompt. I didn't have to wire each one up manually."
         filename="recipes/mcp-client/agents/mcp-client.ts"
         code={mcpClientCode}
         githubPath="recipes/mcp-client/src/agents/mcp-client.ts"

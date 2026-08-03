@@ -1,6 +1,6 @@
 ---
 title: kv
-tagline: 'Write a key, read it back. The simplest stateful CF workflow.'
+tagline: 'Write a key, read it back. The simplest stateful CF binding, exposed to the model as a tool.'
 composes: [KV]
 ---
 
