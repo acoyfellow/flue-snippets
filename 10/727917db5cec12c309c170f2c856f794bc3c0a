@@ -1,0 +1,535 @@
+.context/MIGRATION-RECIPE.md
+  s_3ebc4b0c49995a::t_7728b6790b3413 1-79
+.gitignore
+  s_3ebc4b0c49995a::t_340ee936cea206 25-27
+.no-added-comments-allow
+  s_3ebc4b0c49995a::t_755c6874e5e92c 1-56
+README.md
+  s_3ebc4b0c49995a::t_f4c5d2c853fc7b 3-6,8,10,22-33,54,57-65,68-70,149-151,155-161,165-166,185,191
+SECURITY.md
+  s_3ebc4b0c49995a::t_6e845f45cc4ef1 7-33
+examples/ai-gateway/.npmrc
+  s_e050e2bde8a246::t_b54add87767dc4 1
+examples/ai-gateway/README.md
+  s_3ebc4b0c49995a::t_e0cb2f554a1ad0 17-25
+examples/ai-gateway/run-e2e.sh
+  s_3ebc4b0c49995a::t_e4ec32539e6b41 10,35,39-40,44-46,48-66,68-77,80-88,91
+examples/ai-gateway/src/agents/ai-gateway.ts
+  s_3ebc4b0c49995a::t_3530c151fcadc4 1-8
+examples/ai-gateway/src/app.ts
+  s_3ebc4b0c49995a::t_2c40356facde14 2-4,6,8-16,19-33
+examples/ai-gateway/tsconfig.json
+  s_e050e2bde8a246::t_9a737dcdf48447 1-13
+examples/ai-gateway/vite.config.ts
+  s_e050e2bde8a246::t_9685c8c8f25da5 1-7
+examples/ai-gateway/wrangler.jsonc
+  s_3ebc4b0c49995a::t_880f788ab58e91 6,8
+examples/browser-rendering/.npmrc
+  s_e050e2bde8a246::t_29d7c9a436bac9 1
+examples/browser-rendering/README.md
+  s_3ebc4b0c49995a::t_531eb323c74af3 4,15-24
+examples/browser-rendering/run-e2e.sh
+  s_3ebc4b0c49995a::t_ea54cf7a188334 10,29,33-34,38-54,56-57,59,62,65-68
+examples/browser-rendering/src/agents/browser-rendering.ts
+  s_3ebc4b0c49995a::t_afa5c026b19306 1-2,4-5,9,12-29,31-36
+examples/browser-rendering/src/app.ts
+  s_3ebc4b0c49995a::t_b0f952d15b382a 2-6,8,10,12-21,23-26
+examples/browser-rendering/tsconfig.json
+  s_e050e2bde8a246::t_3c6cdc00a99919 1-13
+examples/browser-rendering/vite.config.ts
+  s_e050e2bde8a246::t_3a0e0304714aa0 1-7
+examples/browser-rendering/wrangler.jsonc
+  s_3ebc4b0c49995a::t_6f7deaf38b8f43 6,8
+examples/d1/run-e2e.sh
+  s_3ebc4b0c49995a::t_7ad887519196ba 45,49-50,54-68,70-82,84,87,89-94
+examples/d1/src/app.ts
+  s_3ebc4b0c49995a::t_9a4eac6d3747fc 1-26
+examples/d1/wrangler.jsonc
+  s_3ebc4b0c49995a::t_9ba65c2d7c8d5f 6,8
+examples/durable-objects/.npmrc
+  s_3ebc4b0c49995a::t_8b4c02cd0aafd9 1
+examples/durable-objects/package.json
+  s_3ebc4b0c49995a::t_4a4f89db1ed108 2-23
+examples/durable-objects/probe.ts
+  s_3ebc4b0c49995a::t_2f9ddff8eed483 2,7-8,13,47-48,54-74
+examples/durable-objects/run-e2e.sh
+  s_3ebc4b0c49995a::t_2151db5e615c2f 28-29,36-38,45,48-49,51
+examples/durable-objects/src/agents/durable-objects.ts
+  s_3ebc4b0c49995a::t_86032a9f4c195a 1,3,6-10,12,14-17
+examples/durable-objects/src/app.ts
+  s_3ebc4b0c49995a::t_cddfb3b1027010 1-26
+examples/durable-objects/tsconfig.json
+  s_3ebc4b0c49995a::t_55546a22daf5be 1-13
+examples/durable-objects/vite.config.ts
+  s_3ebc4b0c49995a::t_4822a090ecff45 1-7
+examples/durable-objects/wrangler.jsonc
+  s_3ebc4b0c49995a::t_3c904f90e34d3b 8
+examples/effect-hello/.npmrc
+  s_e050e2bde8a246::t_00226240ea8411 1
+examples/effect-hello/README.md
+  s_3ebc4b0c49995a::t_67826b4a2b31b4 3,9-11,17-18,22-25,27,30,33,39-40,42,44-46
+examples/effect-hello/run-e2e.sh
+  s_3ebc4b0c49995a::t_6e568e18f57dc3 10,35,39-40,44-46,48-72,74-75,77,80-85,88
+examples/effect-hello/src/agents/effect-hello.ts
+  s_3ebc4b0c49995a::t_f1ad7a40cabb5f 1,3-5,7-10,12-21,23-28
+examples/effect-hello/src/app.ts
+  s_3ebc4b0c49995a::t_5fdfcfa3475832 1-26
+examples/effect-hello/tsconfig.json
+  s_e050e2bde8a246::t_727ba876d2d453 1-13
+examples/effect-hello/vite.config.ts
+  s_e050e2bde8a246::t_9d8f1ae92a8417 1-7
+examples/effect-hello/wrangler.jsonc
+  s_f10e36fcc51c4f::t_d8f932c7cce5e1 6,8-9
+examples/email-workers/.npmrc
+  s_e050e2bde8a246::t_3faae148b3bb85 1
+examples/email-workers/README.md
+  s_3ebc4b0c49995a::t_a4f584a7d8b9a8 11-14,16-17,23,27-29,35-36,45-48,53-63,67-68,74-76,84
+examples/email-workers/run-e2e.sh
+  s_3ebc4b0c49995a::t_7000bc2ce67e8e 10,29,33-34,38-40,42-66,68-69,71,74-79
+examples/email-workers/src/app.ts
+  s_3ebc4b0c49995a::t_15473ed82791bc 1-26
+examples/email-workers/tsconfig.json
+  s_e050e2bde8a246::t_1cb116187fbf44 1-13
+examples/email-workers/vite.config.ts
+  s_e050e2bde8a246::t_be2e36c4a6b56d 1-7
+examples/email-workers/wrangler.jsonc
+  s_3ebc4b0c49995a::t_5fb6b8f2cf501d 6,8
+examples/hyperdrive/run-e2e.sh
+  s_3ebc4b0c49995a::t_57ce0a019aa6a5 43,45,49-50,54-68,70-75,78-87,89-101
+examples/hyperdrive/src/agents/hyperdrive.ts
+  s_3ebc4b0c49995a::t_1aea10cc5c9827 1-2,4,8-25,27-30
+examples/hyperdrive/src/app.ts
+  s_3ebc4b0c49995a::t_47004dbbd24e6f 1-26
+examples/hyperdrive/wrangler.jsonc
+  s_3ebc4b0c49995a::t_f916c0aebeb307 6,8,10
+examples/kv/.npmrc
+  s_3ebc4b0c49995a::t_9ccd5e5efb2a8d 1
+examples/kv/README.md
+  s_3ebc4b0c49995a::t_290abaccefefc8 15-18
+examples/kv/package.json
+  s_3ebc4b0c49995a::t_c83aea10459519 2-23
+examples/kv/run-e2e.sh
+  s_3ebc4b0c49995a::t_485f96d7e1f906 10,55,59-60,64-69,71-74,77-81,83-96,98,101,104-105,108-112
+examples/kv/src/agents/kv.ts
+  s_3ebc4b0c49995a::t_bad6f0103d0515 1-39
+examples/kv/src/app.ts
+  s_3ebc4b0c49995a::t_1d0eaf2149bb55 1-26
+examples/kv/tsconfig.json
+  s_3ebc4b0c49995a::t_1c9ff2b389504a 1-13
+examples/kv/vite.config.ts
+  s_3ebc4b0c49995a::t_a888c519f85762 1-7
+examples/kv/wrangler.jsonc
+  s_3ebc4b0c49995a::t_9dc6ac6b496dcb 6,8
+examples/queues/run-e2e.sh
+  s_3ebc4b0c49995a::t_01d9ac57fc9be6 36,40,44-45,49-63,65-77,79,82,84-89
+examples/queues/src/app.ts
+  s_3ebc4b0c49995a::t_ede1556b3c8e39 1-26
+examples/queues/wrangler.jsonc
+  s_3ebc4b0c49995a::t_c30efdf5e4f401 6,8,11
+examples/r2/run-e2e.sh
+  s_3ebc4b0c49995a::t_b19d5fd2e1a7ca 40,45,49-50,54-56,58-82,84,87,89-94
+examples/r2/src/agents/r2.ts
+  s_3ebc4b0c49995a::t_ca57ab9e074382 1-2,4,7-21,23-26
+examples/r2/src/app.ts
+  s_3ebc4b0c49995a::t_13138d13b0a196 1-26
+examples/r2/wrangler.jsonc
+  s_3ebc4b0c49995a::t_fdf29faa8d18a7 6,8,10
+examples/vectorize/run-e2e.sh
+  s_3ebc4b0c49995a::t_ae10a6bbc22e61 36,40,44-45,49-51,53-77,79-80,82,84-89
+examples/vectorize/src/agents/vectorize.ts
+  s_3ebc4b0c49995a::t_8a96fa1e179c37 1-2,4,7-10,12-14,16,19-21,24-47,49-54
+examples/vectorize/src/app.ts
+  s_3ebc4b0c49995a::t_7f2e54391d9f30 1-26
+examples/vectorize/wrangler.jsonc
+  s_3ebc4b0c49995a::t_47a1e0c1c2029c 6,8,10
+examples/worker-loader/run-e2e.sh
+  s_3ebc4b0c49995a::t_71e3a01b34ebe2 29,33-34,38-52,54-66,68,71,73-78
+examples/worker-loader/src/app.ts
+  s_3ebc4b0c49995a::t_094da2f844d211 1-26
+examples/workers-ai/.npmrc
+  s_e050e2bde8a246::t_e5923d434f8557 1
+examples/workers-ai/README.md
+  s_3ebc4b0c49995a::t_459c4e2399f1d6 3,9,15-18,20-23
+examples/workers-ai/run-e2e.sh
+  s_3ebc4b0c49995a::t_455db572cc8168 10,35,39-40,44-46,48-66,68-77,80-88,91
+examples/workers-ai/src/agents/workers-ai.ts
+  s_3ebc4b0c49995a::t_46c17ff056ab64 1-8
+examples/workers-ai/src/app.ts
+  s_3ebc4b0c49995a::t_8f047cc473f6f9 1-26
+examples/workers-ai/tsconfig.json
+  s_e050e2bde8a246::t_599a78d693db95 1-13
+examples/workers-ai/vite.config.ts
+  s_e050e2bde8a246::t_b9666fc7803ecd 1-7
+examples/workers-ai/wrangler.jsonc
+  s_3ebc4b0c49995a::t_c86156066514bc 6,8-9
+recipes/ai-gateway/.npmrc
+  s_3ebc4b0c49995a::t_960051fc2e6db8 1
+recipes/ai-gateway/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_b26c93912006c5 4-5,11,13-14
+recipes/ai-gateway/package.json
+  s_7620bbef154386::t_184a7babb1145d 6-9,12,14-16,18-19,22-24
+recipes/ai-gateway/probe.ts
+  s_3ebc4b0c49995a::t_2f424899138b6b 1-3,5-7,10-11,14,16-18,20-30,32-44,46,48-59
+recipes/ai-gateway/run-e2e.sh
+  s_3ebc4b0c49995a::t_29acf2475e299a 23,26-28,32-36,41
+recipes/ai-gateway/src/agents/ai-gateway.ts
+  s_3ebc4b0c49995a::t_305467d7679ebb 1-8
+recipes/ai-gateway/src/app.ts
+  s_3ebc4b0c49995a::t_603bf5560c1870 2-4,6,8-15,18-32
+recipes/ai-gateway/tsconfig.json
+  s_3ebc4b0c49995a::t_def27d24610942 1-13
+recipes/ai-gateway/vite.config.ts
+  s_3ebc4b0c49995a::t_d2fa95919fa6c3 1-7
+recipes/ai-gateway/wrangler.jsonc
+  s_3ebc4b0c49995a::t_78e2c5ce3d9caf 6,8
+recipes/braintrust-ai-gateway/.npmrc
+  s_3ebc4b0c49995a::t_3c191ab3d2a612 1
+recipes/braintrust-ai-gateway/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_0af6d900600bed 4-5,11,13-14
+recipes/braintrust-ai-gateway/package.json
+  s_7620bbef154386::t_703cfcba769ccc 6-9,12,14-16,18-19,22-24
+recipes/braintrust-ai-gateway/probe.ts
+  s_3ebc4b0c49995a::t_46822bfb3461bb 1-4,6,8-9,12-23,25,27-36,38
+recipes/braintrust-ai-gateway/run-e2e.sh
+  s_3ebc4b0c49995a::t_c506a0a4e67fe7 29-30,37-39,46,48-52,58
+recipes/braintrust-ai-gateway/src/agents/braintrust-ai-gateway.ts
+  s_3ebc4b0c49995a::t_5f006943e3705c 1-2,4,13,18-24,27,29,32-33,37,39,44-49,53-58
+recipes/braintrust-ai-gateway/src/app.ts
+  s_3ebc4b0c49995a::t_d5f5d18028a348 1-26
+recipes/braintrust-ai-gateway/tsconfig.json
+  s_3ebc4b0c49995a::t_05ea2f40c1dcd7 1-13
+recipes/braintrust-ai-gateway/vite.config.ts
+  s_3ebc4b0c49995a::t_a0bc83e137ebea 1-7
+recipes/braintrust-ai-gateway/wrangler.jsonc
+  s_3ebc4b0c49995a::t_dc250d8a6e5828 6,9-10
+recipes/braintrust-eval/.npmrc
+  s_3ebc4b0c49995a::t_480df973e27eca 1
+recipes/braintrust-eval/eval.ts
+  s_3ebc4b0c49995a::t_2ad78a222f4900 3-17,19-56,71
+recipes/braintrust-eval/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_548c87b9f2b18f 4-5,11,13-14,21,24,28-31
+recipes/braintrust-eval/package.json
+  s_7620bbef154386::t_a84f3330410a4b 6-7,9-10,13,15-17,19-20,23-25
+recipes/braintrust-eval/probe.ts
+  s_3ebc4b0c49995a::t_725fd409de6073 1-3,5-14,16-17,20-30,32-57,59
+recipes/braintrust-eval/run-e2e.sh
+  s_3ebc4b0c49995a::t_32a0162c339ec2 29-30,36-38,45,47-51,57
+recipes/braintrust-eval/src/agents/braintrust-eval.ts
+  s_3ebc4b0c49995a::t_d1b9c5b4183f92 1-8
+recipes/braintrust-eval/src/app.ts
+  s_3ebc4b0c49995a::t_5b0fe882a8936c 1-26
+recipes/braintrust-eval/tsconfig.json
+  s_3ebc4b0c49995a::t_e3a97568c27fc0 1-13
+recipes/braintrust-eval/vite.config.ts
+  s_3ebc4b0c49995a::t_7229a8b9b6737b 1-7
+recipes/braintrust-eval/wrangler.jsonc
+  s_3ebc4b0c49995a::t_6032789a08b739 6,8-9
+recipes/braintrust-otel/.npmrc
+  s_3ebc4b0c49995a::t_42d7c9d60b0e30 1
+recipes/braintrust-otel/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_86fc0f46e23ebf 4-5,11,13-14
+recipes/braintrust-otel/package.json
+  s_7620bbef154386::t_a414862715a4bf 7,9-12,15,17-19,21-22,25-27
+recipes/braintrust-otel/probe.ts
+  s_3ebc4b0c49995a::t_77fcb7d3855312 1-3,5,7-8,11-22,24-35,37
+recipes/braintrust-otel/run-e2e.sh
+  s_3ebc4b0c49995a::t_1dafc9958c460c 29-30,37-39,46,48-52,58
+recipes/braintrust-otel/src/agents/braintrust-otel.ts
+  s_3ebc4b0c49995a::t_4f80b878027ceb 1-2,5,15-21,23-24,34,38,41-47,56,61-66
+recipes/braintrust-otel/src/app.ts
+  s_3ebc4b0c49995a::t_ba258c9170333c 1-26
+recipes/braintrust-otel/tsconfig.json
+  s_3ebc4b0c49995a::t_955a28e50a74d9 1-13
+recipes/braintrust-otel/vite.config.ts
+  s_3ebc4b0c49995a::t_879db9f59a7549 1-7
+recipes/braintrust-otel/wrangler.jsonc
+  s_3ebc4b0c49995a::t_d604f0a294c246 6,8
+recipes/braintrust-trace/.npmrc
+  s_3ebc4b0c49995a::t_56a73e75375371 1
+recipes/braintrust-trace/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_0dd0b9e690bfc7 4-5,11,13-14
+recipes/braintrust-trace/package.json
+  s_7620bbef154386::t_32dd63380cd891 6-7,9-10,13,15-17,19-20,23-25
+recipes/braintrust-trace/probe.ts
+  s_3ebc4b0c49995a::t_e8b9d952e86508 1-3,5,7-8,11-22,24,26-35,37
+recipes/braintrust-trace/run-e2e.sh
+  s_3ebc4b0c49995a::t_0d287e7a0e6a02 29-30,37-39,46,48-52,58
+recipes/braintrust-trace/src/agents/braintrust-trace.ts
+  s_3ebc4b0c49995a::t_f6a7f5a686b20d 1-2,4,13-19,21-22,25-47,50-55
+recipes/braintrust-trace/src/app.ts
+  s_3ebc4b0c49995a::t_0cba708fc28cfc 1-26
+recipes/braintrust-trace/tsconfig.json
+  s_3ebc4b0c49995a::t_1eddd314a7daf1 1-13
+recipes/braintrust-trace/vite.config.ts
+  s_3ebc4b0c49995a::t_166cdc77d13e28 1-7
+recipes/braintrust-trace/wrangler.jsonc
+  s_3ebc4b0c49995a::t_077c93d28076f3 6,8
+recipes/chat-thinking/.npmrc
+  s_3ebc4b0c49995a::t_50d4ad8685e5c0 1
+recipes/chat-thinking/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_955c21bb384699 4-5,10-11,13-14,16
+recipes/chat-thinking/package.json
+  s_7620bbef154386::t_b238b7f9a302d2 6,8-9,12,14-16,18-19,22-24
+recipes/chat-thinking/probe.ts
+  s_3ebc4b0c49995a::t_381390bf5ce637 1-3,5-7,10-14,16-28,30-31,33-35,37,39,41-52,54
+recipes/chat-thinking/run-e2e.sh
+  s_3ebc4b0c49995a::t_e7a673b933936f 28-29,36-38,45,47,49-52,58
+recipes/chat-thinking/src/agents/chat-thinking.ts
+  s_3ebc4b0c49995a::t_71f7dacce96115 1-8
+recipes/chat-thinking/src/app.ts
+  s_3ebc4b0c49995a::t_5edf9546a3417e 1-26
+recipes/chat-thinking/tsconfig.json
+  s_3ebc4b0c49995a::t_c5f261eeffcbda 1-13
+recipes/chat-thinking/vite.config.ts
+  s_3ebc4b0c49995a::t_9eea29c7979754 1-7
+recipes/do-governor/.npmrc
+  s_3ebc4b0c49995a::t_d91ed0d887c37d 1
+recipes/do-governor/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_0e20dad6ef5e81 4-5,11,13-14,16
+recipes/do-governor/package.json
+  s_7620bbef154386::t_5dc5a35885ee90 6-9,12,14-16,18-19,22-24
+recipes/do-governor/probe.ts
+  s_3ebc4b0c49995a::t_22bfaacf013b40 1-3,5,7-8,11-19,21,24-31,33,36-44
+recipes/do-governor/run-e2e.sh
+  s_3ebc4b0c49995a::t_f1f389e23fd705 28-29,36-38,45,47,49-52,58
+recipes/do-governor/src/agents/do-governor.ts
+  s_3ebc4b0c49995a::t_e247198a4ee677 1,3,5-9,11-21,23,28,33-35,42,46-66
+recipes/do-governor/src/app.ts
+  s_3ebc4b0c49995a::t_371ac55880a983 1-26
+recipes/do-governor/tsconfig.json
+  s_3ebc4b0c49995a::t_1c99140c31e97d 1-13
+recipes/do-governor/vite.config.ts
+  s_3ebc4b0c49995a::t_dd638dcebcd7e4 1-7
+recipes/do-governor/wrangler.jsonc
+  s_3ebc4b0c49995a::t_f770565b0ebad5 6,8-9
+recipes/do-session/.npmrc
+  s_3ebc4b0c49995a::t_dc79b03933f933 1
+recipes/do-session/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_60f30f5214925e 4-5,11,13-14
+recipes/do-session/package.json
+  s_7620bbef154386::t_d4531516ee3d3e 6-9,12,14-16,18-19,22-24
+recipes/do-session/probe.ts
+  s_3ebc4b0c49995a::t_ba76c2f3ff191b 1-3,9,11,14,16-17,20-30,33-45,47-52,56,59-62
+recipes/do-session/run-e2e.sh
+  s_3ebc4b0c49995a::t_fb56f856d0f589 28-29,36-38,47,51-54
+recipes/do-session/src/agents/do-session.ts
+  s_3ebc4b0c49995a::t_efab9348f9b80a 1,3,5-8
+recipes/do-session/src/app.ts
+  s_3ebc4b0c49995a::t_18aca04d4d1c82 1-26
+recipes/do-session/tsconfig.json
+  s_3ebc4b0c49995a::t_30fc128385b7a4 1-13
+recipes/do-session/vite.config.ts
+  s_3ebc4b0c49995a::t_4237e6f9a85822 1-7
+recipes/do-session/wrangler.jsonc
+  s_3ebc4b0c49995a::t_cc9d9a46331535 6,8-9
+recipes/dynamic-workflow/.npmrc
+  s_3ebc4b0c49995a::t_238c869e21b7fe 1
+recipes/dynamic-workflow/package.json
+  s_3ebc4b0c49995a::t_b6509cedbd98af 6-8,11,13-15,17-18,21-23
+recipes/dynamic-workflow/probe.ts
+  s_3ebc4b0c49995a::t_2010d20bffd67c 1-13,16-23,25-28,30-31,33-35,37,40-50,53-55,58-61,63
+recipes/dynamic-workflow/run-e2e.sh
+  s_3ebc4b0c49995a::t_9b6b60f64d94e7 22-23,29-31,37-46,51
+recipes/dynamic-workflow/src/app.ts
+  s_3ebc4b0c49995a::t_e066a8cb032c24 1-26
+recipes/dynamic-workflow/tsconfig.json
+  s_3ebc4b0c49995a::t_94c6b7484022ed 1-13
+recipes/dynamic-workflow/vite.config.ts
+  s_3ebc4b0c49995a::t_616aadcb3004bb 1-7
+recipes/dynamic-workflow/wrangler.jsonc
+  s_3ebc4b0c49995a::t_e3411be14e147d 7-8
+recipes/event-trigger/.npmrc
+  s_3ebc4b0c49995a::t_ec9631d9158dd4 1
+recipes/event-trigger/package.json
+  s_3ebc4b0c49995a::t_d0af0ed86fd942 6-8,11,13-15,17-18,21-23
+recipes/event-trigger/probe.ts
+  s_3ebc4b0c49995a::t_f5049c44848a9f 1-5,7,10-11,15-16,20-21,25-26,30-31,34-38,40-41,43-44,46-47,51-60,62-64,66,68,70-83,85
+recipes/event-trigger/run-e2e.sh
+  s_3ebc4b0c49995a::t_53203e09fa636b 22-23,28-30,36-45,50
+recipes/event-trigger/src/agents/event-trigger.ts
+  s_3ebc4b0c49995a::t_6b464b18c66f58 1,3-4,6-9,11,13-19,21-29,31-34,36-61,63-67
+recipes/event-trigger/src/app.ts
+  s_3ebc4b0c49995a::t_f09a0de3544a0f 2-24,27-50,52-55
+recipes/event-trigger/tsconfig.json
+  s_3ebc4b0c49995a::t_a9bacba00c0359 1-13
+recipes/event-trigger/vite.config.ts
+  s_3ebc4b0c49995a::t_a9a1691482981d 1-7
+recipes/event-trigger/wrangler.jsonc
+  s_3ebc4b0c49995a::t_2eb52b7f06e51c 6,8-9
+recipes/gateway-lab/.npmrc
+  s_3ebc4b0c49995a::t_ea1d6f8c08cdc4 1
+recipes/gateway-lab/package.json
+  s_3ebc4b0c49995a::t_6f7221c0005538 6-9,12,14-16,18-19,22-24
+recipes/gateway-lab/probe.ts
+  s_3ebc4b0c49995a::t_276ee24ae7ead5 1-3,5-6,8-9,12-19,21-37,39
+recipes/gateway-lab/run-e2e.sh
+  s_3ebc4b0c49995a::t_838e62eb61d461 27-28,34-36,42-47,52
+recipes/gateway-lab/src/agents/gateway-lab.ts
+  s_3ebc4b0c49995a::t_075582030fd732 1-2,5,7,9,12-19,22-25,27-57,59-60
+recipes/gateway-lab/src/app.ts
+  s_3ebc4b0c49995a::t_120225b885a422 2-4,6,8-16,19-33
+recipes/gateway-lab/tsconfig.json
+  s_3ebc4b0c49995a::t_03088944f26e38 1-13
+recipes/gateway-lab/vite.config.ts
+  s_3ebc4b0c49995a::t_be667f15537efd 1-7
+recipes/gateway-lab/wrangler.jsonc
+  s_3ebc4b0c49995a::t_88398ad82fe62d 6,8
+recipes/github-triage/.npmrc
+  s_3ebc4b0c49995a::t_2316c569dc4b71 1
+recipes/github-triage/package.json
+  s_3ebc4b0c49995a::t_106638634d04e4 6-8,11,13-15,17-18,21-23
+recipes/github-triage/probe.ts
+  s_3ebc4b0c49995a::t_d563fa5bd018fa 1-3,5-6,8,12-13,16-20,23-34,36
+recipes/github-triage/run-e2e.sh
+  s_3ebc4b0c49995a::t_96ed513fc3af03 22-23,29-31,37-42,47
+recipes/github-triage/src/agents/github-triage.ts
+  s_3ebc4b0c49995a::t_fb50e39e5f58e8 1,3-4,6-10,18,20-24,28-65
+recipes/github-triage/src/app.ts
+  s_3ebc4b0c49995a::t_89263bda99c6ca 1-26
+recipes/github-triage/tsconfig.json
+  s_3ebc4b0c49995a::t_ac62e2c1eac3aa 1-13
+recipes/github-triage/vite.config.ts
+  s_3ebc4b0c49995a::t_03a19895109f54 1-7
+recipes/github-triage/wrangler.jsonc
+  s_3ebc4b0c49995a::t_159dba118800f5 6,8-9
+recipes/lab-checkpoint/.npmrc
+  s_3ebc4b0c49995a::t_d81bf600092ed5 1
+recipes/lab-checkpoint/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_b1fe0fadbb0b91 4-6,12,14-15,22,24,33
+recipes/lab-checkpoint/package.json
+  s_3ebc4b0c49995a::t_e34a1a5cd1348f 6-9,12,14-16,18-19,22-24
+recipes/lab-checkpoint/probe-first.ts
+  s_3ebc4b0c49995a::t_cdd77847e21951 1-2,4,6-7,10-14,17-30,32
+recipes/lab-checkpoint/probe-mid.ts
+  s_3ebc4b0c49995a::t_47d47ad8eac791 1-2,4-7,10-16,18-37,39
+recipes/lab-checkpoint/run-e2e.sh
+  s_3ebc4b0c49995a::t_5933efb36f8553 27-28,34-35,41-46,51
+recipes/lab-checkpoint/src/app.ts
+  s_3ebc4b0c49995a::t_a8508318895cee 1-26
+recipes/lab-checkpoint/tsconfig.json
+  s_3ebc4b0c49995a::t_b07b56b61ce12c 1-13
+recipes/lab-checkpoint/vite.config.ts
+  s_3ebc4b0c49995a::t_685b4b60b930db 1-7
+recipes/lab-checkpoint/wrangler.jsonc
+  s_3ebc4b0c49995a::t_0fb5b58cf142a3 6,8
+recipes/lab-receipt/.npmrc
+  s_3ebc4b0c49995a::t_ed6fe80620c6fb 1
+recipes/lab-receipt/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_635a8f09f3c68c 4-6,12,14-15,24
+recipes/lab-receipt/package.json
+  s_3ebc4b0c49995a::t_030cd721c1bdd5 6-9,12,14-16,18-19,22-24
+recipes/lab-receipt/probe.ts
+  s_3ebc4b0c49995a::t_063057d274b2c5 1-3,5,7-8,11-15,18-31,33
+recipes/lab-receipt/run-e2e.sh
+  s_3ebc4b0c49995a::t_4c813a6dfec647 27-28,34-36,42-47,52
+recipes/lab-receipt/src/agents/lab-receipt.ts
+  s_3ebc4b0c49995a::t_d3e01e5bc4f566 1-2,5-7,9,11-16,19-22,24-49,51-52
+recipes/lab-receipt/src/app.ts
+  s_3ebc4b0c49995a::t_cb8ffba75bf616 1-26
+recipes/lab-receipt/tsconfig.json
+  s_3ebc4b0c49995a::t_c53c24fda2b9bc 1-13
+recipes/lab-receipt/vite.config.ts
+  s_3ebc4b0c49995a::t_06b4f654150610 1-7
+recipes/lab-receipt/wrangler.jsonc
+  s_3ebc4b0c49995a::t_40204d886e553c 6,8
+recipes/mcp-client/.npmrc
+  s_3ebc4b0c49995a::t_c2d6e035af4722 1
+recipes/mcp-client/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_65f85df034d532 4-5,8-17
+recipes/mcp-client/package.json
+  s_3ebc4b0c49995a::t_4edb24e3686708 6-7,9,14,16-18,20-21,24-26
+recipes/mcp-client/probe.ts
+  s_3ebc4b0c49995a::t_3b96021325aa2a 1-3,5-6,8-9,12-16,19-30,32
+recipes/mcp-client/run-e2e.sh
+  s_3ebc4b0c49995a::t_719e4521c30410 21-22,28-30,36-41,46
+recipes/mcp-client/src/agents/mcp-client.ts
+  s_3ebc4b0c49995a::t_012eb10c07ffce 1,3-4,6,8-19
+recipes/mcp-client/src/app.ts
+  s_3ebc4b0c49995a::t_74592623bbb6a3 1-4,6,9,11,13-33
+recipes/mcp-client/tsconfig.json
+  s_3ebc4b0c49995a::t_67216b4c4d22b2 1-13
+recipes/mcp-client/vite.config.ts
+  s_3ebc4b0c49995a::t_379d7b5aa2ae15 1-7
+recipes/mcp-client/wrangler.jsonc
+  s_3ebc4b0c49995a::t_f28a759af2ea18 6,8
+recipes/virtual-sandbox/.npmrc
+  s_3ebc4b0c49995a::t_31b8fd4e432bd1 1
+recipes/virtual-sandbox/gateproof.plan.ts
+  s_3ebc4b0c49995a::t_5e0f55e3cf224f 4-5,8-17
+recipes/virtual-sandbox/package.json
+  s_3ebc4b0c49995a::t_739834a2ee288a 6-9,12,14-16,18-19,22-24
+recipes/virtual-sandbox/probe.ts
+  s_3ebc4b0c49995a::t_63d094c7b75337 1-5,7-8,11-15,17-29,31
+recipes/virtual-sandbox/run-e2e.sh
+  s_3ebc4b0c49995a::t_9d41c53be4bf5e 28,31-32,38-40,46-51,56
+recipes/virtual-sandbox/src/agents/virtual-sandbox.ts
+  s_3ebc4b0c49995a::t_9c8ba6d3e4f774 1-47
+recipes/virtual-sandbox/src/app.ts
+  s_3ebc4b0c49995a::t_5fb3902ca2eb1e 1-26
+recipes/virtual-sandbox/tsconfig.json
+  s_3ebc4b0c49995a::t_590594037dd6a6 1-13
+recipes/virtual-sandbox/vite.config.ts
+  s_3ebc4b0c49995a::t_fa989e3d50fa3d 1-7
+recipes/virtual-sandbox/wrangler.jsonc
+  s_3ebc4b0c49995a::t_de7d2d57353ec4 6,8,10
+templates/github-app/.npmrc
+  s_3ebc4b0c49995a::t_44e386657b87c2 1
+templates/github-app/README.md
+  s_3ebc4b0c49995a::t_6cd87363c7a80f 4,39
+templates/github-app/package.json
+  s_3ebc4b0c49995a::t_b708e545fc18eb 2-24
+templates/github-app/run-e2e.sh
+  s_3ebc4b0c49995a::t_cd4852ae746823 29-30,44,50
+templates/github-app/src/agents/triage.ts
+  s_3ebc4b0c49995a::t_c2352b29984a8f 1,6-10,12,14-21
+templates/github-app/src/app.ts
+  s_3ebc4b0c49995a::t_8d7866e36aec36 1-27
+templates/github-app/src/channels/github.ts
+  s_3ebc4b0c49995a::t_16bf8e9c313ed6 1,3,14,26-29,31-37,53-56,58-64
+templates/github-app/tsconfig.json
+  s_3ebc4b0c49995a::t_72f8a58f955b27 1-13
+templates/github-app/vite.config.ts
+  s_3ebc4b0c49995a::t_89facc1b9f324c 1-7
+templates/github-app/wrangler.jsonc
+  s_3ebc4b0c49995a::t_fc264fe515ffcf 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "10727917db5cec12c309c170f2c856f794bc3c0a",
+  "prompts": {},
+  "sessions": {
+    "s_3ebc4b0c49995a": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f893f-9fc0-7b06-8130-9000d6cef630",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_7620bbef154386": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019fc20e-3dfc-7918-be50-2549675e3855",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_e050e2bde8a246": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e9296-4ed4-786c-96d1-b8237d516f79",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_f10e36fcc51c4f": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f6f75-18e2-7e65-ab8b-4f58f529661f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    }
+  }
+}
