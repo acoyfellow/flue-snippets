@@ -1,15 +1,16 @@
 /**
- * probe.ts — proves Durable Object per-instance routing (Flue 1.0 agent).
+ * probe.ts — proves Durable Object per-instance routing (Flue 2 agent).
  *
  * Establish a fact in instance A (two turns, same id): A recalls it.
  * A DIFFERENT instance B does NOT know the fact — separate DO, separate history.
  *
- * Agents are fire-and-forget (POST -> 202); replies read from
- * GET /agents/durable-objects/<id>?view=history.
+ * Sends are fire-and-forget (POST -> 202); replies are read back from
+ * GET /agents/durable-objects/<id>, which returns a conversation snapshot.
  *
  * Required env: AGENT_URL_BASE (deployed worker base + /agents/durable-objects)
  */
 const BASE = process.env.AGENT_URL_BASE;
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
 if (!BASE) {
   console.error('AGENT_URL_BASE is required');
   process.exit(2);
@@ -43,20 +44,34 @@ function assistantTexts(s: Snapshot): string[] {
     .filter((t) => t.length > 0);
 }
 async function history(id: string): Promise<Snapshot> {
-  const res = await fetch(`${BASE}/${id}?view=history`, {
-    headers: { accept: 'application/json' },
+  const res = await fetch(`${BASE}/${id}`, {
+    headers: { accept: 'application/json', 'x-api-key': API_KEY },
   });
   if (!res.ok) throw new Error(`history HTTP ${res.status}`);
   return (await res.json()) as Snapshot;
 }
 async function turn(id: string, message: string, priorCount: number): Promise<string> {
-  const res = await fetch(`${BASE}/${id}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
-  if (res.status !== 202 && res.status !== 200) {
-    console.error(`POST ${id} expected 202, got ${res.status}: ${await res.text()}`);
+  // A freshly deployed Worker can take several seconds before its agent
+  // route answers, so admission is retried rather than failed on first miss.
+  let admitted = false;
+  let lastStatus = 0;
+  let lastBody = '';
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    const res = await fetch(`${BASE}/${id}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+      body: JSON.stringify({ kind: 'user', body: message }),
+    });
+    lastStatus = res.status;
+    if (res.status === 202 || res.status === 200) {
+      admitted = true;
+      break;
+    }
+    lastBody = await res.text();
+    await sleep(4000);
+  }
+  if (!admitted) {
+    console.error(`POST ${id} expected 202, got ${lastStatus}: ${lastBody}`);
     process.exit(1);
   }
   const deadline = Date.now() + 120_000;

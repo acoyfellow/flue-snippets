@@ -33,36 +33,59 @@ cleanup() {
 }
 trap cleanup EXIT
 
-node -e 'const fs=require("fs"),p="wrangler.jsonc";fs.writeFileSync(p,fs.readFileSync(p,"utf8").replace("REPLACE_VECTORIZE_INDEX",process.argv[1]));' "$INDEX_NAME"
+node -e 'const fs=require("fs"),p="wrangler.jsonc";fs.writeFileSync(p,fs.readFileSync(p,"utf8").replace("replace-vectorize-index",process.argv[1]));' "$INDEX_NAME"
 npx wrangler vectorize create "$INDEX_NAME" --preset '@cf/baai/bge-base-en-v1.5'
 INDEX_CREATED=1
 
-npx flue build --target cloudflare
+npx vite build
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$URL"
 
-RESPONSE=""
-for i in $(seq 1 25); do
-	RESPONSE=$(curl -sS -m 90 "$URL/workflows/vectorize?wait=result" \
+CONV="e2e-vectorize-$(date +%s)"
+for i in $(seq 1 40); do
+	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 60 "$URL/agents/vectorize/warmup-$CONV" \
 		-H 'content-type: application/json' \
-		-d '{"docText":"octarine is the colour of magic","queryText":"what colour is magic?"}' || true)
-	printf '%s' "$RESPONSE" | grep -q '"dimensions":768' && break
-	[ "$i" = "25" ] && { echo "assert never returned 768-dim topMatch: $RESPONSE" >&2; exit 1; }
-	sleep 4
+		-H "x-api-key: $SNIPPET_API_KEY" \
+		-d '{"kind":"user","body":"Prepare to call the binding tool exactly once."}' || echo 000)
+	[ "$code" = "202" ] && break
+	[ "$i" = "40" ] && { echo "warmup never returned 202 (last $code)" >&2; exit 1; }
+	sleep 3
 done
-printf '%s\n' "$RESPONSE"
+
+# ADMIT retry: a freshly deployed Worker can answer 500/404 for a few
+# seconds even after warmup, and a failed admit means the stream is
+# never created — so retry until the agent really accepts the prompt.
+ADMIT=""
+for i in $(seq 1 20); do
+	ADMIT=$(curl -sS -m 60 "$URL/agents/vectorize/$CONV" \
+	-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+	-d '{"kind":"user","body":"Store the document octarine is the colour of magic and query what colour is magic?"}' || true)
+	printf '%s' "$ADMIT" | grep -q '"streamUrl"' && break
+	[ "$i" = "20" ] && { echo "agent never admitted the prompt: $ADMIT" >&2; exit 1; }
+	sleep 3
+done
+printf 'admitted: %s\n' "$ADMIT"
+
+RESPONSE=""
+for i in $(seq 1 60); do
+	RESPONSE=$(curl -sS -m 60 "$URL/agents/vectorize/$CONV" -H 'accept: application/json' -H "x-api-key: $SNIPPET_API_KEY" || true)
+	printf '%s' "$RESPONSE" | grep -q '"dimensions":768' && break
+	[ "$i" = "60" ] && { echo "conversation never reported the expected binding result: $RESPONSE" >&2; exit 1; }
+	sleep 3
+done
+
 printf '%s' "$RESPONSE" | node -e '
-let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
-	const b=JSON.parse(s), r=b.result;
-	// Embedding dimensions prove the AI + Vectorize path ran. The topMatch
-	// KEY must be present, but a just-upserted vector may not be queryable
-	// yet (Vectorize indexes asynchronously), so its value may be null —
-	// matching the original 0.7.0 assertion semantics.
-	if(!r || r.dimensions!==768 || !("topMatch" in r)){console.error("vectorize assertion failed",b);process.exit(1);}
-	console.log("vectorize assertion passed", JSON.stringify(r));
+let s=""; process.stdin.on("data", d => s += d).on("end", () => {
+	if (!s.includes("\"dimensions\":768") || !s.includes("topMatch")) {
+		console.error("vectorize assertion failed", s.slice(0, 600));
+		process.exit(1);
+	}
+	console.log("vectorize assertion passed: vectorize_round_trip reported a 768-dimensional embedding");
 });
 '

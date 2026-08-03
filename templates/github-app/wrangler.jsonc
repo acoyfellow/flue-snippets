@@ -4,8 +4,7 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueTriageAgent", "new_sqlite_classes": ["FlueTriageAgent"] }
+    { "tag": "flue-2-class-FlueTriageAgent", "new_sqlite_classes": ["FlueTriageAgent"] }
   ],
   "ai": { "binding": "AI" }
 }

@@ -33,31 +33,59 @@ cleanup() {
 }
 trap cleanup EXIT
 
-node -e 'const fs=require("fs"),p="wrangler.jsonc";fs.writeFileSync(p,fs.readFileSync(p,"utf8").replace("REPLACE_QUEUE_NAME",process.argv[1]));' "$QUEUE_NAME"
+node -e 'const fs=require("fs"),p="wrangler.jsonc";fs.writeFileSync(p,fs.readFileSync(p,"utf8").replace("replace-queue-name",process.argv[1]));' "$QUEUE_NAME"
 npx wrangler queues create "$QUEUE_NAME"
 QUEUE_CREATED=1
 
-npx flue build --target cloudflare
+npx vite build
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$URL"
 
-RESPONSE=""
-for i in $(seq 1 20); do
-	RESPONSE=$(curl -sS -m 60 "$URL/workflows/queues?wait=result" \
-		-H 'content-type: application/json' -d '{"text":"hello queue"}' || true)
-	printf '%s' "$RESPONSE" | grep -q '"status":"enqueued"' && break
-	[ "$i" = "20" ] && { echo "assert never enqueued: $RESPONSE" >&2; exit 1; }
+CONV="e2e-queues-$(date +%s)"
+for i in $(seq 1 40); do
+	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 60 "$URL/agents/queues/warmup-$CONV" \
+		-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+		-d '{"kind":"user","body":"Prepare to call the binding tool exactly once."}' || echo 000)
+	[ "$code" = "202" ] && break
+	[ "$i" = "40" ] && { echo "warmup never returned 202 (last $code)" >&2; exit 1; }
 	sleep 3
 done
-printf '%s\n' "$RESPONSE"
+
+# ADMIT retry: a freshly deployed Worker can answer 500/404 for a few
+# seconds even after warmup, and a failed admit means the stream is
+# never created — so retry until the agent really accepts the prompt.
+ADMIT=""
+for i in $(seq 1 20); do
+	ADMIT=$(curl -sS -m 60 "$URL/agents/queues/$CONV" \
+	-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+	-d '{"kind":"user","body":"Enqueue the text hello queue."}' || true)
+	printf '%s' "$ADMIT" | grep -q '"streamUrl"' && break
+	[ "$i" = "20" ] && { echo "agent never admitted the prompt: $ADMIT" >&2; exit 1; }
+	sleep 3
+done
+printf 'admitted: %s\n' "$ADMIT"
+
+RESPONSE=""
+for i in $(seq 1 60); do
+	RESPONSE=$(curl -sS -m 60 "$URL/agents/queues/$CONV" -H 'accept: application/json' -H "x-api-key: $SNIPPET_API_KEY" || true)
+	printf '%s' "$RESPONSE" | grep -q '"status":"enqueued"' && break
+	[ "$i" = "60" ] && { echo "conversation never reported the expected binding result: $RESPONSE" >&2; exit 1; }
+	sleep 3
+done
+
 printf '%s' "$RESPONSE" | node -e '
-let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
-	const b=JSON.parse(s), r=b.result;
-	if(!r || r.status!=="enqueued" || r.text!=="hello queue"){console.error("queues assertion failed",b);process.exit(1);}
-	console.log("queues assertion passed", JSON.stringify(r));
+let s=""; process.stdin.on("data", d => s += d).on("end", () => {
+	if (!s.includes("\"status\":\"enqueued\"") || !s.includes("hello queue")) {
+		console.error("queues assertion failed", s.slice(0, 600));
+		process.exit(1);
+	}
+	console.log("queues assertion passed: enqueue_message reported enqueued for hello queue");
 });
 '

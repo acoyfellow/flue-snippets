@@ -3,12 +3,8 @@
   "name": "flue-snippet-event-trigger",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueEventTriggerWorkflow",
-      "new_sqlite_classes": ["FlueEventTriggerWorkflow"]
-    }
-  ],
-  "ai": { "binding": "AI" }
+    { "tag": "flue-2-class-FlueEventTriggerAgent", "new_sqlite_classes": ["FlueEventTriggerAgent"] }
+  ]
 }

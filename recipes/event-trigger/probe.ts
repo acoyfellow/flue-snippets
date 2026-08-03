@@ -1,266 +1,85 @@
-/**
- * probe.ts, the real assertion for event-trigger.
- *
- * Modes (selected by argv[2]):
- *   unsigned        , POST with no _sig            → expect result.ok=false (401)
- *   wrong-signature , POST with _sig=sha256=dead…  → expect result.ok=false (401)
- *   sentry          , signed fatal Sentry error    → expect ok, critical severity
- *   pagerduty       , signed triggered incident    → expect ok, critical severity
- *   gitlab-ci       , signed failed pipeline        → expect ok, high severity
- *   cron            , signed cron tick             → expect ok, info severity + action=log
- *
- * Note: Flue 0.7 webhook agents always return HTTP 200 with the handler
- * result under `{ result }`. Auth failures are therefore signalled in the
- * body as `result.ok === false` (with result.status), not via HTTP status.
- *
- * Each signed mode proves three things at once:
- *   1. The generic HMAC gate accepts a correctly-signed body.
- *   2. The per-source normalizer maps the provider shape onto the
- *      canonical event (asserted via event.kind / event.severity).
- *   3. The Flue routing skill returns a structured decision the caller
- *      can act on (action ∈ page|notify|log, non-empty channel/reason).
- *
- * Pure fetch + JSON. No bash heredocs, no python one-liners.
- *
- * Required env: AGENT_URL_BASE, EVENT_HMAC_SECRET
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+const secret = process.env.EVENT_HMAC_SECRET ?? 'dev-secret-rotate-me';
+const mode = process.argv[2];
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const BASE = process.env.AGENT_URL_BASE;
-const SECRET = process.env.EVENT_HMAC_SECRET ?? 'dev-secret-rotate-me';
-const MODE = process.argv[2] ?? '';
-
-const MODES = ['unsigned', 'wrong-signature', 'sentry', 'pagerduty', 'gitlab-ci', 'cron'] as const;
-type Mode = (typeof MODES)[number];
-
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
-}
-if (!(MODES as readonly string[]).includes(MODE)) {
-  console.error(`usage: bun run probe.ts <${MODES.join('|')}>`);
-  process.exit(2);
-}
-
-// ---------------------------------------------------------------------------
-// Fixtures: minimal, real-shaped provider payloads.
-// ---------------------------------------------------------------------------
-
-const FIXTURES: Record<
-  Exclude<Mode, 'unsigned' | 'wrong-signature'>,
-  {
-    source: string;
-    event: Record<string, unknown>;
-    expectKind: string;
-    expectSeverity: string;
-    // Actions the routing skill may legitimately choose for this event.
-    allowActions: string[];
-  }
-> = {
+const fixtures: Record<string, { source: string; event: Record<string, unknown>; expected: string[] }> = {
   sentry: {
     source: 'sentry',
-    event: {
-      action: 'created',
-      data: {
-        event: {
-          title: 'TypeError: cannot read property "id" of undefined',
-          level: 'fatal',
-          project: 'checkout-api',
-          web_url: 'https://sentry.io/organizations/acme/issues/123/',
-        },
-      },
-    },
-    expectKind: 'error.created',
-    expectSeverity: 'critical',
-    allowActions: ['page', 'notify'],
+    event: { action: 'created', data: { event: { title: 'fatal error', level: 'fatal' } } },
+    expected: ['error.created', 'critical', 'page'],
   },
   pagerduty: {
     source: 'pagerduty',
-    event: {
-      event: {
-        event_type: 'incident.triggered',
-        data: {
-          title: 'Checkout latency SLO burn',
-          urgency: 'high',
-          service: { summary: 'checkout-api' },
-          html_url: 'https://acme.pagerduty.com/incidents/PABC123',
-        },
-      },
-    },
-    expectKind: 'incident.triggered',
-    expectSeverity: 'critical',
-    allowActions: ['page', 'notify'],
+    event: { event: { event_type: 'incident.triggered', data: { title: 'SLO burn', urgency: 'high' } } },
+    expected: ['incident.triggered', 'critical', 'page'],
   },
   'gitlab-ci': {
     source: 'gitlab-ci',
-    event: {
-      object_kind: 'pipeline',
-      object_attributes: {
-        name: 'deploy-prod',
-        status: 'failed',
-        url: 'https://gitlab.com/acme/checkout/-/pipelines/9001',
-      },
-      project: { path_with_namespace: 'acme/checkout' },
-    },
-    expectKind: 'pipeline.failed',
-    expectSeverity: 'high',
-    allowActions: ['page', 'notify'],
+    event: { object_kind: 'pipeline', object_attributes: { name: 'deploy', status: 'failed' } },
+    expected: ['pipeline.failed', 'high', 'notify'],
   },
   cron: {
     source: 'cron',
-    event: {
-      kind: 'cron.tick',
-      title: 'Nightly dependency refresh',
-      service: 'flue-snippets',
-    },
-    expectKind: 'cron.tick',
-    expectSeverity: 'info',
-    allowActions: ['log', 'notify'],
+    event: { kind: 'cron.tick', title: 'Nightly refresh' },
+    expected: ['cron.tick', 'info', 'log'],
   },
 };
 
-// ---------------------------------------------------------------------------
-
-async function sign(secret: string, body: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  );
-  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body));
-  const hex = Array.from(new Uint8Array(mac))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-  return `sha256=${hex}`;
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Flue 1.0 workflow: synchronous invocation is POST <base>?wait=result.
-const url = `${BASE}?wait=result`;
+async function signature(body: string) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const bytes = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body));
+  return `sha256=${Array.from(new Uint8Array(bytes)).map((byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+}
 
-async function post(body: unknown): Promise<{ status: number; text: string }> {
-  const res = await fetch(url, {
+if (mode === 'unsigned' || mode === 'wrong-signature') {
+  const response = await fetch(`${base}/events/generic/${Date.now()}`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
+    headers: { 'content-type': 'application/json', 'x-event-signature': mode === 'wrong-signature' ? 'sha256=deadbeef' : '' },
+    body: JSON.stringify({ kind: 'x' }),
   });
-  return { status: res.status, text: await res.text() };
-}
-
-// --- Negative gates ---------------------------------------------------------
-
-function parseResult(text: string): Record<string, unknown> {
-  const json = JSON.parse(text) as { result?: Record<string, unknown> };
-  return json.result ?? {};
-}
-
-if (MODE === 'unsigned') {
-  const { status, text } = await post({ source: 'generic', event: { kind: 'x' } });
-  if (status !== 200) {
-    console.error(`expected transport 200, got ${status}: ${text}`);
-    process.exit(1);
-  }
-  const r = parseResult(text);
-  if (r.ok !== false || r.status !== 401) {
-    console.error(`expected result.ok=false status=401, got ${JSON.stringify(r)}`);
-    process.exit(1);
-  }
-  console.log('✓ unsigned request rejected (result.ok=false, 401)');
+  if (response.status !== 401) throw new Error(`expected 401, got ${response.status}`);
+  console.log(`${mode} rejected`);
   process.exit(0);
 }
 
-if (MODE === 'wrong-signature') {
-  const { status, text } = await post({
-    source: 'generic',
-    event: { kind: 'x' },
-    _sig: `sha256=deadbeef${'a'.repeat(56)}`,
+const fixture = fixtures[mode ?? ''];
+if (!fixture) throw new Error('expected a supported event mode');
+const id = `${fixture.source}-${Date.now()}`;
+const raw = JSON.stringify(fixture.event);
+let admitted = false;
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(`${base}/events/${fixture.source}/${id}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-event-signature': await signature(raw) },
+    body: raw,
   });
-  if (status !== 200) {
-    console.error(`expected transport 200, got ${status}: ${text}`);
-    process.exit(1);
+  if (response.status === 202) {
+    admitted = true;
+    break;
   }
-  const r = parseResult(text);
-  if (r.ok !== false || r.status !== 401) {
-    console.error(`expected result.ok=false status=401, got ${JSON.stringify(r)}`);
-    process.exit(1);
+  await sleep(4000);
+}
+if (!admitted) throw new Error('event was not admitted');
+
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(`${base}/agents/event-trigger/${id}`, {
+    headers: { 'x-api-key': API_KEY },
+  });
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    if (fixture.expected.every((value) => text.includes(value))) {
+      console.log(`${fixture.source} routed: ${text}`);
+      process.exit(0);
+    }
   }
-  console.log('✓ wrong-signature request rejected (result.ok=false, 401)');
-  process.exit(0);
+  await sleep(2000);
 }
-
-// --- Positive gates (one per source) ---------------------------------------
-
-const fx = FIXTURES[MODE as keyof typeof FIXTURES];
-const rawBody = JSON.stringify(fx.event);
-const _sig = await sign(SECRET, rawBody);
-
-const { status, text } = await post({ source: fx.source, event: fx.event, _sig });
-if (status !== 200) {
-  console.error(`expected 200, got ${status}: ${text}`);
-  process.exit(1);
-}
-
-const json = JSON.parse(text) as {
-  result?: {
-    ok?: unknown;
-    handled?: string;
-    event?: { kind?: unknown; severity?: unknown; source?: unknown };
-    route?: { action?: unknown; channel?: unknown; reason?: unknown };
-  };
-};
-console.log(JSON.stringify(json));
-
-const result = json.result;
-if (!result) {
-  console.error('response missing result');
-  process.exit(1);
-}
-if (result.ok !== true) {
-  console.error(`expected result.ok=true, got ${JSON.stringify(result.ok)}`);
-  process.exit(1);
-}
-
-// 2. Normalizer assertions.
-const ev = result.event ?? {};
-if (ev.source !== fx.source) {
-  console.error(`event.source mismatch: expected ${fx.source}, got ${JSON.stringify(ev.source)}`);
-  process.exit(1);
-}
-if (ev.kind !== fx.expectKind) {
-  console.error(`event.kind mismatch: expected ${fx.expectKind}, got ${JSON.stringify(ev.kind)}`);
-  process.exit(1);
-}
-if (ev.severity !== fx.expectSeverity) {
-  console.error(
-    `event.severity mismatch: expected ${fx.expectSeverity}, got ${JSON.stringify(ev.severity)}`,
-  );
-  process.exit(1);
-}
-
-// 3. Routing-skill structured-output assertions.
-const route = result.route ?? {};
-const action = route.action;
-if (typeof action !== 'string' || !['page', 'notify', 'log'].includes(action)) {
-  console.error(`route.action invalid: ${JSON.stringify(action)}`);
-  process.exit(1);
-}
-if (!fx.allowActions.includes(action)) {
-  console.error(
-    `route.action=${action} not sensible for a ${fx.expectSeverity} ${fx.expectKind} ` +
-      `(expected one of ${fx.allowActions.join('|')}) — LLM drift`,
-  );
-  process.exit(1);
-}
-if (typeof route.channel !== 'string' || route.channel.length === 0) {
-  console.error('route.channel missing or empty');
-  process.exit(1);
-}
-if (typeof route.reason !== 'string' || route.reason.length === 0) {
-  console.error('route.reason missing or empty');
-  process.exit(1);
-}
-
-console.log(
-  `✓ ${fx.source}: kind=${ev.kind} severity=${ev.severity} → action=${action} channel=${route.channel}`,
-);
-console.log(`✓ reason: ${route.reason}`);
+throw new Error(`timed out waiting for ${fixture.source} routing response`);

@@ -7,7 +7,7 @@ cd "$EXAMPLE"
 # Local dev sources .env; CI provides these as real env vars.
 if [ -f "$ROOT/.env" ]; then set -a; source "$ROOT/.env"; set +a; fi
 
-# Self-contained: install this snippet's own 1.0 deps if missing.
+# Self-contained: install this snippet's own Flue 2 deps if missing.
 [ -d node_modules ] || bun install
 
 WORKER_NAME=$(node -p "require('./package.json').name")
@@ -26,27 +26,45 @@ cleanup() {
 }
 trap cleanup EXIT
 
-npx flue build --target cloudflare
+npx vite build
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$URL"
 
-RESPONSE=""
-for i in $(seq 1 20); do
-	RESPONSE=$(curl -sS -m 180 "$URL/workflows/browser-rendering?wait=result" \
-		-H 'content-type: application/json' -d '{"url":"https://example.com"}' || true)
-	printf '%s' "$RESPONSE" | grep -q '"title":"Example Domain"' && break
-	[ "$i" = "20" ] && { echo "assert never returned Example Domain title: $RESPONSE" >&2; exit 1; }
+CONV="e2e-browser-rendering-$(date +%s)"
+for i in $(seq 1 40); do
+	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 180 "$URL/agents/browser-rendering/warmup-$CONV" \
+		-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+		-d '{"kind":"user","body":"Say ready."}' || echo 000)
+	[ "$code" = "202" ] && break
+	[ "$i" = "40" ] && { echo "warmup never returned 202 (last $code)" >&2; exit 1; }
 	sleep 3
 done
-printf '%s\n' "$RESPONSE"
+
+ADMIT=$(curl -sS -m 180 "$URL/agents/browser-rendering/$CONV" \
+	-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+	-d '{"kind":"user","body":"Open https://example.com and report its page title."}')
+printf 'admitted: %s\n' "$ADMIT"
+
+RESPONSE=""
+for i in $(seq 1 60); do
+	RESPONSE=$(curl -sS -m 180 "$URL/agents/browser-rendering/$CONV" -H 'accept: application/json' -H "x-api-key: $SNIPPET_API_KEY" || true)
+	printf '%s' "$RESPONSE" | grep -q '"title":"Example Domain"' && break
+	[ "$i" = "60" ] && { echo "conversation never returned Example Domain title: $RESPONSE" >&2; exit 1; }
+	sleep 3
+done
+
 printf '%s' "$RESPONSE" | node -e '
 let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
-	const b=JSON.parse(s), r=b.result;
-	if(!r || r.title!=="Example Domain"){console.error("browser-rendering assertion failed",b);process.exit(1);}
-	console.log("browser-rendering assertion passed", JSON.stringify(r));
+	const snapshot=JSON.parse(s);
+	const output=snapshot.messages.flatMap((message)=>message.parts??[]).find((part)=>part.type==="dynamic-tool"&&part.toolName==="render_page"&&part.state==="output-available")?.output;
+	if(!output||output.title!=="Example Domain"){console.error("browser-rendering assertion failed",snapshot);process.exit(1);}
+	console.log("browser-rendering assertion passed",JSON.stringify(output));
 });
 '

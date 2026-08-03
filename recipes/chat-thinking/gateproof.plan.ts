@@ -1,44 +1,24 @@
-/**
- * gateproof plan for chat-thinking.
- *
- * One gate: probe.ts runs two turns against the same chatId, asserting
- * the Think DO actually held the conversation state (turn 2 recalls the
- * fact set in turn 1).
- *
- * Required env: AGENT_URL_BASE
- */
-
 import { Effect } from 'effect';
 import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
-const AGENT_URL_BASE = process.env.AGENT_URL_BASE;
-if (!AGENT_URL_BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
-}
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
 const plan = Plan.define({
   goals: [
     {
-      id: 'chat-thinking-memory-persists',
-      title: 'Two POSTs to the same chatId share state via the per-chat Think DO',
+      id: 'chat-thinking-emits-reasoning',
+      title: 'The conversation includes reasoning and text parts',
       gate: Gate.define({
-        prerequisites: [
-          Require.env('AGENT_URL_BASE', 'deployed worker URL + /agents/chat-thinking'),
-        ],
-        act: [
-          Act.exec(`AGENT_URL_BASE="${AGENT_URL_BASE}" bun run probe.ts`, {
-            timeoutMs: 240_000,
-          }),
-        ],
+        prerequisites: [Require.env('AGENT_URL_BASE', 'deployed agent mount URL')],
+        act: [Act.exec(`AGENT_URL_BASE="${base}" bun run probe.ts`, { timeoutMs: 150_000 })],
         assert: [Assert.noErrors()],
-        timeoutMs: 270_000,
+        timeoutMs: 180_000,
       }),
     },
   ],
 });
 
 const result = await Effect.runPromise(Plan.run(plan));
-
 console.log(JSON.stringify(result, null, 2));
 if (result.status !== 'pass') process.exit(1);

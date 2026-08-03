@@ -1,21 +1,33 @@
-// Register the Cloudflare provider to route through a NAMED AI Gateway
-// (caching, observability, retries). User app.ts imports run before Flue's
-// auto-registration, so this registration wins. Falls back to a default id.
-
 import { env } from 'cloudflare:workers';
-import { registerProvider } from '@flue/runtime';
-import { flue } from '@flue/runtime/routing';
+import { setProvider } from '@flue/runtime';
+import { cloudflareBindingProvider } from '@flue/runtime/cloudflare/workers-ai';
+import { createAgentRouter } from '@flue/runtime/routing';
 import { Hono } from 'hono';
+import { AiGateway } from './agents/ai-gateway.ts';
 
-registerProvider('cloudflare', {
-  api: 'cloudflare-ai-binding',
-  binding: (env as unknown as { AI: unknown }).AI,
-  gateway: {
-    id: (env as unknown as { CLOUDFLARE_GATEWAY_ID?: string }).CLOUDFLARE_GATEWAY_ID ?? 'jordan',
-    cacheTtl: 3600,
-  },
-});
+const gatewayId = (env as unknown as { CLOUDFLARE_GATEWAY_ID?: string }).CLOUDFLARE_GATEWAY_ID ?? 'jordan';
+
+setProvider(
+  cloudflareBindingProvider({
+    binding: (env as unknown as { AI: Ai }).AI,
+    gateway: { id: gatewayId, cacheTtl: 3600 },
+  }),
+);
 
 const app = new Hono();
-app.route('/', flue());
+
+// This Worker holds an AI binding and is reachable on a public workers.dev
+// URL, so every agent route is gated on a shared secret. Without this an
+// anonymous caller could drive your Workers AI account. SNIPPET_API_KEY is
+// injected at deploy time by run-e2e.sh.
+app.use('/agents/*', async (c, next) => {
+	const expected = (env as unknown as { SNIPPET_API_KEY?: string }).SNIPPET_API_KEY;
+	if (!expected || c.req.header('x-api-key') !== expected) {
+		return c.json({ error: 'unauthorized' }, 401);
+	}
+	await next();
+});
+
+app.route('/agents/ai-gateway', createAgentRouter(AiGateway));
+
 export default app;

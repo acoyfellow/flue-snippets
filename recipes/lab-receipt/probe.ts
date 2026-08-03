@@ -1,57 +1,33 @@
-/**
- * probe.ts, the real assertion for lab-receipt.
- *
- * POST a prompt, expect:
- *   - HTTP 200
- *   - body.result.answer.text is a non-empty string
- *   - body.result.receipt is a https://lab... URL that itself returns 200
- *
- * Pure fetch + JSON. No bash heredocs, no python one-liners, model
- * responses with literal newlines breaks both.
- *
- * Required env: AGENT_URL
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const URL = process.env.AGENT_URL;
-if (!URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
+const url = `${base}/receipt-${Date.now()}`;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const res = await fetch(URL, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'hello from gateproof' }),
-});
-
-if (!res.ok) {
-  console.error(`expected 200, got ${res.status}`);
-  console.error(await res.text());
-  process.exit(1);
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': API_KEY }, body: JSON.stringify({ kind: 'user', body: JSON.stringify({ message: 'hello from gateproof' }) }) });
+  if (response.status === 202 || response.status === 200) break;
+  if (attempt === 14) throw new Error(`expected 202, got ${response.status}`);
+  await sleep(4000);
 }
 
-const body = (await res.json()) as {
-  result?: { answer?: string; receipt?: string };
-};
-const text = body.result?.answer;
-const receipt = body.result?.receipt;
-
-console.log(JSON.stringify(body));
-
-if (typeof text !== 'string' || text.length === 0) {
-  console.error('result.answer.text missing or empty');
-  process.exit(1);
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    const receipt = text.match(/https:\/\/[^\s"}]+\/results\/[^\s"}]+/)?.[0];
+    if (receipt) {
+      if (!(await fetch(`${receipt}.json`)).ok) throw new Error('receipt did not resolve');
+      console.log(`receipt: ${receipt}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
 }
-if (!receipt || !/^https:\/\/[^/]+\/results\/[^/]+$/.test(receipt)) {
-  console.error(`result.receipt URL malformed: ${receipt}`);
-  process.exit(1);
-}
-
-// Verify the lab actually persisted the receipt
-const labRes = await fetch(`${receipt}.json`);
-if (!labRes.ok) {
-  console.error(`lab did not serve receipt (HTTP ${labRes.status} from ${receipt}.json)`);
-  process.exit(1);
-}
-
-console.log(`✓ receipt: ${receipt}`);
+throw new Error('timed out waiting for receipt');

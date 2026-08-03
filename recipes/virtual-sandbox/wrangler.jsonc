@@ -3,13 +3,9 @@
   "name": "flue-snippet-virtual-sandbox",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueVirtualSandboxWorkflow",
-      "new_sqlite_classes": ["FlueVirtualSandboxWorkflow"]
-    }
-  ],
   "ai": { "binding": "AI" },
-  "r2_buckets": [{ "binding": "KB", "bucket_name": "REPLACE_R2_BUCKET_NAME" }]
+  "migrations": [
+    { "tag": "flue-2-class-FlueVirtualSandboxAgent", "new_sqlite_classes": ["FlueVirtualSandboxAgent"] }
+  ],
+  "r2_buckets": [{ "binding": "KB", "bucket_name": "replace-r2-bucket-name" }]
 }

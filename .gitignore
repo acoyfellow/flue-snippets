@@ -22,3 +22,6 @@ dist
 examples/*/bun.lock
 recipes/*/bun.lock
 templates/*/bun.lock
+
+# guardrail audit receipts (generated)
+.guardrail/

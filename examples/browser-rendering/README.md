@@ -1,7 +1,7 @@
 ---
 title: browser-rendering
 tagline: 'Real Chromium at the edge. Agent opens a page, returns the title.'
-composes: [Browser Rendering]
+composes: [Browser Rendering, Workers AI]
 ---
 
 # browser-rendering
@@ -12,7 +12,13 @@ composes: [Browser Rendering]
 bash examples/browser-rendering/run-e2e.sh
 ```
 
-`puppeteer.launch(env.BROWSER)` spins up a headless Chrome session.
-The agent navigates to a URL and returns `<title>`. Cold start is
-heavier than Workers AI; `run-e2e.sh` allows 180s for the warmup
-POST.
+`BrowserRendering` is a synchronous Flue 2 agent. It uses Workers AI to
+interpret a requested URL and mounts the `render_page` tool with `useTool()`.
+That tool uses `puppeteer.launch(env.BROWSER)` to start a headless Chrome
+session, navigate to the URL, and return its `<title>`.
+
+The Browser Rendering binding remains in `wrangler.jsonc` alongside the
+Workers AI binding. The E2E builds and deploys the Worker, POSTs the request
+to `/agents/browser-rendering/<conversationId>`, polls the same URL for the
+`Example Domain` title, then deletes the Worker. Cold starts are heavier than
+model-only agents, so the harness allows 180 seconds per browser request.

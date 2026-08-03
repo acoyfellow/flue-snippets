@@ -1,13 +1,13 @@
 # flue-snippets
 
-Real, runnable [Flue](https://flueframework.com) agents, workflows, and
-channels on [Cloudflare](https://developers.cloudflare.com/workers/). Every
-snippet builds with `flue build`, deploys a real ephemeral Worker with
-`wrangler`, exercises it against live services, then deletes it. No mocks.
+Real, runnable [Flue](https://flueframework.com) agents and channels on
+[Cloudflare](https://developers.cloudflare.com/workers/). Every snippet builds
+with `vite build`, deploys a real ephemeral Worker with `wrangler`, exercises it
+against live services, then deletes it. No mocks.
 
-Built for **Flue 1.0** (`@flue/* 1.0.0-beta`). Each snippet is a self-contained
+Built for **Flue 2.0** (`@flue/* 2.0`). Each snippet is a self-contained
 Cloudflare app: its own `package.json`, `wrangler.jsonc`, and `src/`
-(`agents/`, `workflows/`, `channels/`).
+(`agents/`, `channels/`).
 
 [![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml)
 
@@ -19,10 +19,18 @@ recipes/    compositions, Flue + multiple primitives + receipts/proofs
 templates/  forkable starters, production-shape, fork-and-ship
 ```
 
-Most snippets are Flue **workflows** (finite `input → result`, invoked at
-`POST /workflows/<name>?wait=result`). Snippets that need continuing per-user
-state are **agents** (`POST /agents/<name>/<id>`), and verified provider webhook
-ingress uses **channels** (`POST /channels/<name>/<suffix>`).
+Every deployed snippet is public on `*.workers.dev` **and binds Workers AI**,
+so each agent route requires the per-run `SNIPPET_API_KEY` sent as an
+`x-api-key` header — `run-e2e.sh` generates a fresh one and injects it with
+`wrangler deploy --var`. Without it the route answers `401`.
+`templates/github-app` mounts no agent route at all: its only inbound surface
+is the HMAC-verified GitHub webhook.
+
+Every snippet is a Flue **agent**: prompt it at `POST /agents/<name>/<id>`,
+which is answered `202`, then `GET` the same URL to read the settled
+conversation. Verified provider webhook ingress uses **channels**
+(`POST /channels/<name>/<suffix>`). Flue 2 removed workflows; work that was a
+workflow step is now a tool the agent calls.
 
 ## Run one
 
@@ -43,30 +51,23 @@ bun ex:workers-ai        # from the repo root
 Workers AI usage. Each snippet is self-contained (its own `package.json` +
 `src/` + `wrangler.jsonc`) and installs its own deps on first run.
 
-The workflow it just ran:
+The agent it just ran:
 
 ```ts
-// examples/workers-ai/src/workflows/workers-ai.ts
-import { defineAgent, defineWorkflow, type WorkflowRouteHandler } from '@flue/runtime';
-import * as v from 'valibot';
+// examples/workers-ai/src/agents/workers-ai.ts
+'use agent';
 
-export const route: WorkflowRouteHandler = async (_c, next) => next();
+import { type AgentProps, useModel } from '@flue/runtime';
 
-const agent = defineAgent(() => ({ model: 'cloudflare/@cf/moonshotai/kimi-k2.6' }));
-
-export default defineWorkflow({
-  agent,
-  input: v.object({ message: v.optional(v.string()) }),
-  output: v.object({ answer: v.string() }),
-  async run({ harness, input }) {
-    const session = await harness.session();
-    const response = await session.prompt(input.message ?? 'Say hi.');
-    return { answer: response.text };
-  },
-});
+export function WorkersAi(_props: AgentProps) {
+  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+  return 'Answer each user request directly and concisely.';
+}
 ```
 
-Invoke it at `POST /workflows/workers-ai?wait=result` with `{ "message": "..." }`.
+The `'use agent'` directive registers the exported function as an agent at build
+time. Prompt it with `POST /agents/workers-ai/<conversationId>` and a body of
+`{ "kind": "user", "body": "..." }`, then `GET` the same URL for the reply.
 
 ## Examples
 
@@ -145,22 +146,24 @@ ex:<name>`, `bun rx:<name>`, or `bun tpl:<name>`) before shipping.
 
 Every `run-e2e.sh` does the same five things:
 
-1. `flue build --target cloudflare`, compiles the project (agents/workflows/channels
-   under `src/`) into `dist/<name>/` with a Flue-generated `wrangler.json`.
+1. `vite build`, compiles the project (agents/channels under `src/`) into
+   `dist/<name>/` with a Flue-generated `wrangler.json`. The `'use agent'`
+   scanner registers every exported agent at build time.
 2. `wrangler deploy --config dist/<name>/wrangler.json`, deploys the Worker,
    creating any per-run resource (KV/R2/D1/Queue/Vectorize) first and injecting
    secrets/vars with `--var`. Prints the URL.
-3. Warmup, POSTs the workflow route (`/workflows/<name>?wait=result`) or agent
-   route (`/agents/<name>/<id>`) with retries (absorbs route propagation + Workers
-   AI cold start). Flue 1.0 has no `/health` route.
-4. Assert, workflows read `{ result }` from `?wait=result`; agents read the
-   conversation snapshot at `?view=history`; recipes run a `gateproof.plan.ts`
-   with a `probe.ts` (pure `fetch` + JSON).
+3. Warmup, POSTs the agent route (`/agents/<name>/<id>`) with retries until it
+   answers `202`. The retry is mandatory: a freshly deployed Worker can 500 or
+   refuse admission for ~10s while the route propagates and Workers AI warms up.
+   Flue has no `/health` route.
+4. Assert, `GET` the same conversation URL and read the settled snapshot
+   (`messages[].parts[]`, where the reply is the part with `type: 'text'`);
+   recipes run a `gateproof.plan.ts` with a `probe.ts` (pure `fetch` + JSON).
 5. `wrangler delete` (and delete any created resource), then verify zero leftover
    Workers. Trapped on `EXIT INT TERM`.
 
-Flue owns the wrangler config: `flue build` merges its generated bindings +
-migrations into `dist/<name>/wrangler.json`, and `wrangler deploy` ships it. Each
+Flue owns the wrangler config: the Vite plugin merges its generated bindings +
+DO migrations into `dist/<name>/wrangler.json`, and `wrangler deploy` ships it. Each
 snippet is self-contained — its own `package.json`, `wrangler.jsonc`, and `src/`.
 
 ## CI
@@ -179,13 +182,13 @@ matrix. Enrolling them requires a `BRAINTRUST_API_KEY` (injected into the epheme
 
 ## FAQ
 
-**Does it really deploy?** Yes. Each `run-e2e.sh` runs `flue build` then `wrangler deploy`, hits a real `*.workers.dev` URL, then `wrangler delete`s it. CI does the same. There is no mock layer.
+**Does it really deploy?** Yes. Each `run-e2e.sh` runs `vite build` then `wrangler deploy`, hits a real `*.workers.dev` URL, then `wrangler delete`s it. CI does the same. There is no mock layer.
 
 **What does it cost?** ~$0.0001 per snippet per run (one Workers AI `@cf/moonshotai/kimi-k2.6` call). Free tier is plenty for the entire matrix.
 
 **Do all snippets run on a stock token?** Most do. A few need extra access and will otherwise report a clear, non-fatal error: `hyperdrive` (token needs Hyperdrive), `braintrust-*` (need `BRAINTRUST_API_KEY`; `braintrust-ai-gateway` also needs a model provider configured in your Braintrust AI Gateway), `email-workers` (a verified sender, else it returns a structured `E_*` code and still passes).
 
-**How does it deploy?** Flue 1.0 owns the deploy artifact: `flue build --target cloudflare` emits `dist/<name>/` with a generated `wrangler.json` (merged bindings + DO migrations), and `wrangler deploy --config dist/<name>/wrangler.json` ships it. Agents live in `src/agents/`, workflows in `src/workflows/`, verified provider ingress in `src/channels/`, and Cloudflare-native extras (extra DOs, Workflows, MCP servers) in `src/cloudflare.ts`.
+**How does it deploy?** Flue 2 owns the deploy artifact through Vite: `vite build` emits `dist/<name>/` with a generated `wrangler.json` (merged bindings + DO migrations), and `wrangler deploy --config dist/<name>/wrangler.json` ships it. Agents live in `src/agents/`, routing in `src/app.ts`, and verified provider ingress in `src/channels/`.
 
 **Why does CI run sequentially?** Workers AI rate-limits aggressively on personal accounts under parallel load. `max-parallel: 1` keeps the matrix green.
 

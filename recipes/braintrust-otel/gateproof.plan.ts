@@ -1,22 +1,17 @@
-/** Gateproof plan for braintrust-otel. Required env: AGENT_URL. */
-
 import { Effect } from 'effect';
 import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
-const AGENT_URL = process.env.AGENT_URL;
-if (!AGENT_URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
-}
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
 const plan = Plan.define({
   goals: [
     {
       id: 'worker-exports-otel-to-braintrust',
-      title: 'A Flue prompt completes the Braintrust OTel exporter path',
+      title: 'A prompt completes the Braintrust OTel exporter path',
       gate: Gate.define({
-        prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
-        act: [Act.exec(`AGENT_URL="${AGENT_URL}" bun run probe.ts`, { timeoutMs: 150_000 })],
+        prerequisites: [Require.env('AGENT_URL_BASE', 'deployed agent mount URL')],
+        act: [Act.exec(`AGENT_URL_BASE="${base}" bun run probe.ts`, { timeoutMs: 150_000 })],
         assert: [Assert.noErrors()],
         timeoutMs: 180_000,
       }),

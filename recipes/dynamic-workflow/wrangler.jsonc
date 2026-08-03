@@ -3,21 +3,8 @@
   "name": "flue-snippet-dynamic-workflow",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueDynamicWorkflowWorkflow",
-      "new_sqlite_classes": ["FlueDynamicWorkflowWorkflow"]
-    },
-    { "tag": "app-class-TaskQueue", "new_sqlite_classes": ["TaskQueue"] }
-  ],
   "ai": { "binding": "AI" },
-  "durable_objects": { "bindings": [{ "name": "TASK_QUEUE", "class_name": "TaskQueue" }] },
-  "workflows": [
-    {
-      "name": "flue-snippet-dynamic-workflow-runner",
-      "binding": "TASK_RUNNER",
-      "class_name": "TaskRunnerWorkflow"
-    }
+  "migrations": [
+    { "tag": "flue-2-class-FlueDynamicWorkflowAgent", "new_sqlite_classes": ["FlueDynamicWorkflowAgent"] }
   ]
 }

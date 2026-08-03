@@ -14,5 +14,12 @@ export CLOUDFLARE_GATEWAY_ID=jordan  # or your gateway name
 bash examples/ai-gateway/run-e2e.sh
 ```
 
-`env.AI.run(model, args, { gateway: { id } })`. The binding does its
-own auth, so the deploy token doesn't need AI Gateway perms.
+`AiGateway` is a synchronous Flue 2 agent that calls `useModel()` once.
+`src/app.ts` registers the Workers AI binding with
+`cloudflareBindingProvider({ gateway: { id, cacheTtl: 3600 } })`, so every
+model request uses the named Cloudflare AI Gateway. The router exposes the
+agent at `/agents/ai-gateway`.
+
+`POST /agents/ai-gateway/<conversationId>` admits a message with `202`.
+Poll `GET` on that same URL for the assistant answer; the E2E confirms a
+non-empty answer that identifies the gateway before deleting the Worker.

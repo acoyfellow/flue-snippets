@@ -3,13 +3,9 @@
   "name": "flue-snippet-braintrust-trace",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueBraintrustTraceWorkflow",
-      "new_sqlite_classes": ["FlueBraintrustTraceWorkflow"]
-    }
-  ],
   "ai": { "binding": "AI" },
+  "migrations": [
+    { "tag": "flue-2-class-FlueBraintrustTraceAgent", "new_sqlite_classes": ["FlueBraintrustTraceAgent"] }
+  ],
   "vars": { "BRAINTRUST_PROJECT": "flue-snippets" }
 }

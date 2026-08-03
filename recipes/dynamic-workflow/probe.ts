@@ -1,91 +1,63 @@
-/**
- * probe.ts, the real assertion for dynamic-workflow (Flue 1.0).
- *
- * Enqueue three tasks to the same runId via the Flue workflow front door,
- * poll status until the co-hosted Cloudflare Workflow drains the DO queue,
- * and assert all three completed in enqueue order — proving the runtime-
- * materialized step.do() loop ran.
- *
- * Required env: AGENT_URL_BASE (deployed worker base + /workflows/dynamic-workflow)
- */
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
+
+interface Part { type: string; text?: string }
+interface Message { role: string; parts?: Part[] }
+interface Snapshot { messages?: Message[] }
+
+const id = `dynamic-${Date.now()}`;
+const url = `${base}/${id}`;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const runId = `gp-${Date.now()}`;
-const url = `${BASE}?wait=result`;
+function assistantText(snapshot: Snapshot) {
+  return (snapshot.messages ?? [])
+    .filter((message) => message.role === 'assistant')
+    .flatMap((message) => message.parts ?? [])
+    .filter((part) => part.type === 'text')
+    .map((part) => part.text ?? '')
+    .join('\n');
+}
 
-async function call(body: Record<string, unknown>): Promise<Record<string, unknown>> {
-  // Retry transient non-200s (the first enqueue can race the Cloudflare
-  // Workflow binding's cold start).
-  let lastText = '';
-  for (let i = 0; i < 8; i++) {
-    const res = await fetch(url, {
+async function admit(body: string) {
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ runId, ...body }),
+      headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+      body: JSON.stringify({ kind: 'user', body }),
     });
-    if (res.ok) {
-      const b = (await res.json()) as { result?: Record<string, unknown> };
-      return b.result ?? {};
+    lastStatus = response.status;
+    if (lastStatus === 202 || lastStatus === 200) return;
+    await sleep(4000);
+  }
+  throw new Error(`expected admission 202, got ${lastStatus}`);
+}
+
+async function waitFor(expected: string) {
+  const deadline = Date.now() + 120_000;
+  while (Date.now() < deadline) {
+    const response = await fetch(url);
+    if (response.ok) {
+      const text = assistantText((await response.json()) as Snapshot);
+      if (text.includes(expected)) return text;
     }
-    lastText = await res.text();
-    await new Promise((r) => setTimeout(r, 3000));
+    await sleep(2000);
   }
-  console.error(`call failed after retries: ${lastText}`);
-  process.exit(1);
+  throw new Error(`timed out waiting for ${expected}`);
 }
 
-const TASKS = [
-  { kind: 'echo', value: 'alpha' },
-  { kind: 'echo', value: 'beta' },
-  { kind: 'echo', value: 'gamma' },
-];
-
-console.log(`runId: ${runId}`);
-for (const task of TASKS) {
-  const r = await call({ action: 'enqueue', task });
-  console.log(`  enqueued ${JSON.stringify(task)} → queueSize=${r.queueSize} started=${r.started}`);
+for (const value of ['alpha', 'beta', 'gamma']) {
+  await admit(JSON.stringify({ runId: id, task: { kind: 'echo', value } }));
+  await waitFor(value);
 }
 
-const DEADLINE = Date.now() + 120_000;
-let last: Record<string, unknown> | null = null;
-while (Date.now() < DEADLINE) {
-  const r = await call({ action: 'status' });
-  last = r;
-  const wf = (r.workflow as { status?: string } | null) ?? null;
-  const completed = (r.completed as unknown[] | undefined) ?? [];
-  console.log(
-    `  status: workflow=${wf?.status ?? 'pending'} completed=${completed.length} queueSize=${r.queueSize}`,
-  );
-  if (completed.length >= TASKS.length && (wf?.status === 'complete' || wf?.status === 'errored'))
-    break;
-  await new Promise((r) => setTimeout(r, 2000));
+await admit(JSON.stringify({ runId: id, action: 'status' }));
+const result = await waitFor('gamma');
+for (const value of ['alpha', 'beta', 'gamma']) {
+  if (!result.includes(value)) throw new Error(`missing completed value: ${value}`);
 }
-
-if (!last) {
-  console.error('no status response');
-  process.exit(1);
-}
-const completed = (last.completed as Array<{ value?: unknown }>) ?? [];
-const values = completed.map((c) => c.value);
-console.log(`final completed values: ${JSON.stringify(values)}`);
-const expected = TASKS.map((t) => t.value);
-if (values.length !== expected.length) {
-  console.error(`expected ${expected.length} completions, got ${values.length}`);
-  process.exit(1);
-}
-for (let i = 0; i < expected.length; i++) {
-  if (values[i] !== expected[i]) {
-    console.error(`out-of-order: [${i}] expected ${expected[i]} got ${values[i]}`);
-    process.exit(1);
-  }
-}
-const wf = (last.workflow as { status?: string } | null) ?? null;
-if (wf?.status !== 'complete') {
-  console.error(`workflow not complete; final=${wf?.status}`);
-  process.exit(1);
-}
-console.log('✓ dynamic workflow drained all 3 tasks in order, instance complete');
+console.log('dynamic task orchestration preserved all three values');

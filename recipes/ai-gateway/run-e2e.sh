@@ -20,21 +20,24 @@ cleanup() {
   rm -f "$DEPLOY_LOG" "$WORKERS_FILE"
 }
 trap cleanup EXIT INT TERM
-echo "::group::flue build"; npx flue build --target cloudflare; echo "::endgroup::"
+echo "::group::vite build"; npx vite build; echo "::endgroup::"
 echo "::group::wrangler deploy"
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
-npx wrangler deploy --config "$DIST_DIR/wrangler.json" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+export SNIPPET_API_KEY
+npx wrangler deploy --config "$DIST_DIR/wrangler.json" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 WORKER_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1); test -n "$WORKER_URL"
 echo "deployed: $WORKER_URL"; echo "::endgroup::"
 echo "::group::warmup"
-for i in $(seq 1 20); do
-  code=$(curl -sS -m 120 -o /dev/null -w '%{http_code}' "$WORKER_URL/workflows/ai-gateway?wait=result" -H 'content-type: application/json' -d '{"message":"warmup"}' 2>/dev/null || echo 000)
-  [ "$code" = "200" ] && { echo "  live after $i"; break; }
-  [ "$i" = "20" ] && { echo "::error::route failing $code"; exit 1; }
+for i in $(seq 1 40); do
+  code=$(curl -sS -m 120 -o /dev/null -w '%{http_code}' "$WORKER_URL/agents/ai-gateway/warmup" -H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" -d '{"kind":"user","body":"warmup"}' 2>/dev/null || echo 000)
+  [ "$code" = "202" ] && { echo "  live after $i"; break; }
+  [ "$i" = "40" ] && { echo "::error::route failing $code"; exit 1; }
   sleep 4
 done
 echo "::endgroup::"
 echo "::group::gateproof"
-AGENT_URL="${WORKER_URL}/workflows/ai-gateway?wait=result" bun run gateproof.plan.ts
+AGENT_URL_BASE="${WORKER_URL}/agents/ai-gateway" bun run gateproof.plan.ts
 echo "::endgroup::"
 echo "✅ recipe ai-gateway E2E pass"

@@ -1,0 +1,56 @@
+# Files whose comments are the product.
+#
+# flue-snippets is a teaching repo: the explanation of WHY a snippet is
+# shaped the way it is (Flue 2 has no workflows, the agent IS the function,
+# the AI binding must be gated) is the thing being shipped. The security
+# rationale on each auth guard must stay next to the guard.
+#
+# Exact repo-relative paths only. Anything not listed is still blocked.
+
+examples/ai-gateway/run-e2e.sh
+examples/ai-gateway/src/app.ts
+examples/browser-rendering/run-e2e.sh
+examples/browser-rendering/src/app.ts
+examples/d1/run-e2e.sh
+examples/d1/src/app.ts
+examples/durable-objects/probe.ts
+examples/durable-objects/src/agents/durable-objects.ts
+examples/durable-objects/src/app.ts
+examples/effect-hello/run-e2e.sh
+examples/effect-hello/src/app.ts
+examples/email-workers/run-e2e.sh
+examples/email-workers/src/app.ts
+examples/hyperdrive/run-e2e.sh
+examples/hyperdrive/src/app.ts
+examples/kv/run-e2e.sh
+examples/kv/src/agents/kv.ts
+examples/kv/src/app.ts
+examples/queues/run-e2e.sh
+examples/queues/src/app.ts
+examples/r2/run-e2e.sh
+examples/r2/src/app.ts
+examples/vectorize/run-e2e.sh
+examples/vectorize/src/app.ts
+examples/worker-loader/run-e2e.sh
+examples/worker-loader/src/app.ts
+examples/workers-ai/run-e2e.sh
+examples/workers-ai/src/app.ts
+recipes/ai-gateway/src/app.ts
+recipes/braintrust-ai-gateway/src/app.ts
+recipes/braintrust-eval/src/app.ts
+recipes/braintrust-otel/src/app.ts
+recipes/braintrust-trace/src/app.ts
+recipes/chat-thinking/src/app.ts
+recipes/do-governor/src/app.ts
+recipes/do-session/src/app.ts
+recipes/dynamic-workflow/src/app.ts
+recipes/event-trigger/src/app.ts
+recipes/gateway-lab/src/app.ts
+recipes/github-triage/src/app.ts
+recipes/lab-checkpoint/src/app.ts
+recipes/lab-receipt/src/app.ts
+recipes/mcp-client/src/app.ts
+recipes/virtual-sandbox/src/app.ts
+templates/github-app/src/agents/triage.ts
+templates/github-app/src/app.ts
+verify.sh

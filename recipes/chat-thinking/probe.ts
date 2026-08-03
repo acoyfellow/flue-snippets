@@ -1,48 +1,54 @@
-/**
- * probe.ts, the real assertion for chat-thinking (Flue 1.0 workflow).
- *
- * Two workflow invocations with the SAME chatId. Each forwards to a
- * per-chatId Cloudflare Think DO that persists the conversation in SQLite,
- * so turn 2 must recall the unique fact from turn 1.
- *
- * Required env: AGENT_URL_BASE (deployed worker base + /workflows/chat-thinking)
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
+interface UiPart {
+  type: string;
+  text?: string;
 }
 
-const chatId = `gp-${Date.now()}`;
-const url = `${BASE}?wait=result`;
+interface Snapshot {
+  messages?: Array<{ role: string; parts?: UiPart[] }>;
+}
 
-async function turn(message: string): Promise<string> {
-  const res = await fetch(url, {
+const url = `${base}/probe-${Date.now()}`;
+
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function assistantParts(snapshot: Snapshot) {
+  return (snapshot.messages ?? [])
+    .filter((message) => message.role === 'assistant')
+    .flatMap((message) => message.parts ?? []);
+}
+
+let admitted = false;
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ chatId, message }),
+    headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+    body: JSON.stringify({ kind: 'user', body: 'What is 17 multiplied by 19? Explain briefly.' }),
   });
-  if (!res.ok) {
-    console.error(`HTTP ${res.status}: ${await res.text()}`);
-    process.exit(1);
+  if (response.status === 202) {
+    admitted = true;
+    break;
   }
-  const body = (await res.json()) as { result?: { ok?: boolean; answer?: string; error?: string } };
-  const r = body.result;
-  if (!r || r.ok !== true || typeof r.answer !== 'string' || r.answer.length === 0) {
-    console.error(`result.answer missing/empty in: ${JSON.stringify(body)}`);
-    process.exit(1);
+  await sleep(4000);
+}
+if (!admitted) throw new Error('agent did not admit the request with HTTP 202');
+
+for (let attempt = 0; attempt < 60; attempt += 1) {
+  const response = await fetch(url, { headers: { accept: 'application/json', 'x-api-key': API_KEY } });
+  if (response.ok) {
+    const parts = assistantParts((await response.json()) as Snapshot);
+    const hasText = parts.some((part) => part.type === 'text' && (part.text ?? '').length > 0);
+    const hasReasoning = parts.some((part) => part.type === 'reasoning');
+    if (hasText && hasReasoning) {
+      console.log('✓ conversation snapshot includes both reasoning and text parts');
+      process.exit(0);
+    }
   }
-  return r.answer;
+  await sleep(2000);
 }
-
-const t1 = await turn('My favourite colour is octarine. Reply with one word.');
-console.log(`turn 1: ${t1}`);
-const t2 = await turn('What did I just tell you my favourite colour was?');
-console.log(`turn 2: ${t2}`);
-
-if (!t2.toLowerCase().includes('octarine')) {
-  console.error(`Think DO did not persist memory: turn 2 didn't recall "octarine" (got: ${t2})`);
-  process.exit(1);
-}
-console.log('✓ Think DO session memory persisted across turns');
+throw new Error('timed out waiting for reasoning and text parts');

@@ -3,10 +3,9 @@
   "name": "flue-snippet-recipe-ai-gateway",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueAiGatewayWorkflow", "new_sqlite_classes": ["FlueAiGatewayWorkflow"] }
-  ],
   "ai": { "binding": "AI" },
+  "migrations": [
+    { "tag": "flue-2-class-FlueAiGatewayAgent", "new_sqlite_classes": ["FlueAiGatewayAgent"] }
+  ],
   "vars": { "CLOUDFLARE_GATEWAY_ID": "jordan" }
 }

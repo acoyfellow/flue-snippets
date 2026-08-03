@@ -3,10 +3,9 @@
   "name": "flue-snippet-vectorize",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueVectorizeWorkflow", "new_sqlite_classes": ["FlueVectorizeWorkflow"] }
-  ],
   "ai": { "binding": "AI" },
-  "vectorize": [{ "binding": "VECTOR", "index_name": "REPLACE_VECTORIZE_INDEX" }]
+  "migrations": [
+    { "tag": "flue-2-class-FlueVectorizeAgent", "new_sqlite_classes": ["FlueVectorizeAgent"] }
+  ],
+  "vectorize": [{ "binding": "VECTOR", "index_name": "replace-vectorize-index" }]
 }

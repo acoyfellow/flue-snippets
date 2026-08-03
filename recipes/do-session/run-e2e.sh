@@ -25,15 +25,17 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "::group::flue build"
-npx flue build --target cloudflare
+echo "::group::vite build"
+npx vite build
 echo "::endgroup::"
 
 echo "::group::wrangler deploy"
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+export SNIPPET_API_KEY
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 WORKER_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$WORKER_URL"
 echo "deployed: $WORKER_URL"
@@ -42,13 +44,14 @@ echo "::endgroup::"
 echo "::group::warmup"
 # Flue 1.0 agents are fire-and-forget: POST returns 202. Warm by posting a
 # throwaway turn until the route admits.
-for i in $(seq 1 20); do
+for i in $(seq 1 40); do
   code=$(curl -sS -m 60 -o /tmp/warmup-body -w '%{http_code}' \
     "$WORKER_URL/agents/do-session/warmup" \
     -H 'content-type: application/json' \
-    -d '{"message":"warmup"}' 2>/dev/null || echo "000")
-  if [ "$code" = "202" ] || [ "$code" = "200" ]; then echo "  agent route live after $i attempts (HTTP $code)"; break; fi
-  if [ "$i" = "20" ]; then echo "::error::agent route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
+		-H "x-api-key: $SNIPPET_API_KEY" \
+    -d '{"kind":"user","body":"warmup"}' 2>/dev/null || echo "000")
+  if [ "$code" = "202" ]; then echo "  agent route live after $i attempts (HTTP $code)"; break; fi
+  if [ "$i" = "40" ]; then echo "::error::agent route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
   sleep 4
 done
 echo "::endgroup::"

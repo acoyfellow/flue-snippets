@@ -1,41 +1,24 @@
 ---
 title: ai-gateway
-tagline: 'Caching, observability, retry, rate limiting, for free, per prompt.'
+tagline: 'Route every Workers AI model turn through a named Cloudflare AI Gateway.'
 composes: [AI Gateway, Workers AI]
 ---
 
 # ai-gateway
 
-> Caching, observability, retry, rate limiting, for free, per prompt.
-
-## Composes
-
-- **[AI Gateway](https://developers.cloudflare.com/ai-gateway/)**, `env.AI.run(model, args, { gateway: { id } })` routes the call through a CF gateway
-- **[Workers AI](https://developers.cloudflare.com/workers-ai/)**, `@cf/moonshotai/kimi-k2.6` model
-- **[Flue](https://flueframework.com)**, agent shape (the agent uses the binding directly; doesn't go through pi-ai's HTTP path)
+`src/app.ts` registers the Workers AI binding provider with a named Cloudflare AI Gateway, cache TTL, and the `CLOUDFLARE_GATEWAY_ID` override. The `AiGateway` agent then makes its normal model turn through that provider.
 
 ## What it proves
 
-- A Flue agent uses Cloudflare's Workers AI binding (`env.AI`) directly
-- Every prompt routes through the named AI Gateway (`jordan` by default)
-- The gateway resource auto-creates on first hit if it doesn't exist
-- The deploy token doesn't need AI-Gateway-scoped permissions because the binding does its own auth
+- A Flue 2 agent uses the `env.AI` binding through `cloudflareBindingProvider`.
+- Every model turn is routed through the named gateway (`jordan` unless overridden).
+- The old synchronous invocation is now an admitted agent message: `POST /agents/ai-gateway/<conversationId>` returns `202`, and `GET` on the same URL reads the conversation.
 
 ## Run
 
 ```sh
-# Optional: pick a different gateway than the default 'jordan'
 export CLOUDFLARE_GATEWAY_ID=my-gateway
-
 bash recipes/ai-gateway/run-e2e.sh
 ```
 
-## Files
-
-| File | LOC | Role |
-|---|---:|---|
-| `agents/ai-gateway.ts` | 24 | the snippet |
-| `alchemy.run.ts` | 30 | Worker + AI binding + DO + GATEWAY_ID |
-| `gateproof.plan.ts` | 39 | 1 gate: real model answer through the gateway |
-| `probe.ts` | 43 | asserts answer + gateway echo |
-| `run-e2e.sh` | 90 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |
+The harness builds, deploys, waits for route admission, verifies a conversation reply, and removes the Worker. It is not run by static verification.

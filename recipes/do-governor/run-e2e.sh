@@ -25,34 +25,37 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "::group::flue build"
-npx flue build --target cloudflare
+echo "::group::vite build"
+npx vite build
 echo "::endgroup::"
 
 echo "::group::wrangler deploy"
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+export SNIPPET_API_KEY
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 WORKER_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$WORKER_URL"
 echo "deployed: $WORKER_URL"
 echo "::endgroup::"
 
 echo "::group::warmup"
-for i in $(seq 1 20); do
+for i in $(seq 1 40); do
   code=$(curl -sS -m 120 -o /tmp/warmup-body -w '%{http_code}' \
-    "$WORKER_URL/workflows/do-governor?wait=result" \
+    "$WORKER_URL/agents/do-governor/warmup" \
     -H 'content-type: application/json' \
-    -d '{"message":"warmup","lastAction":"warmup"}' 2>/dev/null || echo "000")
-  if [ "$code" = "200" ]; then echo "  workflow route live after $i attempts"; break; fi
-  if [ "$i" = "20" ]; then echo "::error::workflow route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
+		-H "x-api-key: $SNIPPET_API_KEY" \
+    -d '{"kind":"user","body":"warmup"}' 2>/dev/null || echo "000")
+  if [ "$code" = "202" ]; then echo "  agent route live after $i attempts"; break; fi
+  if [ "$i" = "40" ]; then echo "::error::agent route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
   sleep 4
 done
 echo "::endgroup::"
 
 echo "::group::gateproof plan against $WORKER_URL"
-AGENT_URL_BASE="${WORKER_URL}/workflows/do-governor" \
+AGENT_URL_BASE="${WORKER_URL}/agents/do-governor" \
   bun run gateproof.plan.ts
 echo "::endgroup::"
 

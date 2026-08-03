@@ -1,38 +1,34 @@
-/** Gateproof plan for braintrust-eval. Required env: AGENT_URL, BRAINTRUST_API_KEY. */
-
 import { Effect } from 'effect';
 import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
-const AGENT_URL = process.env.AGENT_URL;
-if (!AGENT_URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
-}
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
 const plan = Plan.define({
   goals: [
     {
       id: 'evaluation-target-is-live',
-      title: 'The deployed Flue/Workers AI target answers a prompt',
+      title: 'The deployed Workers AI agent answers a prompt',
       gate: Gate.define({
-        prerequisites: [Require.env('AGENT_URL', 'deployed snippet URL')],
-        act: [Act.exec(`AGENT_URL="${AGENT_URL}" bun run probe.ts`, { timeoutMs: 150_000 })],
+        prerequisites: [Require.env('AGENT_URL_BASE', 'deployed agent mount URL')],
+        act: [Act.exec(`AGENT_URL_BASE="${base}" bun run probe.ts`, { timeoutMs: 150_000 })],
         assert: [Assert.noErrors()],
         timeoutMs: 180_000,
       }),
     },
     {
       id: 'braintrust-runs-evaluation',
-      title: 'Braintrust records an experiment over the deployed endpoint',
+      title: 'Braintrust records an experiment over the deployed agent',
       gate: Gate.define({
         prerequisites: [
-          Require.env('AGENT_URL', 'deployed snippet URL'),
+          Require.env('AGENT_URL_BASE', 'deployed agent mount URL'),
           Require.env('BRAINTRUST_API_KEY', 'experiment upload credential'),
         ],
         act: [
-          Act.exec(`AGENT_URL="${AGENT_URL}" bunx braintrust eval eval.ts --no-progress-bars`, {
-            timeoutMs: 300_000,
-          }),
+          Act.exec(
+            `AGENT_URL_BASE="${base}" bunx braintrust eval eval.ts --no-progress-bars`,
+            { timeoutMs: 300_000 },
+          ),
         ],
         assert: [Assert.noErrors()],
         timeoutMs: 330_000,

@@ -1,6 +1,6 @@
-import { createGitHubChannel } from '@flue/github';
+import { createGitHubChannel, type JsonValue } from '@flue/github';
 import { dispatch } from '@flue/runtime';
-import triage from '../agents/triage.ts';
+import { Triage } from '../agents/triage.ts';
 
 // GitHub App webhook ingress at POST /channels/github/webhook. @flue/github
 // verifies the x-hub-signature-256 HMAC against the raw body (real 401 on
@@ -11,7 +11,7 @@ import triage from '../agents/triage.ts';
 export const channel = createGitHubChannel({
   webhookSecret: requiredEnv('GITHUB_WEBHOOK_SECRET'),
 
-  async webhook({ delivery }) {
+  async webhook({ delivery }): Promise<Record<string, JsonValue>> {
     if (
       delivery.name === 'issues' &&
       delivery.payload.action === 'opened' &&
@@ -23,16 +23,18 @@ export const channel = createGitHubChannel({
         repo: repository.name,
         issueNumber: issue.number,
       };
-      await dispatch(triage, {
-        id: channel.conversationKey(ref),
-        input: {
+      await dispatch(Triage, {
+        id: channel.instanceId(ref),
+        message: {
+          kind: 'signal',
           type: 'github.issues.opened',
-          title: issue.title,
-          body: issue.body ?? '',
-          deliveryId: delivery.deliveryId,
-          owner: ref.owner,
-          repo: ref.repo,
-          issueNumber: ref.issueNumber,
+          body: `${issue.title}\n\n${issue.body ?? ''}`,
+          attributes: {
+            deliveryId: delivery.deliveryId,
+            owner: ref.owner,
+            repo: ref.repo,
+            issueNumber: String(ref.issueNumber),
+          },
         },
       });
       return { handled: 'issues.opened', issue: issue.number };
@@ -48,16 +50,18 @@ export const channel = createGitHubChannel({
         repo: repository.name,
         issueNumber: pull_request.number,
       };
-      await dispatch(triage, {
-        id: channel.conversationKey(ref),
-        input: {
+      await dispatch(Triage, {
+        id: channel.instanceId(ref),
+        message: {
+          kind: 'signal',
           type: 'github.pull_request.opened',
-          title: pull_request.title,
-          body: pull_request.body ?? '',
-          deliveryId: delivery.deliveryId,
-          owner: ref.owner,
-          repo: ref.repo,
-          prNumber: ref.issueNumber,
+          body: `${pull_request.title}\n\n${pull_request.body ?? ''}`,
+          attributes: {
+            deliveryId: delivery.deliveryId,
+            owner: ref.owner,
+            repo: ref.repo,
+            prNumber: String(ref.issueNumber),
+          },
         },
       });
       return { handled: 'pull_request.opened', pr: pull_request.number };

@@ -3,9 +3,9 @@
   "name": "flue-snippet-d1",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueD1Workflow", "new_sqlite_classes": ["FlueD1Workflow"] }
+    { "tag": "flue-2-class-FlueD1Agent", "new_sqlite_classes": ["FlueD1Agent"] }
   ],
   "d1_databases": [
     { "binding": "DB", "database_name": "REPLACE_D1_NAME", "database_id": "REPLACE_D1_ID" }

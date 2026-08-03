@@ -3,9 +3,9 @@
   "name": "flue-snippet-r2",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueR2Workflow", "new_sqlite_classes": ["FlueR2Workflow"] }
+    { "tag": "flue-2-class-FlueR2StorageAgent", "new_sqlite_classes": ["FlueR2StorageAgent"] }
   ],
-  "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "REPLACE_R2_BUCKET_NAME" }]
+  "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "replace-r2-bucket-name" }]
 }

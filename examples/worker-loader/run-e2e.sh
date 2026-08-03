@@ -26,27 +26,55 @@ cleanup() {
 }
 trap cleanup EXIT
 
-npx flue build --target cloudflare
+npx vite build
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$URL"
 
-RESPONSE=""
-for i in $(seq 1 20); do
-	RESPONSE=$(curl -sS -m 60 "$URL/workflows/worker-loader?wait=result" \
-		-H 'content-type: application/json' -d '{}' || true)
-	printf '%s' "$RESPONSE" | grep -q '"childStatus":200' && break
-	[ "$i" = "20" ] && { echo "assert never returned child 200: $RESPONSE" >&2; exit 1; }
+CONV="e2e-worker-loader-$(date +%s)"
+for i in $(seq 1 40); do
+	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 60 "$URL/agents/worker-loader/warmup-$CONV" \
+		-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+		-d '{"kind":"user","body":"Prepare to call the binding tool exactly once."}' || echo 000)
+	[ "$code" = "202" ] && break
+	[ "$i" = "40" ] && { echo "warmup never returned 202 (last $code)" >&2; exit 1; }
 	sleep 3
 done
-printf '%s\n' "$RESPONSE"
+
+# ADMIT retry: a freshly deployed Worker can answer 500/404 for a few
+# seconds even after warmup, and a failed admit means the stream is
+# never created — so retry until the agent really accepts the prompt.
+ADMIT=""
+for i in $(seq 1 20); do
+	ADMIT=$(curl -sS -m 60 "$URL/agents/worker-loader/$CONV" \
+	-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+	-d '{"kind":"user","body":"Load the default child Worker and invoke it."}' || true)
+	printf '%s' "$ADMIT" | grep -q '"streamUrl"' && break
+	[ "$i" = "20" ] && { echo "agent never admitted the prompt: $ADMIT" >&2; exit 1; }
+	sleep 3
+done
+printf 'admitted: %s\n' "$ADMIT"
+
+RESPONSE=""
+for i in $(seq 1 60); do
+	RESPONSE=$(curl -sS -m 60 "$URL/agents/worker-loader/$CONV" -H 'accept: application/json' -H "x-api-key: $SNIPPET_API_KEY" || true)
+	printf '%s' "$RESPONSE" | grep -q '"childStatus":200' && break
+	[ "$i" = "60" ] && { echo "conversation never reported the expected binding result: $RESPONSE" >&2; exit 1; }
+	sleep 3
+done
+
 printf '%s' "$RESPONSE" | node -e '
-let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
-	const b=JSON.parse(s), r=b.result;
-	if(!r || r.childStatus!==200 || !String(r.childBody).includes("\"from\":\"child\"")){console.error("worker-loader assertion failed",b);process.exit(1);}
-	console.log("worker-loader assertion passed", JSON.stringify(r));
+let s=""; process.stdin.on("data", d => s += d).on("end", () => {
+	if (!s.includes("\"childStatus\":200") || !s.includes("\"from\":\"child\"")) {
+		console.error("worker-loader assertion failed", s.slice(0, 600));
+		process.exit(1);
+	}
+	console.log("worker-loader assertion passed: load_worker reported a child 200 response");
 });
 '

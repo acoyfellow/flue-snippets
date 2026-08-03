@@ -1,7 +1,7 @@
 ---
 title: github-app
 tagline: 'A forkable GitHub App on Cloudflare Workers, powered by Flue channels.'
-composes: [Flue channels, Workers AI, Durable Objects, @flue/github]
+composes: [Flue channels, Workers AI, Durable Objects, '@flue/github']
 ---
 
 # github-app
@@ -36,7 +36,7 @@ openssl rand -hex 32
 
 # 3. Build + deploy (inject the secret as a var/secret)
 bun install
-npx flue build --target cloudflare
+npx vite build
 npx wrangler deploy --config dist/flue-tpl-github-app/wrangler.json \
   --var "GITHUB_WEBHOOK_SECRET:<the secret from step 2>"
 # For production, prefer: npx wrangler secret put GITHUB_WEBHOOK_SECRET

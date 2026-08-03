@@ -3,9 +3,8 @@
   "name": "flue-snippet-do-session",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueDoSessionAgent", "new_sqlite_classes": ["FlueDoSessionAgent"] }
-  ],
-  "ai": { "binding": "AI" }
+    { "tag": "flue-2-class-FlueDoSessionAgent", "new_sqlite_classes": ["FlueDoSessionAgent"] }
+  ]
 }

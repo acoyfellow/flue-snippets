@@ -1,27 +1,59 @@
-/** Cheap live preflight before uploading an evaluation. Required env: AGENT_URL. */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-export {};
-
-const URL = process.env.AGENT_URL;
-if (!URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
+interface UiPart {
+  type: string;
+  text?: string;
 }
 
-const response = await fetch(URL, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'Reply with one word: observability.' }),
-});
-if (!response.ok) {
-  console.error(`expected 200, got ${response.status}`);
-  console.error(await response.text());
-  process.exit(1);
+interface Snapshot {
+  messages?: Array<{ role: string; parts?: UiPart[] }>;
 }
-const body = (await response.json()) as { result?: { answer?: string; provider?: string } };
-console.log(JSON.stringify(body));
-if (!body.result?.answer || body.result.provider !== 'workers-ai') {
-  console.error('expected a non-empty Workers AI result');
-  process.exit(1);
+
+const url = `${base}/probe-${Date.now()}`;
+
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
-console.log('✓ evaluation target responds through Workers AI');
+
+function assistantTexts(snapshot: Snapshot) {
+  return (snapshot.messages ?? [])
+    .filter((message) => message.role === 'assistant')
+    .map((message) =>
+      (message.parts ?? [])
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text ?? '')
+        .join('')
+        .trim(),
+    )
+    .filter(Boolean);
+}
+
+let admitted = false;
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+    body: JSON.stringify({ kind: 'user', body: 'Reply with one word: observability.' }),
+  });
+  if (response.status === 202) {
+    admitted = true;
+    break;
+  }
+  await sleep(4000);
+}
+if (!admitted) throw new Error('agent did not admit the request with HTTP 202');
+
+for (let attempt = 0; attempt < 60; attempt += 1) {
+  const response = await fetch(url, { headers: { accept: 'application/json', 'x-api-key': API_KEY } });
+  if (response.ok) {
+    const texts = assistantTexts((await response.json()) as Snapshot);
+    if (texts.some((text) => text.toLowerCase().includes('observability'))) {
+      console.log('✓ evaluation target responds through Workers AI');
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
+}
+throw new Error('timed out waiting for the Workers AI evaluation target');

@@ -3,13 +3,9 @@
   "name": "flue-snippet-lab-checkpoint",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueLabCheckpointWorkflow",
-      "new_sqlite_classes": ["FlueLabCheckpointWorkflow"]
-    }
-  ],
   "ai": { "binding": "AI" },
+  "migrations": [
+    { "tag": "flue-2-class-FlueLabCheckpointAgent", "new_sqlite_classes": ["FlueLabCheckpointAgent"] }
+  ],
   "vars": { "LAB_URL": "REPLACE_LAB_URL" }
 }

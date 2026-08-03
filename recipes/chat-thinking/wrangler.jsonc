@@ -3,17 +3,8 @@
   "name": "flue-snippet-chat-thinking",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueChatThinkingWorkflow",
-      "new_sqlite_classes": ["FlueChatThinkingWorkflow"]
-    },
-    { "tag": "app-class-Thinker", "new_sqlite_classes": ["Thinker"] }
-  ],
   "ai": { "binding": "AI" },
-  "worker_loaders": [{ "binding": "LOADER" }],
-  "durable_objects": {
-    "bindings": [{ "name": "Thinker", "class_name": "Thinker" }]
-  }
+  "migrations": [
+    { "tag": "flue-2-class-FlueChatThinkingAgent", "new_sqlite_classes": ["FlueChatThinkingAgent"] }
+  ]
 }

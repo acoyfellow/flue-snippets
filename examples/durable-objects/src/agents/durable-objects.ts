@@ -1,16 +1,17 @@
-import { type AgentRouteHandler, defineAgent } from '@flue/runtime';
+'use agent';
 
-// examples/durable-objects — per-user agent routing via Durable Objects.
+// examples/durable-objects — per-instance agent routing via Durable Objects.
 // Flue creates one DO instance per path id: POST /agents/durable-objects/<id>.
 // Same id = same DO = same conversation history; a new id = a fresh instance.
-// Flue handles the session store automatically on Cloudflare.
+// Flue owns the session store on Cloudflare.
+//
+// Flue 2: the agent IS this function. The instruction string it returns
+// replaces the old `instructions` config field, and conversation history is
+// still handled by the runtime — nothing here reads or writes it.
 
-export const description = 'Per-instance chat agent demonstrating Durable Object routing.';
+import { useModel } from '@flue/runtime';
 
-export const route: AgentRouteHandler = async (_c, next) => next();
-
-export default defineAgent(() => ({
-  model: 'cloudflare/@cf/moonshotai/kimi-k2.6',
-  instructions:
-    'You are a concise assistant. Answer in one short sentence and use the conversation history to recall anything the user told you earlier.',
-}));
+export function DurableObjects() {
+	useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+	return 'You are a concise assistant. Answer in one short sentence and use the conversation history to recall anything the user told you earlier.';
+}

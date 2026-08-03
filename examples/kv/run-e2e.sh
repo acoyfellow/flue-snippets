@@ -7,7 +7,7 @@ cd "$EXAMPLE"
 # Local dev sources .env; CI provides these as real env vars.
 if [ -f "$ROOT/.env" ]; then set -a; source "$ROOT/.env"; set +a; fi
 
-# Self-contained: install this snippet's own 1.0 deps if missing.
+# Self-contained: install this snippet's own Flue 2 deps if missing.
 [ -d node_modules ] || bun install
 
 WORKER_NAME=$(node -p "require('./package.json').name")
@@ -52,44 +52,63 @@ const s = fs.readFileSync(p, "utf8").replace("REPLACE_KV_NAMESPACE_ID", process.
 fs.writeFileSync(p, s);
 ' "$KV_ID"
 
-npx flue build --target cloudflare
+npx vite build
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
 npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
-npx wrangler deploy --config "$DEPLOY_CONFIG" 2>&1 | tee "$DEPLOY_LOG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$URL"
 
-# Warmup + assert both hit the synchronous ?wait=result path. A bare
-# POST /workflows/kv (no wait) is a fire-and-forget admit whose 202/404
-# shape varies; ?wait=result is the documented synchronous invocation.
-for i in $(seq 1 20); do
-	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 60 "$URL/workflows/kv?wait=result" \
+# Flue 2 has no synchronous invoke route. POST /agents/kv/<id> admits the
+# message (202) and the reply lands in the conversation; GET the same URL
+# to read it back. Warm up until the Worker answers, then assert.
+CONV="e2e-kv-$(date +%s)"
+for i in $(seq 1 40); do
+	code=$(curl -sS -o /dev/null -w '%{http_code}' -m 60 "$URL/agents/kv/warmup-$CONV" \
 		-H 'content-type: application/json' \
-		-d '{"key":"warmup","value":"ready"}' || echo 000)
-	[ "$code" = "200" ] && break
-	[ "$i" = "20" ] && { echo "warmup never returned 200 (last $code)" >&2; exit 1; }
+		-H "x-api-key: $SNIPPET_API_KEY" \
+		-d '{"kind":"user","body":"Round-trip key warmup with value ready."}' || echo 000)
+	[ "$code" = "202" ] && break
+	[ "$i" = "40" ] && { echo "warmup never returned 202 (last $code)" >&2; exit 1; }
 	sleep 3
 done
+
+# ADMIT retry: a freshly deployed Worker can answer 500/404 for a few
+# seconds even after warmup, and a failed admit means the stream is
+# never created — so retry until the agent really accepts the prompt.
+ADMIT=""
+for i in $(seq 1 20); do
+	ADMIT=$(curl -sS -m 60 "$URL/agents/kv/$CONV" \
+	-H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" \
+	-d '{"kind":"user","body":"Round-trip the key e2e-kv with the value round-trip."}' || true)
+	printf '%s' "$ADMIT" | grep -q '"streamUrl"' && break
+	[ "$i" = "20" ] && { echo "agent never admitted the prompt: $ADMIT" >&2; exit 1; }
+	sleep 3
+done
+printf 'admitted: %s\n' "$ADMIT"
+
+# Poll the conversation until the tool result appears in a settled reply.
 RESPONSE=""
-for i in $(seq 1 20); do
-	RESPONSE=$(curl -sS -m 60 "$URL/workflows/kv?wait=result" \
-		-H 'content-type: application/json' \
-		-d '{"key":"e2e-kv","value":"round-trip"}' || true)
+for i in $(seq 1 60); do
+	RESPONSE=$(curl -sS -m 60 "$URL/agents/kv/$CONV" -H 'accept: application/json' -H "x-api-key: $SNIPPET_API_KEY" || true)
 	printf '%s' "$RESPONSE" | grep -q '"match":true' && break
-	[ "$i" = "20" ] && { echo "assert never returned a valid result: $RESPONSE" >&2; exit 1; }
+	[ "$i" = "60" ] && { echo "conversation never reported a successful round trip: $RESPONSE" >&2; exit 1; }
 	sleep 3
 done
-printf '%s\n' "$RESPONSE"
+
 printf '%s' "$RESPONSE" | node -e '
 let s=""; process.stdin.on("data", d => s += d).on("end", () => {
-	const body = JSON.parse(s);
-	const result = body.result;
-	if (!result || result.key !== "e2e-kv" || result.read !== "round-trip" || result.match !== true) {
-		console.error("round-trip assertion failed", body);
+	if (!s.includes("\"match\":true")) {
+		console.error("round-trip assertion failed", s.slice(0, 600));
 		process.exit(1);
 	}
-	console.log("round-trip assertion passed", JSON.stringify(result));
+	if (!s.includes("e2e-kv") || !s.includes("round-trip")) {
+		console.error("round-trip ran but did not carry the expected key/value", s.slice(0, 600));
+		process.exit(1);
+	}
+	console.log("round-trip assertion passed: kv_round_trip reported match:true for e2e-kv");
 });
 '
-

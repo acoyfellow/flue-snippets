@@ -26,8 +26,8 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "::group::flue build"
-npx flue build --target cloudflare
+echo "::group::vite build"
+npx vite build
 echo "::endgroup::"
 
 echo "::group::wrangler deploy"
@@ -41,13 +41,13 @@ echo "::endgroup::"
 
 echo "::group::warmup"
 # Unsigned POST returns 401 fast once the route is live — use it to warm.
-for i in $(seq 1 20); do
+for i in $(seq 1 40); do
   code=$(curl -sS -m 30 -o /dev/null -w '%{http_code}' -X POST \
     "$WORKER_URL/channels/github/webhook" \
     -H 'content-type: application/json' -H 'x-github-event: issues' -H 'x-github-delivery: warmup' \
     -d '{}' 2>/dev/null || echo "000")
   if [ "$code" = "401" ]; then echo "  channel route live after $i attempts"; break; fi
-  if [ "$i" = "20" ]; then echo "::error::channel route not responding (HTTP $code)"; exit 1; fi
+  if [ "$i" = "40" ]; then echo "::error::channel route not responding (HTTP $code)"; exit 1; fi
   sleep 3
 done
 echo "::endgroup::"

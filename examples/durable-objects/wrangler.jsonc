@@ -4,9 +4,8 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
     {
-      "tag": "flue-class-FlueDurableObjectsAgent",
+      "tag": "flue-2-class-FlueDurableObjectsAgent",
       "new_sqlite_classes": ["FlueDurableObjectsAgent"]
     }
   ],

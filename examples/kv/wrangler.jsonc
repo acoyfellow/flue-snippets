@@ -3,9 +3,9 @@
   "name": "flue-snippet-kv",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueKvWorkflow", "new_sqlite_classes": ["FlueKvWorkflow"] }
+    { "tag": "flue-2-class-FlueKvAgent", "new_sqlite_classes": ["FlueKvAgent"] }
   ],
   "kv_namespaces": [{ "binding": "KV", "id": "REPLACE_KV_NAMESPACE_ID" }]
 }

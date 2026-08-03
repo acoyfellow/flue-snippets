@@ -3,12 +3,8 @@
   "name": "flue-snippet-github-triage",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueGithubTriageWorkflow",
-      "new_sqlite_classes": ["FlueGithubTriageWorkflow"]
-    }
-  ],
-  "ai": { "binding": "AI" }
+    { "tag": "flue-2-class-FlueGithubTriageAgent", "new_sqlite_classes": ["FlueGithubTriageAgent"] }
+  ]
 }

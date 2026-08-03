@@ -3,12 +3,8 @@
   "name": "flue-snippet-effect-hello",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueEffectHelloWorkflow",
-      "new_sqlite_classes": ["FlueEffectHelloWorkflow"]
-    }
-  ],
-  "ai": { "binding": "AI" }
+    { "tag": "flue-2-class-FlueEffectHelloAgent", "new_sqlite_classes": ["FlueEffectHelloAgent"] }
+  ]
 }

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "policies": [
+    { "policy": "no-added-comments", "mode": "warn" },
+    { "policy": "no-committed-secrets", "mode": "enforce" },
+    { "policy": "no-hook-bypass", "mode": "enforce" }
+  ]
+}

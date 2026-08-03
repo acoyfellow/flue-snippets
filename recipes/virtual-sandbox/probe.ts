@@ -1,36 +1,31 @@
-/**
- * probe.ts, the real assertion for virtual-sandbox (Flue 1.0 workflow).
- *
- * One invocation with a question whose answer only exists in the seeded R2
- * docs. If the sandbox seeding + grep worked, the answer contains "octarine".
- *
- * Required env: AGENT_URL_BASE (deployed worker base + /workflows/virtual-sandbox)
- */
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
+
+const url = `${base}/sandbox-${Date.now()}`;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const res = await fetch(`${BASE}?wait=result`, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'What colour is magic?' }),
-});
-if (!res.ok) {
-  console.error(`HTTP ${res.status}: ${await res.text()}`);
-  process.exit(1);
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': API_KEY }, body: JSON.stringify({ kind: 'user', body: 'What colour is magic?' }) });
+  if (response.status === 202 || response.status === 200) break;
+  if (attempt === 14) throw new Error(`expected 202, got ${response.status}`);
+  await sleep(4000);
 }
 
-const body = (await res.json()) as { result?: { answer?: string } };
-const text = body.result?.answer;
-if (typeof text !== 'string' || text.length === 0) {
-  console.error(`result.answer missing/empty in: ${JSON.stringify(body)}`);
-  process.exit(1);
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    if (text.toLowerCase().includes('octarine')) {
+      console.log(`sandbox answer: ${text}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
 }
-console.log(`answer: ${text}`);
-if (!text.toLowerCase().includes('octarine')) {
-  console.error(`agent did not grep the seeded doc: expected "octarine", got: ${text}`);
-  process.exit(1);
-}
-console.log('✓ agent grepped the R2-seeded doc from the virtual sandbox');
+throw new Error('timed out waiting for sandbox answer');

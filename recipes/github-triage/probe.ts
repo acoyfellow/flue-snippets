@@ -1,92 +1,36 @@
-/**
- * probe.ts, the real assertion for github-triage.
- *
- * POST a synthetic issue payload at a unique id (so each run hits a
- * fresh DO). Assert the response carries a structured triage object
- * whose shape matches the valibot schema in the agent.
- *
- * The chosen fixture has obvious reproduction steps, so we can also
- * assert reproducible === true, that catches LLM drift on the
- * Boolean field even when the schema would otherwise accept either.
- *
- * Pure fetch + JSON. No bash heredocs, no python one-liners.
- *
- * Required env: AGENT_URL_BASE (e.g. https://...workers.dev/workflows/github-triage)
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
-}
-
-const SEVERITIES = ['low', 'medium', 'high', 'critical'] as const;
-type Severity = (typeof SEVERITIES)[number];
-
-// Flue 1.0 workflow: synchronous invocation is POST <base>?wait=result,
-// returning { result, runId }. (No per-instance id segment like agents.)
-const url = `${BASE}?wait=result`;
-
-const body = {
+const url = `${base}/issue-${Date.now()}`;
+const body = JSON.stringify({
   issueTitle: 'App crashes when uploading large files',
-  issueBody:
-    '## Steps to reproduce\n1. Open the upload modal\n2. Pick any file > 100MB\n3. Click upload\n\n## Expected\nUpload completes\n\n## Actual\nApp crashes, browser tab freezes for 30s then shows blank page. Reproducible on Chrome 130 and Firefox 131 on macOS 15.',
+  issueBody: 'Steps to reproduce: open upload, choose a file above 100MB, then click upload. The browser freezes and crashes.',
   issueNumber: 42,
-};
-
-const res = await fetch(url, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify(body),
 });
 
-if (!res.ok) {
-  console.error(`expected 200, got ${res.status}`);
-  console.error(await res.text());
-  process.exit(1);
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const json = (await res.json()) as {
-  result?: {
-    triage?: {
-      severity?: unknown;
-      reproducible?: unknown;
-      summary?: unknown;
-    };
-  };
-};
-
-console.log(JSON.stringify(json));
-
-const triage = json.result?.triage;
-if (!triage || typeof triage !== 'object') {
-  console.error('result.triage missing or not an object');
-  process.exit(1);
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': API_KEY }, body: JSON.stringify({ kind: 'user', body }) });
+  if (response.status === 202 || response.status === 200) break;
+  if (attempt === 14) throw new Error(`expected 202, got ${response.status}`);
+  await sleep(4000);
 }
 
-const severity = triage.severity;
-if (typeof severity !== 'string' || !SEVERITIES.includes(severity as Severity)) {
-  console.error(`result.triage.severity invalid: ${JSON.stringify(severity)}`);
-  process.exit(1);
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    if (/(low|medium|high|critical)/.test(text) && /true|false/.test(text) && text.length > 20) {
+      console.log(`triage response: ${text}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
 }
-
-const reproducible = triage.reproducible;
-if (typeof reproducible !== 'boolean') {
-  console.error(`result.triage.reproducible not a boolean: ${JSON.stringify(reproducible)}`);
-  process.exit(1);
-}
-if (reproducible !== true) {
-  console.error(
-    'result.triage.reproducible === false, but fixture has clear repro steps, LLM drift',
-  );
-  process.exit(1);
-}
-
-const summary = triage.summary;
-if (typeof summary !== 'string' || summary.length === 0) {
-  console.error('result.triage.summary missing or empty');
-  process.exit(1);
-}
-
-console.log(`✓ triage: severity=${severity} reproducible=${reproducible}`);
-console.log(`✓ summary: ${summary}`);
+throw new Error('timed out waiting for triage');

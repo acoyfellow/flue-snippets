@@ -1,41 +1,19 @@
 ---
 title: lab-checkpoint
-tagline: 'Receipts at meaningful moments: start, every Nth cycle, stop.'
-composes: [Durable Objects, lab]
+tagline: 'Durable cycle state creates receipts at meaningful checkpoints.'
+composes: [Durable Agents, lab]
 ---
 
 # lab-checkpoint
 
-> Receipts at meaningful moments: start, every Nth cycle, stop.
+`LabCheckpoint` stores its cycle in durable agent state. Its `checkpoint_agent_work` tool answers the delivered message, increments that state, and writes a Lab receipt at cycle one, each configured interval, and explicit stop. Other cycles return no receipt.
 
-## Composes
+## Route
 
-- **[Flue](https://flueframework.com)**, agent shape
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**, per-user DO holds the cycle counter
-- **[`@acoyfellow/lab`](https://lab.coey.dev)**, receipts persisted per checkpoint
-
-## What it proves
-
-- The agent writes a Lab receipt at cycle 1, every Nth cycle, and on explicit `stop: true`
-- Mid-cycle calls (e.g. cycle 2 with `every: 3`) return no `receipt` field
-- `lab.coey.dev` actually persists what the agent claimed to write, the receipt URL the agent returns resolves to a real saved result
+Send user messages to `POST /agents/lab-checkpoint/<conversationId>` and poll the same URL after HTTP 202. Reuse a conversation id to continue its checkpoint counter.
 
 ## Run
 
 ```sh
 bash recipes/lab-checkpoint/run-e2e.sh
 ```
-
-Three gates: a checkpoint cycle (proves persist), a non-checkpoint cycle
-(proves selectivity), and a lab-origin reachability check.
-
-## Files
-
-| File | LOC | Role |
-|---|---:|---|
-| `agents/lab-checkpoint.ts` | 31 | the snippet |
-| `alchemy.run.ts` | 25 | Worker + DO + LAB_URL var |
-| `gateproof.plan.ts` | 64 | 3 gates |
-| `probe-first.ts` | 40 | asserts first-cycle receipt persists |
-| `probe-mid.ts` | 30 | asserts mid-cycle skip |
-| `run-e2e.sh` | 53 | orchestrates the lifecycle (deploy, warmup, assert, destroy) |

@@ -3,11 +3,10 @@
   "name": "flue-snippet-mcp-client",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueMcpClientWorkflow", "new_sqlite_classes": ["FlueMcpClientWorkflow"] },
+    { "tag": "flue-2-class-FlueMcpClientAgent", "new_sqlite_classes": ["FlueMcpClientAgent"] },
     { "tag": "app-class-ReverseServer", "new_sqlite_classes": ["ReverseServer"] }
   ],
-  "ai": { "binding": "AI" },
   "durable_objects": { "bindings": [{ "name": "ReverseServer", "class_name": "ReverseServer" }] }
 }

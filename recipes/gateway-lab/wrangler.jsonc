@@ -3,10 +3,9 @@
   "name": "flue-snippet-gateway-lab",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueGatewayLabWorkflow", "new_sqlite_classes": ["FlueGatewayLabWorkflow"] }
-  ],
   "ai": { "binding": "AI" },
+  "migrations": [
+    { "tag": "flue-2-class-FlueGatewayLabAgent", "new_sqlite_classes": ["FlueGatewayLabAgent"] }
+  ],
   "vars": { "CLOUDFLARE_GATEWAY_ID": "jordan", "LAB_URL": "REPLACE_LAB_URL" }
 }

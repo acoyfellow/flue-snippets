@@ -1,33 +1,39 @@
-/**
- * probe-mid.ts, call the lab-checkpoint agent at a non-checkpoint
- * cycle (cycle=1 with every=3 → next cycle becomes 2, NOT a checkpoint
- * boundary) and assert the response has NO `receipt` field.
- *
- * Required env:
- *   AGENT_URL, full POST target
- *
- * Exits 0 only if the response has a result with no receipt field.
- */
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const URL = process.env.AGENT_URL;
-if (!URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
+const url = `${base}/mid-${Date.now()}`;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const res = await fetch(URL, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'mid', cycle: 1, every: 3 }),
-});
-if (!res.ok) {
-  console.error(`HTTP ${res.status}: ${await res.text()}`);
-  process.exit(1);
+async function send(body: string) {
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'user', body }) });
+    if (response.status === 202 || response.status === 200) return;
+    if (attempt === 14) throw new Error(`expected 202, got ${response.status}`);
+    await sleep(4000);
+  }
 }
-const body = (await res.json()) as { result?: { receipt?: unknown } };
-console.log(JSON.stringify(body));
-if (body.result?.receipt) {
-  console.error(`unexpected receipt at non-checkpoint cycle: ${body.result.receipt}`);
-  process.exit(1);
+
+await send(JSON.stringify({ message: 'first', every: 3 }));
+await sleep(3000);
+await send(JSON.stringify({ message: 'second', every: 3 }));
+
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const answers = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '');
+    if (answers.length >= 2) {
+      const latest = answers.at(-1) ?? '';
+      if (/"cycle"\s*:\s*2/.test(latest) && !/https:\/\/[^\s"}]+\/results\//.test(latest)) {
+        console.log('mid-cycle omitted a receipt');
+        process.exit(0);
+      }
+    }
+  }
+  await sleep(2000);
 }
-console.log('✓ no receipt at mid-cycle, as expected');
+throw new Error('timed out waiting for mid-cycle response');

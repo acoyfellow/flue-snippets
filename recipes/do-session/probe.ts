@@ -1,99 +1,64 @@
-/**
- * probe.ts, the real assertion for do-session (Flue 1.0 agent instance).
- *
- * Two chat turns to the SAME /agents/do-session/<userId>. Flue stores the
- * conversation in a per-DO session, so turn 2 must recall the unique fact
- * established in turn 1.
- *
- * Flue 1.0 agents are fire-and-forget: POST /agents/:name/:id returns 202
- * { streamUrl, offset, submissionId } and does NOT block on the reply. We
- * read the reply by polling the materialized conversation snapshot at
- * GET /agents/:name/:id?view=history until a new assistant message settles.
- *
- * This is the reusable "agent-instance E2E" harness; other agent recipes
- * (do-governor, chat-thinking, durable-objects) reuse the same shape.
- *
- * Required env: AGENT_URL_BASE (e.g. https://...workers.dev/agents/do-session)
- */
-
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
-}
-
-const userId = `gp-${Date.now()}`;
-const url = `${BASE}/${userId}`;
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
 interface UiPart {
   type: string;
   text?: string;
 }
-interface UiMessage {
-  role: string;
-  parts?: UiPart[];
-}
+
 interface Snapshot {
-  messages?: UiMessage[];
+  messages?: Array<{ role: string; parts?: UiPart[] }>;
 }
 
-function assistantTexts(snap: Snapshot): string[] {
-  return (snap.messages ?? [])
-    .filter((m) => m.role === 'assistant')
-    .map((m) =>
-      (m.parts ?? [])
-        .filter((p) => p.type === 'text')
-        .map((p) => p.text ?? '')
-        .join(''),
+const url = `${base}/probe-${Date.now()}`;
+
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function assistantTexts(snapshot: Snapshot) {
+  return (snapshot.messages ?? [])
+    .filter((message) => message.role === 'assistant')
+    .map((message) =>
+      (message.parts ?? [])
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text ?? '')
+        .join('')
+        .trim(),
     )
-    .map((t) => t.trim())
-    .filter((t) => t.length > 0);
+    .filter(Boolean);
 }
 
-async function readSnapshot(): Promise<Snapshot> {
-  const res = await fetch(`${url}?view=history`, { headers: { accept: 'application/json' } });
-  if (!res.ok) throw new Error(`history HTTP ${res.status}: ${await res.text()}`);
-  return (await res.json()) as Snapshot;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-async function turn(message: string, priorCount: number): Promise<string> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
-  if (res.status !== 202 && res.status !== 200) {
-    console.error(`turn POST expected 202, got ${res.status}: ${await res.text()}`);
-    process.exit(1);
-  }
-  const deadline = Date.now() + 120_000;
-  while (Date.now() < deadline) {
-    let snap: Snapshot;
-    try {
-      snap = await readSnapshot();
-    } catch {
-      await sleep(2000);
-      continue;
+async function turn(message: string, priorCount: number) {
+  let admitted = false;
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+      body: JSON.stringify({ kind: 'user', body: message }),
+    });
+    if (response.status === 202) {
+      admitted = true;
+      break;
     }
-    const texts = assistantTexts(snap);
-    if (texts.length > priorCount) return texts[texts.length - 1] ?? '';
+    await sleep(4000);
+  }
+  if (!admitted) throw new Error('agent did not admit the request with HTTP 202');
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const response = await fetch(url, { headers: { accept: 'application/json', 'x-api-key': API_KEY } });
+    if (response.ok) {
+      const texts = assistantTexts((await response.json()) as Snapshot);
+      if (texts.length > priorCount) return texts.at(-1) ?? '';
+    }
     await sleep(2000);
   }
-  console.error('timed out waiting for assistant reply');
-  process.exit(1);
+  throw new Error('timed out waiting for an assistant reply');
 }
 
-const t1 = await turn('My favourite colour is octarine. Acknowledge in one word.', 0);
-console.log(`turn 1: ${t1}`);
-const t2 = await turn('What did I just tell you my favourite colour was?', 1);
-console.log(`turn 2: ${t2}`);
-
-if (!t2.toLowerCase().includes('octarine')) {
-  console.error(`session did not persist memory: turn 2 didn't recall "octarine" (got: ${t2})`);
-  process.exit(1);
+await turn('My favourite colour is octarine. Acknowledge in one word.', 0);
+const recalled = await turn('What did I just tell you my favourite colour was?', 1);
+if (!recalled.toLowerCase().includes('octarine')) {
+  throw new Error(`session did not persist memory: ${recalled}`);
 }
 console.log('✓ session memory persisted across turns');

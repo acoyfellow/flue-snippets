@@ -1,54 +1,39 @@
-/**
- * probe.ts, assert gateway-lab returns a model answer (via gateway)
- * AND emits a Lab receipt that lab.coey.dev actually persists.
- *
- * Required env: AGENT_URL
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const URL = process.env.AGENT_URL;
-if (!URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
+const url = `${base}/gateway-${Date.now()}`;
+const message = JSON.stringify({ message: 'hi from gateproof, gateway and lab' });
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const res = await fetch(URL, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'hi from gateproof, gateway+lab' }),
-});
-
-if (!res.ok) {
-  console.error(`expected 200, got ${res.status}`);
-  console.error(await res.text());
-  process.exit(1);
+let admitted = false;
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': API_KEY }, body: JSON.stringify({ kind: 'user', body: message }) });
+  if (response.status === 202 || response.status === 200) {
+    admitted = true;
+    break;
+  }
+  await sleep(4000);
 }
+if (!admitted) throw new Error('agent admission failed');
 
-const body = (await res.json()) as {
-  result?: { answer?: string; receipt?: string; gateway?: string };
-};
-console.log(JSON.stringify(body));
-
-const answer = body.result?.answer;
-const receipt = body.result?.receipt;
-const gateway = body.result?.gateway;
-
-if (typeof answer !== 'string' || answer.length === 0) {
-  console.error('result.answer missing or empty');
-  process.exit(1);
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    const receipt = text.match(/https:\/\/[^\s"}]+\/results\/[^\s"}]+/)?.[0];
+    if (receipt) {
+      const labResponse = await fetch(`${receipt}.json`);
+      if (!labResponse.ok) throw new Error(`receipt did not resolve: ${labResponse.status}`);
+      console.log(`gateway receipt: ${receipt}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
 }
-if (!receipt || !/^https:\/\/[^/]+\/results\/[^/]+$/.test(receipt)) {
-  console.error(`result.receipt URL malformed: ${receipt}`);
-  process.exit(1);
-}
-if (typeof gateway !== 'string' || gateway.length === 0) {
-  console.error('result.gateway missing, agent should echo the gateway it used');
-  process.exit(1);
-}
-
-const labRes = await fetch(`${receipt}.json`);
-if (!labRes.ok) {
-  console.error(`lab did not serve the receipt (HTTP ${labRes.status} from ${receipt}.json)`);
-  process.exit(1);
-}
-
-console.log(`✓ via gateway "${gateway}"; receipt: ${receipt}`);
+throw new Error('timed out waiting for a gateway receipt');

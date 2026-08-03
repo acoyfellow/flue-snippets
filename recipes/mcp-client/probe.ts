@@ -1,59 +1,32 @@
-/**
- * probe.ts, the real assertion for mcp-client.
- *
- * One POST to the Flue agent with a known input string. The agent is
- * supposed to call the co-hosted MCP server's `reverse_string` tool
- * and return the reversed value. We assert the response contains the
- * expected reversal.
- *
- * Required env: AGENT_URL_BASE (e.g. https://...workers.dev/agents/mcp-client)
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const BASE = process.env.AGENT_URL_BASE;
-if (!BASE) {
-  console.error('AGENT_URL_BASE is required');
-  process.exit(2);
+const url = `${base}/mcp-${Date.now()}`;
+const expected = 'eniratco';
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Flue 1.0 workflow: POST <base>?wait=result
-const url = `${BASE}?wait=result`;
-const testText = 'octarine';
-const expected = testText.split('').reverse().join(''); // 'eniratco'
-
-const res = await fetch(url, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ text: testText }),
-});
-if (!res.ok) {
-  console.error(`HTTP ${res.status}: ${await res.text()}`);
-  process.exit(1);
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': API_KEY }, body: JSON.stringify({ kind: 'user', body: JSON.stringify({ text: 'octarine' }) }) });
+  if (response.status === 202 || response.status === 200) break;
+  if (attempt === 14) throw new Error(`expected 202, got ${response.status}`);
+  await sleep(4000);
 }
 
-// Flue wraps the agent's return value under `result`. The agent returns
-// { text, reversed, mcpUrl }. `reversed` is whatever session.prompt()
-// returned, empirically that's usually a string, but Flue/Workers AI
-// sometimes return { text: string } depending on the model. Handle both.
-const body = (await res.json()) as {
-  result?: { text?: unknown; reversed?: unknown; mcpUrl?: unknown };
-};
-
-const reversed: unknown = body.result?.reversed;
-let reversedStr = '';
-if (typeof reversed === 'string') {
-  reversedStr = reversed;
-} else if (reversed && typeof reversed === 'object' && 'text' in reversed) {
-  const t = (reversed as { text?: unknown }).text;
-  reversedStr = typeof t === 'string' ? t : '';
+const deadline = Date.now() + 120_000;
+while (Date.now() < deadline) {
+  const response = await fetch(url);
+  if (response.ok) {
+    const snapshot = (await response.json()) as { messages?: Array<{ role: string; parts?: Array<{ type: string; text?: string }> }> };
+    const text = (snapshot.messages ?? []).filter((message) => message.role === 'assistant').flatMap((message) => message.parts ?? []).filter((part) => part.type === 'text').map((part) => part.text ?? '').join('\n');
+    if (text.toLowerCase().includes(expected)) {
+      console.log(`MCP reverse result: ${text}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
 }
-
-console.log(`input:    ${testText}`);
-console.log(`expected: ${expected}`);
-console.log(`got:      ${reversedStr}`);
-
-if (!reversedStr.toLowerCase().includes(expected.toLowerCase())) {
-  console.error('MCP round-trip failed: response does not contain the reversed string');
-  console.error(`full body: ${JSON.stringify(body)}`);
-  process.exit(1);
-}
-console.log('✓ MCP tool call round-trip succeeded');
+throw new Error('timed out waiting for MCP result');

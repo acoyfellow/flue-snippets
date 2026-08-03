@@ -1,41 +1,59 @@
-/**
- * probe.ts, assert ai-gateway returns a real model answer routed
- * through the Cloudflare AI Gateway.
- *
- * Required env: AGENT_URL
- */
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+const base = process.env.AGENT_URL_BASE;
+if (!base) throw new Error('AGENT_URL_BASE is required');
 
-const URL = process.env.AGENT_URL;
-if (!URL) {
-  console.error('AGENT_URL is required');
-  process.exit(2);
+interface UiPart {
+  type: string;
+  text?: string;
 }
 
-const res = await fetch(URL, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ message: 'hi from gateproof' }),
-});
-
-if (!res.ok) {
-  console.error(`expected 200, got ${res.status}`);
-  console.error(await res.text());
-  process.exit(1);
+interface Snapshot {
+  messages?: Array<{ role: string; parts?: UiPart[] }>;
 }
 
-const body = (await res.json()) as { result?: { answer?: string; gateway?: string } };
-console.log(JSON.stringify(body));
+const url = `${base}/probe-${Date.now()}`;
 
-const answer = body.result?.answer;
-const gateway = body.result?.gateway;
-
-if (typeof answer !== 'string' || answer.length === 0) {
-  console.error('result.answer missing or empty');
-  process.exit(1);
-}
-if (typeof gateway !== 'string' || gateway.length === 0) {
-  console.error('result.gateway missing, agent should echo the gateway it used');
-  process.exit(1);
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-console.log(`✓ routed through AI Gateway "${gateway}"`);
+function assistantTexts(snapshot: Snapshot) {
+  return (snapshot.messages ?? [])
+    .filter((message) => message.role === 'assistant')
+    .map((message) =>
+      (message.parts ?? [])
+        .filter((part) => part.type === 'text')
+        .map((part) => part.text ?? '')
+        .join('')
+        .trim(),
+    )
+    .filter(Boolean);
+}
+
+let admitted = false;
+for (let attempt = 0; attempt < 15; attempt += 1) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
+    body: JSON.stringify({ kind: 'user', body: 'Reply with one short greeting.' }),
+  });
+  if (response.status === 202) {
+    admitted = true;
+    break;
+  }
+  await sleep(4000);
+}
+if (!admitted) throw new Error('agent did not admit the request with HTTP 202');
+
+for (let attempt = 0; attempt < 60; attempt += 1) {
+  const response = await fetch(url, { headers: { accept: 'application/json', 'x-api-key': API_KEY } });
+  if (response.ok) {
+    const texts = assistantTexts((await response.json()) as Snapshot);
+    if (texts.length > 0) {
+      console.log(`✓ AI Gateway-backed agent answered: ${texts.at(-1)}`);
+      process.exit(0);
+    }
+  }
+  await sleep(2000);
+}
+throw new Error('timed out waiting for an AI Gateway-backed assistant reply');

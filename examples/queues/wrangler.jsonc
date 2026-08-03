@@ -3,11 +3,11 @@
   "name": "flue-snippet-queues",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    { "tag": "flue-class-FlueQueuesWorkflow", "new_sqlite_classes": ["FlueQueuesWorkflow"] }
+    { "tag": "flue-2-class-FlueQueuesAgent", "new_sqlite_classes": ["FlueQueuesAgent"] }
   ],
   "queues": {
-    "producers": [{ "binding": "QUEUE", "queue": "REPLACE_QUEUE_NAME" }]
+    "producers": [{ "binding": "QUEUE", "queue": "replace-queue-name" }]
   }
 }

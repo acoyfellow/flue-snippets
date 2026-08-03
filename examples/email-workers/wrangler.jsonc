@@ -3,13 +3,9 @@
   "name": "flue-snippet-email-workers",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueEmailWorkersWorkflow",
-      "new_sqlite_classes": ["FlueEmailWorkersWorkflow"]
-    }
-  ],
   "ai": { "binding": "AI" },
+  "migrations": [
+    { "tag": "flue-2-class-FlueEmailWorkersAgent", "new_sqlite_classes": ["FlueEmailWorkersAgent"] }
+  ],
   "send_email": [{ "name": "EMAIL" }]
 }

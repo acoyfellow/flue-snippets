@@ -3,12 +3,9 @@
   "name": "flue-snippet-browser-rendering",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
   "migrations": [
-    { "tag": "flue-class-FlueRegistry", "new_sqlite_classes": ["FlueRegistry"] },
-    {
-      "tag": "flue-class-FlueBrowserRenderingWorkflow",
-      "new_sqlite_classes": ["FlueBrowserRenderingWorkflow"]
-    }
+    { "tag": "flue-2-class-FlueBrowserRenderingAgent", "new_sqlite_classes": ["FlueBrowserRenderingAgent"] }
   ],
   "browser": { "binding": "BROWSER" }
 }
