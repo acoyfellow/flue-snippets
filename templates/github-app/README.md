@@ -11,7 +11,7 @@ composes: [Flue channels, Workers AI, Durable Objects, '@flue/github']
 This is a **template**, not a snippet. Fork the folder, set a webhook
 secret, and you have a working GitHub App: verified webhook ingress that
 dispatches issue and pull-request opens to a triage agent. Production-shape,
-real HMAC signature verification, multi-event routing — on Flue 1.0 +
+real HMAC signature verification, multi-event routing — on Flue 2.0 +
 Cloudflare Workers AI.
 
 ## What you get

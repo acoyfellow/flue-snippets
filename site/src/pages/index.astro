@@ -19,82 +19,65 @@ const allSnippets: Snippet[] = [...examples, ...recipes, ...templates];
 // page renders with no async file reads. If a snippet changes, update
 // the matching block here, flagged for future build-time auto-extract.
 
-const workersAiCode = `import type { FlueContext } from '@flue/sdk/client';
+const workersAiCode = `'use agent';
 
-interface Env {
-  AI: { run: (model: string, args: unknown) => Promise<{ response: string }> };
-}
+import { type AgentProps, useModel } from '@flue/runtime';
 
-export const triggers = { webhook: true };
-
-export default async function ({ payload, env }: FlueContext & { env: Env }) {
-  const out = await env.AI.run('@cf/moonshotai/kimi-k2.6', {
-    prompt: payload.message ?? 'Say hi.',
-  });
-  return { answer: out.response };
+// The agent IS this function. It returns its instructions;
+// Flue 2 has no defineAgent and no workflows.
+export function WorkersAi(_props: AgentProps) {
+  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+  return 'Answer each user request directly and concisely.';
 }`;
 
-const doSessionCode = `import type { FlueContext } from '@flue/sdk/client';
+const doSessionCode = `'use agent';
 
-export const triggers = { webhook: true };
+import { useModel } from '@flue/runtime';
 
 // POST /agents/do-session/<userId>
 // Same userId = same Durable Object = same conversation. New userId = fresh agent.
-export default async function ({ init, payload }: FlueContext) {
-  const agent = await init({
-    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
-  });
-  const session = await agent.session();
-  const answer = await session.prompt(payload.message);
-  return { answer };
+export function DoSession() {
+  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+  return 'You are a concise chat assistant. Answer in one short sentence and use the conversation history to recall facts the user told you earlier.';
 }`;
 
-const virtualSandboxCode = `import type { FlueContext } from '@flue/sdk/client';
-import { getVirtualSandbox } from '@flue/sdk/cloudflare';
+const virtualSandboxCode = `'use agent';
 
-interface Env {
-  KB: R2Bucket;
-}
+import { bash, useModel, useSandbox } from '@flue/runtime';
+import { Bash, InMemoryFs } from 'just-bash';
 
-export const triggers = { webhook: true };
+// Mount a filesystem the agent can grep, find, and read with real bash.
+export function VirtualSandbox() {
+  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+  useSandbox(
+    bash(() => new Bash({
+      fs: new InMemoryFs({
+        '/workspace/docs/colours.md': '# Colours
 
-export default async function ({ init, payload, env }: FlueContext & { env: Env }) {
-  // Mount the R2 bucket as a virtual filesystem. The agent gets grep,
-  // find, and read over real R2 objects.
-  const sandbox = await getVirtualSandbox(env.KB);
-
-  const agent = await init({
-    sandbox,
-    model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
-  });
-  const session = await agent.session();
-
-  return await session.prompt(
-    \`Answer this using only what you can grep from /workspace/docs: \${payload.message}\`,
+Octarine is the colour of magic.
+',
+      }),
+    })),
+    { cwd: '/workspace' },
   );
+  return 'Answer using only what you can grep from /workspace/docs.';
 }`;
 
-const mcpClientCode = `import { connectMcpServer, type FlueContext } from '@flue/sdk/client';
+const mcpClientCode = `'use agent';
 
-interface Env {
-  MCP_URL: string;
-}
+import { env } from 'cloudflare:workers';
+import { defineMcpConnection, useMcpConnection, useModel } from '@flue/runtime';
 
-export const triggers = { webhook: true };
-
-export default async function ({ init, payload, env }: FlueContext & { env: Env }) {
-  const mcp = await connectMcpServer('reverser', { url: env.MCP_URL });
-
-  try {
-    const harness = await init({
-      model: 'cloudflare-workers-ai/@cf/moonshotai/kimi-k2.6',
-      tools: mcp.tools,
-    });
-    const session = await harness.session();
-    return await session.prompt(\`Reverse this: "\${payload.text}"\`);
-  } finally {
-    await mcp.close();
-  }
+export function McpClient() {
+  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
+  useMcpConnection(
+    defineMcpConnection({
+      name: 'reverser',
+      url: (env as unknown as { MCP_URL: string }).MCP_URL,
+      tools: ['reverse_string'],
+    }),
+  );
+  return 'Use the reverse_string MCP tool exactly once to reverse the delivered text.';
 }`;
 ---
 
@@ -165,11 +148,11 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
         blurb="The smallest thing I could build. Bind Workers AI, run a prompt, return the response. Flue gives it an HTTP endpoint at /agents/workers-ai/<id>. The whole agent is 13 lines."
         filename="examples/workers-ai/workers-ai.ts"
         code={workersAiCode}
-        githubPath="examples/workers-ai/workers-ai.ts"
+        githubPath="examples/workers-ai/src/agents/workers-ai.ts"
       >
         <p class="muted">
-          What surprised me: only two things here are Flue's, the <code>triggers</code> export
-          and the <code>FlueContext</code> type. Everything else is plain Cloudflare. Flue
+          What surprised me: only two things here are Flue's, the <code>'use agent'</code>
+          directive and <code>useModel()</code>. Everything else is plain Cloudflare. Flue
           handled the routing and gave the rest somewhere to live.
         </p>
       </Step>
@@ -179,7 +162,7 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
         blurb="Same code, but now I call session() and prompt(). Two POSTs to /agents/do-session/alice keep talking to the same Durable Object. The agent remembers what alice said earlier. Different path id, different DO, fresh conversation. I didn't wire any of this up."
         filename="recipes/do-session/agents/do-session.ts"
         code={doSessionCode}
-        githubPath="recipes/do-session/agents/do-session.ts"
+        githubPath="recipes/do-session/src/agents/do-session.ts"
       >
         <p class="muted">
           Cloudflare's part: Durable Objects with SQLite, geo-pinned to the user. Flue's
@@ -190,10 +173,10 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
 
       <Step
         title="3. Give it a real filesystem"
-        blurb="getVirtualSandbox() mounts an R2 bucket as /workspace. The model now has grep, find, and read inside the prompt loop. I dumped some markdown into R2, asked a question, and watched the agent grep through it to find the answer."
+        blurb="useSandbox(bash(...)) mounts a filesystem as /workspace. The model now has grep, find, and read inside the prompt loop. I dumped some markdown into R2, asked a question, and watched the agent grep through it to find the answer."
         filename="recipes/virtual-sandbox/agents/virtual-sandbox.ts"
         code={virtualSandboxCode}
-        githubPath="recipes/virtual-sandbox/agents/virtual-sandbox.ts"
+        githubPath="recipes/virtual-sandbox/src/agents/virtual-sandbox.ts"
       >
         <p class="muted">
           No vector DB, no embedding pipeline. For a lot of "search my docs" use cases this
@@ -207,7 +190,7 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
         blurb="This Flue agent connects to a peer Worker that exposes tools via MCP. alchemy deploys both side by side and passes the peer's URL into this one's env. The model can now call the peer's tools mid-prompt. I didn't have to wire each one up manually."
         filename="recipes/mcp-client/agents/mcp-client.ts"
         code={mcpClientCode}
-        githubPath="recipes/mcp-client/agents/mcp-client.ts"
+        githubPath="recipes/mcp-client/src/agents/mcp-client.ts"
       >
         <p class="muted">
           The peer is just another Worker , 

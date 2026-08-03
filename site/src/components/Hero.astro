@@ -3,15 +3,20 @@ const repoUrl = 'https://github.com/acoyfellow/flue-snippets';
 ---
 
 <section class="hero">
-  <h1>Flue on Cloudflare</h1>
+  <h1>Flue 2.0 on Cloudflare</h1>
   <p class="lede">
     I wanted to see what it actually looks like to build agents with
     <a href="https://flueframework.com">Flue</a> on Cloudflare Workers. Turns out the answer
     is mostly: less code than I expected. Four agents I built, smallest to largest.
+    Every snippet here is <strong>Flue 2.0</strong>: an agent is a function marked
+    <code>'use agent'</code> that returns its instructions. Flue 2 removed workflows,
+    so anything an agent should <em>do</em> is a tool it calls.
   </p>
   <p class="meta muted">
     Every snippet really deploys to a real Worker. Around $0.0001 per run, the e2e
-    destroys the Worker after it asserts.
+    destroys the Worker after it asserts. Each deployed agent route is gated on a
+    per-run <code>SNIPPET_API_KEY</code> (<code>x-api-key</code>), because these Workers
+    bind Workers AI on a public URL.
     <span class="updated">Last dependency refresh: May 17, 2026, 3:07 AM PT.</span>
     <a href={repoUrl}>Repo →</a>
   </p>
