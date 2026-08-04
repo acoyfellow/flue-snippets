@@ -49,7 +49,7 @@
     "@cloudflare/think": "latest",
     "@octokit/core": "^6.1.6",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "agents": "^0.12.4",
+    "agents": "^0.13.3",
     "gateproof": "latest",
     "postgres": "^3.4.9",
     "valibot": "^1.4.0",
