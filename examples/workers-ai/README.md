@@ -13,7 +13,7 @@ cd examples/workers-ai && bun install && bash run-e2e.sh
 ```
 
 `WorkersAi` is a synchronous Flue 2 agent. It calls `useModel()` once with
-`cloudflare/@cf/moonshotai/kimi-k2.6` and returns its instructions. `app.ts`
+`cloudflare/@cf/moonshotai/kimi-k2.6` and returns its instructions. `src/app.ts`
 registers the Cloudflare Workers AI binding and mounts the agent at
 `/agents/workers-ai`.
 

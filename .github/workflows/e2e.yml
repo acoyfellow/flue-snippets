@@ -54,6 +54,7 @@ on:
           - recipes/braintrust-eval
           - recipes/braintrust-otel
           - recipes/braintrust-trace
+          - recipes/computer-workspace
           # templates
           - templates/github-app
 
@@ -100,6 +101,7 @@ jobs:
           - recipes/braintrust-eval
           - recipes/braintrust-otel
           - recipes/braintrust-trace
+          - recipes/computer-workspace
           # templates/
           - templates/github-app
 

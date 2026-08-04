@@ -1,25 +1,26 @@
 {
-	"name": "flue-tpl-github-app",
-	"private": true,
-	"type": "module",
-	"dependencies": {
-		"@flue/runtime": "^2.0.0",
-		"hono": "4.12.32",
-		"valibot": "^1.4.0",
-		"@flue/github": "^2.0.1"
-	},
-	"devDependencies": {
-		"@cloudflare/vite-plugin": "^1.50.0",
-		"@cloudflare/workers-types": "^4.20260602.1",
-		"@flue/cli": "^2.0.0",
-		"@flue/vite": "^2.0.1",
-		"typescript": "^6.0.3",
-		"vite": "^8.2.0",
-		"wrangler": "^4.97.0"
-	},
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"check": "tsc --noEmit"
-	}
+  "name": "flue-tpl-github-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@flue/runtime": "^2.0.0",
+    "hono": "4.12.32",
+    "valibot": "^1.4.0",
+    "@flue/github": "^2.0.1"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.50.0",
+    "@cloudflare/workers-types": "^4.20260602.1",
+    "@flue/cli": "^2.0.0",
+    "@flue/vite": "^2.0.1",
+    "gateproof": "latest",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.0",
+    "wrangler": "^4.97.0"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "check": "tsc --noEmit"
+  }
 }
