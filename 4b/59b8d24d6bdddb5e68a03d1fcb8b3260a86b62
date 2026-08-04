@@ -1,0 +1,21 @@
+recipes/braintrust-eval/eval.ts
+  s_3ebc4b0c49995a::t_068f5a351326d5 6-7,40,51
+recipes/lab-checkpoint/run-e2e.sh
+  s_3ebc4b0c49995a::t_7c20dd80db5331 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "4b59b8d24d6bdddb5e68a03d1fcb8b3260a86b62",
+  "prompts": {},
+  "sessions": {
+    "s_3ebc4b0c49995a": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f893f-9fc0-7b06-8130-9000d6cef630",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    }
+  }
+}
