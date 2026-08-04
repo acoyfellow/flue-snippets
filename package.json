@@ -54,6 +54,6 @@
     "postgres": "^3.4.9",
     "valibot": "^1.4.0",
     "workers-ai-provider": "^0.5.3",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   }
 }
