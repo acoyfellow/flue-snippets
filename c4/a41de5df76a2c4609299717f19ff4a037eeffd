@@ -1,0 +1,101 @@
+.github/workflows/e2e.yml
+  s_3ebc4b0c49995a::t_40f25d24a6064c 39,52-56,85,98-102,126,130
+README.md
+  s_3ebc4b0c49995a::t_0a36d40c030bb2 3-6,8-9,23,78,119,166,180,184,186
+SECURITY.md
+  s_3ebc4b0c49995a::t_3261e709f6ec1c 27
+examples/ai-gateway/run-e2e.sh
+  s_3ebc4b0c49995a::t_c9146ac2f4385e 57
+examples/d1/run-e2e.sh
+  s_3ebc4b0c49995a::t_bf26013b5600b0 67
+examples/durable-objects/package.json
+  s_3ebc4b0c49995a::t_6ff28c8b8eb1ba 14
+examples/durable-objects/probe.ts
+  s_3ebc4b0c49995a::t_42b0904ec563ea 2,5,108
+examples/durable-objects/src/agents/durable-objects.ts
+  s_3ebc4b0c49995a::t_9719574ee67e86 3,10
+examples/effect-hello/README.md
+  s_3ebc4b0c49995a::t_5e67bb3367393a 44-45
+examples/effect-hello/run-e2e.sh
+  s_3ebc4b0c49995a::t_32bfac35317753 57
+examples/email-workers/run-e2e.sh
+  s_3ebc4b0c49995a::t_a47c5b60f303d1 51
+examples/hyperdrive/run-e2e.sh
+  s_3ebc4b0c49995a::t_742e79ad019a23 67
+examples/kv/package.json
+  s_3ebc4b0c49995a::t_1ce7ef6f70c911 14
+examples/kv/run-e2e.sh
+  s_3ebc4b0c49995a::t_888bb371f2ea88 80
+examples/queues/run-e2e.sh
+  s_3ebc4b0c49995a::t_8890b4471063fa 62
+examples/r2/run-e2e.sh
+  s_3ebc4b0c49995a::t_f1270e0de3bb86 36,67
+examples/vectorize/run-e2e.sh
+  s_3ebc4b0c49995a::t_fa51990f84ef81 62
+examples/worker-loader/run-e2e.sh
+  s_3ebc4b0c49995a::t_2b284c152843e0 51
+examples/workers-ai/run-e2e.sh
+  s_3ebc4b0c49995a::t_9d6efefa4bddeb 57
+package.json
+  s_3ebc4b0c49995a::t_027512c3d55036 37-38
+recipes/computer-workspace/.npmrc
+  s_3ebc4b0c49995a::t_d24efb520d0897 1
+recipes/computer-workspace/README.md
+  s_3ebc4b0c49995a::t_9c0653f7bd505f 1-65
+recipes/computer-workspace/run-e2e.sh
+  s_3ebc4b0c49995a::t_9a8ca048d93ea2 1-50
+recipes/computer-workspace/src/agents/computer-workspace.ts
+  s_3ebc4b0c49995a::t_8894552d021a5b 1-78
+recipes/computer-workspace/tsconfig.json
+  s_3ebc4b0c49995a::t_3619d89709ffeb 2-10,12-13
+recipes/computer-workspace/vite.config.ts
+  s_3ebc4b0c49995a::t_cc210fdfa64b36 1-7
+site/public/logos/cloudflare.svg
+  s_3ebc4b0c49995a::t_962b7955b98087 1-13
+site/public/logos/flue.svg
+  s_3ebc4b0c49995a::t_db87733cb2fecd 1
+site/src/components/Catalog.astro
+  s_3ebc4b0c49995a::t_2d242013e2a57d 6,9,16-33,36-51,53-57,59,61-70,72-74,76-100,102-103,105-116,118-166,168-171,173-181,183-185,187-190,192-198,200,202-203,205-208,210-211,213-215,217,221-257,262,264,267,270-276
+site/src/components/FAQ.astro
+  s_3ebc4b0c49995a::t_772c93690fee52 9-10,13-14,18,21-22,25-26
+site/src/pages/index.astro
+  s_3ebc4b0c49995a::t_9b72a1e69c3524 3,12-15,17,20,26-27,32-33,39,42-43,47,50-56,60-68,70-73,75-76,78,80-101,122-135,137-140,142-144,146,149-190
+site/src/styles/global.css
+  s_2a77a1542d3982::t_3151420e9fbb9e 58-63,103,136-137,157-161
+templates/github-app/README.md
+  s_3ebc4b0c49995a::t_c1ae575f8b4072 14,20,59-61,96,112
+templates/github-app/package.json
+  s_3ebc4b0c49995a::t_e5b47ef514e622 15
+templates/github-app/probe.ts
+  s_3ebc4b0c49995a::t_4478ba133e0b54 2,5-7,10
+templates/github-app/run-e2e.sh
+  s_3ebc4b0c49995a::t_ab287126abdea1 43
+templates/github-app/src/agents/triage.ts
+  s_3ebc4b0c49995a::t_25e67937ce2f18 8
+verify.sh
+  s_3ebc4b0c49995a::t_928af8bd454b48 15,46,142,159,165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c4a41de5df76a2c4609299717f19ff4a037eeffd",
+  "prompts": {},
+  "sessions": {
+    "s_2a77a1542d3982": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e4aeb-bfd3-7cb8-82c3-9b8c799f4c6e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    },
+    "s_3ebc4b0c49995a": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f893f-9fc0-7b06-8130-9000d6cef630",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Jordan Coeyman <jcoeyman@cloudflare.com>"
+    }
+  }
+}
