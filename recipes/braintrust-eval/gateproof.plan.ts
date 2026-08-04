@@ -3,6 +3,7 @@ import { Act, Assert, Gate, Plan, Require } from 'gateproof';
 
 const base = process.env.AGENT_URL_BASE;
 if (!base) throw new Error('AGENT_URL_BASE is required');
+const apiKey = process.env.SNIPPET_API_KEY ?? '';
 
 const plan = Plan.define({
   goals: [
@@ -11,7 +12,11 @@ const plan = Plan.define({
       title: 'The deployed Workers AI agent answers a prompt',
       gate: Gate.define({
         prerequisites: [Require.env('AGENT_URL_BASE', 'deployed agent mount URL')],
-        act: [Act.exec(`AGENT_URL_BASE="${base}" bun run probe.ts`, { timeoutMs: 150_000 })],
+        act: [
+          Act.exec(`AGENT_URL_BASE="${base}" SNIPPET_API_KEY="${apiKey}" bun run probe.ts`, {
+            timeoutMs: 150_000,
+          }),
+        ],
         assert: [Assert.noErrors()],
         timeoutMs: 180_000,
       }),
@@ -26,7 +31,7 @@ const plan = Plan.define({
         ],
         act: [
           Act.exec(
-            `AGENT_URL_BASE="${base}" bunx braintrust eval eval.ts --no-progress-bars`,
+            `AGENT_URL_BASE="${base}" SNIPPET_API_KEY="${apiKey}" bunx braintrust eval eval.ts --no-progress-bars`,
             { timeoutMs: 300_000 },
           ),
         ],

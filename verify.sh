@@ -133,6 +133,37 @@ else
 	record 1
 fi
 
+echo "==> Auth reachability"
+UNREACHABLE=""
+for dir in "${TARGETS[@]}"; do
+	app="$dir/src/app.ts"
+	[[ -f "$app" ]] || continue
+	grep -q "x-api-key" "$app" || continue
+	while read -r caller; do
+		[[ -n "$caller" ]] || continue
+		grep -qE 'fetch\(' "$caller" || continue
+		grep -q 'x-api-key' "$caller" ||
+			UNREACHABLE="${UNREACHABLE}${caller}: calls a gated agent route without an x-api-key header (every request would 401)"$'\n'
+	done < <(find "$dir" -maxdepth 1 -name '*.ts' -not -name 'gateproof.plan.ts')
+
+	harness="$dir/run-e2e.sh"
+	[[ -f "$harness" ]] || continue
+	grep -q 'SNIPPET_API_KEY=' "$harness" || continue
+	if grep -qE 'bun run (probe|gateproof)' "$harness" &&
+		! grep -qE '^export SNIPPET_API_KEY|SNIPPET_API_KEY=[^ ]* bun run' "$harness"; then
+		UNREACHABLE="${UNREACHABLE}${harness}: sets SNIPPET_API_KEY but never exports it, so probe processes receive an empty key"$'\n'
+	fi
+done
+UNREACHABLE=$(printf '%s' "$UNREACHABLE")
+if [[ -z "$UNREACHABLE" ]]; then
+	report "$PASS" "every caller of a gated route sends its key"
+	record 0
+else
+	report "$FAIL" "a gated agent route is unreachable by its own test"
+	printf '%s\n' "$UNREACHABLE" | sed 's/^/       /'
+	record 1
+fi
+
 echo "==> Per-package checks"
 for dir in "${TARGETS[@]}"; do
 	name=$(basename "$dir")

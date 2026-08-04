@@ -3,6 +3,8 @@ import { Eval } from 'braintrust';
 const base = process.env.AGENT_URL_BASE;
 if (!base) throw new Error('AGENT_URL_BASE is required');
 
+const API_KEY = process.env.SNIPPET_API_KEY ?? '';
+
 interface UiPart {
   type: string;
   text?: string;
@@ -35,7 +37,7 @@ async function answer(message: string) {
   for (let attempt = 0; attempt < 15; attempt += 1) {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'x-api-key': API_KEY },
       body: JSON.stringify({ kind: 'user', body: message }),
     });
     if (response.status === 202) {
@@ -46,7 +48,7 @@ async function answer(message: string) {
   }
   if (!admitted) throw new Error('agent did not admit the evaluation request with HTTP 202');
   for (let attempt = 0; attempt < 60; attempt += 1) {
-    const response = await fetch(url, { headers: { accept: 'application/json' } });
+    const response = await fetch(url, { headers: { accept: 'application/json', 'x-api-key': API_KEY } });
     if (response.ok) {
       const texts = assistantTexts((await response.json()) as Snapshot);
       if (texts.length > 0) return { answer: texts.at(-1) ?? '' };
