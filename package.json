@@ -47,7 +47,7 @@
     "@acoyfellow/lab": "^0.0.3",
     "@cloudflare/puppeteer": "^1.1.0",
     "@cloudflare/think": "latest",
-    "@octokit/core": "^6.1.6",
+    "@octokit/core": "^7.0.6",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "agents": "^0.12.4",
     "gateproof": "latest",
