@@ -1,0 +1,278 @@
+---
+import type { Snippet } from '~/lib/snippets';
+
+interface Props {
+  snippets: Snippet[];
+  heading?: string;
+}
+
+const { snippets, heading } = Astro.props as Props;
+
+const typeLabel = (kind: Snippet['kind']): string => {
+  if (kind === 'examples') return 'example';
+  if (kind === 'recipes') return 'recipe';
+  return 'template';
+};
+
+const counts = new Map<string, number>();
+for (const snippet of snippets) {
+  for (const product of snippet.composes) {
+    counts.set(product, (counts.get(product) ?? 0) + 1);
+  }
+}
+
+const APPEARS_IN_MULTIPLE_SNIPPETS = 1;
+const facetsWorthAFilterPill = [...counts.entries()]
+  .filter(([, count]) => count > APPEARS_IN_MULTIPLE_SNIPPETS)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+const tiers = [
+  { id: 'examples', label: 'examples' },
+  { id: 'recipes', label: 'recipes' },
+  { id: 'templates', label: 'templates' },
+].filter((tier) => snippets.some((snippet) => snippet.kind === tier.id));
+---
+
+<section class="catalog">
+  {heading && <h2>{heading}</h2>}
+
+  <div class="controls">
+    <label class="search">
+      <span class="visually-hidden">Search snippets</span>
+      <input
+        type="search"
+        id="catalog-search"
+        placeholder="Search 31 snippets"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="pills" role="group" aria-label="Filter by tier">
+      <button type="button" class="pill is-on" data-tier="all">All</button>
+      {
+        tiers.map((tier) => (
+          <button type="button" class="pill" data-tier={tier.id}>
+            {tier.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="pills" role="group" aria-label="Filter by product">
+      {
+        facetsWorthAFilterPill.map(([product, count]) => (
+          <button type="button" class="pill" data-product={product}>
+            {product} <span class="count">{count}</span>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <p class="result-count muted" aria-live="polite" data-total={snippets.length}>
+    {snippets.length} snippets
+  </p>
+
+  <ul class="cards">
+    {
+      snippets.map((snippet) => (
+        <li
+          class="card"
+          data-tier={snippet.kind}
+          data-products={snippet.composes.join('|')}
+          data-text={`${snippet.title} ${snippet.tagline} ${snippet.composes.join(' ')}`.toLowerCase()}
+        >
+          <a href={`https://github.com/acoyfellow/flue-snippets/tree/main/${snippet.repoPath}`}>
+            <span class="card-head">
+              <span class="card-title">{snippet.title}</span>
+              <span class="card-kind">{typeLabel(snippet.kind)}</span>
+            </span>
+            <span class="card-tagline">{snippet.tagline}</span>
+            <span class="card-products">
+              {snippet.composes.map((product) => (
+                <span class="chip">{product}</span>
+              ))}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="empty muted" hidden>No snippet matches that filter.</p>
+</section>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('.catalog');
+    if (!root) return;
+    var search = root.querySelector('#catalog-search');
+    var cards = Array.prototype.slice.call(root.querySelectorAll('.card'));
+    var countLabel = root.querySelector('.result-count');
+    var empty = root.querySelector('.empty');
+    var tierButtons = Array.prototype.slice.call(root.querySelectorAll('.pill[data-tier]'));
+    var productButtons = Array.prototype.slice.call(root.querySelectorAll('.pill[data-product]'));
+    var tier = 'all';
+    var products = [];
+
+    function apply() {
+      var term = (search && search.value ? search.value : '').trim().toLowerCase();
+      var shown = 0;
+      cards.forEach(function (card) {
+        var cardProducts = (card.getAttribute('data-products') || '').split('|');
+        var matchesTier = tier === 'all' || card.getAttribute('data-tier') === tier;
+        var matchesProduct = products.every(function (p) {
+          return cardProducts.indexOf(p) !== -1;
+        });
+        var matchesTerm = term === '' || (card.getAttribute('data-text') || '').indexOf(term) !== -1;
+        var visible = matchesTier && matchesProduct && matchesTerm;
+        card.hidden = !visible;
+        if (visible) shown += 1;
+      });
+      if (countLabel) {
+        countLabel.textContent =
+          shown === cards.length ? shown + ' snippets' : shown + ' of ' + cards.length + ' snippets';
+      }
+      if (empty) empty.hidden = shown !== 0;
+    }
+
+    if (search) search.addEventListener('input', apply);
+
+    tierButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        tier = button.getAttribute('data-tier') || 'all';
+        tierButtons.forEach(function (other) {
+          other.classList.toggle('is-on', other === button);
+        });
+        apply();
+      });
+    });
+
+    productButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var product = button.getAttribute('data-product') || '';
+        var at = products.indexOf(product);
+        if (at === -1) products.push(product);
+        else products.splice(at, 1);
+        button.classList.toggle('is-on', products.indexOf(product) !== -1);
+        apply();
+      });
+    });
+  })();
+</script>
+
+<style>
+  .catalog {
+    margin-top: var(--space-6);
+  }
+  .controls {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+  .search input {
+    width: 100%;
+    font: inherit;
+    font-size: var(--text-md);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .search input:focus-visible {
+    outline: 2px solid var(--cf-orange-text);
+    outline-offset: 1px;
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .pill {
+    font: inherit;
+    font-size: var(--text-md);
+    padding: var(--space-1) var(--space-3);
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .pill:hover {
+    background: var(--pill-bg);
+  }
+  .pill.is-on {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .count {
+    opacity: 0.6;
+  }
+  .result-count {
+    font-size: var(--text-sm);
+    margin: 0 0 var(--space-3);
+  }
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .card a {
+    display: grid;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    text-decoration: none;
+    color: var(--text);
+  }
+  .card a:hover {
+    background: var(--pill-bg);
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+  .card-kind {
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+  .card-tagline {
+    color: var(--text);
+    text-wrap: pretty;
+  }
+  .card-products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  .chip {
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--muted);
+    background: var(--pill-bg);
+    padding: 1px var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

@@ -54,7 +54,7 @@ done
 
 # ADMIT retry: a freshly deployed Worker can answer 500/404 for a few
 # seconds even after warmup, and a failed admit means the stream is
-# never created — so retry until the agent really accepts the prompt.
+# never created, so retry until the agent really accepts the prompt.
 ADMIT=""
 for i in $(seq 1 20); do
 	ADMIT=$(curl -sS -m 60 "$URL/agents/ai-gateway/$CONV" \

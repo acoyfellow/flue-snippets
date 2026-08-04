@@ -36,6 +36,7 @@ on:
           - examples/worker-loader
           - examples/hyperdrive
           - examples/email-workers
+          - examples/effect-hello
           # recipes
           - recipes/lab-receipt
           - recipes/do-session
@@ -48,6 +49,11 @@ on:
           - recipes/virtual-sandbox
           - recipes/mcp-client
           - recipes/dynamic-workflow
+          - recipes/event-trigger
+          - recipes/braintrust-ai-gateway
+          - recipes/braintrust-eval
+          - recipes/braintrust-otel
+          - recipes/braintrust-trace
           # templates
           - templates/github-app
 
@@ -76,6 +82,7 @@ jobs:
           - examples/worker-loader
           - examples/hyperdrive
           - examples/email-workers
+          - examples/effect-hello
           # recipes/
           - recipes/lab-receipt
           - recipes/do-session
@@ -88,6 +95,11 @@ jobs:
           - recipes/virtual-sandbox
           - recipes/mcp-client
           - recipes/dynamic-workflow
+          - recipes/event-trigger
+          - recipes/braintrust-ai-gateway
+          - recipes/braintrust-eval
+          - recipes/braintrust-otel
+          - recipes/braintrust-trace
           # templates/
           - templates/github-app
 
@@ -111,11 +123,11 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Install (per-snippet, self-contained 1.0 deps)
+      - name: Install (per-snippet, self-contained Flue 2 deps)
         working-directory: ${{ matrix.target }}
         run: bun install
 
-      - name: Run E2E (flue build + wrangler deploy + assert + delete)
+      - name: Run E2E (vite build + wrangler deploy + assert + delete)
         working-directory: ${{ matrix.target }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID_E2E }}

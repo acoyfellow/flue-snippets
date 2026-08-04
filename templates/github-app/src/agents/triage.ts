@@ -5,7 +5,7 @@
 // (with a real GITHUB_TOKEN) can comment back via the channel's Octokit tool.
 //
 // Flue 2: the agent IS this function. `instructions` is now the returned
-// string, and `export const route` is gone — direct HTTP access is closed by
+// string, and `export const route` is gone, so direct HTTP access is closed by
 // simply not mounting this agent in src/app.ts. Registration comes from the
 // 'use agent' scan, so dispatch() still reaches it while it stays unmounted.
 

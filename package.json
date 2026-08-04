@@ -34,12 +34,11 @@
     "ex:vectorize": "bash examples/vectorize/run-e2e.sh",
     "ex:worker-loader": "bash examples/worker-loader/run-e2e.sh",
     "ex:workers-ai": "bash examples/workers-ai/run-e2e.sh",
-    "ex:effect-hello": "bash examples/effect-hello/run-e2e.sh"
+    "ex:effect-hello": "bash examples/effect-hello/run-e2e.sh",
+    "rx:computer-workspace": "bash recipes/computer-workspace/run-e2e.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
-    "@flue/cli": "^0.7.0",
-    "@flue/sdk": "^0.7.0",
     "@types/bun": "latest",
     "alchemy": "^0.93.7",
     "typescript": "^6.0.3"

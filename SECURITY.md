@@ -24,7 +24,7 @@ app.use('/agents/*', async (c, next) => {
 with `wrangler deploy --var`. Verified live: no key and a wrong key both get
 `401`; only the correct key gets `202`.
 
-`templates/github-app` is the exception. It mounts no agent route at all — its
+`templates/github-app` is the exception. It mounts no agent route at all. Its
 only inbound surface is the GitHub webhook, whose `x-hub-signature-256` HMAC is
 verified against the raw body before the handler runs.
 

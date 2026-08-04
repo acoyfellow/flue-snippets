@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 
 PASS=$'\033[32m✓\033[0m'
 FAIL=$'\033[31m✗\033[0m'
-SKIP=$'\033[33m–\033[0m'
+SKIP=$'\033[33m-\033[0m'
 
 ok=0
 bad=0
@@ -43,7 +43,7 @@ if [[ $# -gt 0 ]]; then
 				if [[ "$name" == */* ]]; then
 					TARGETS+=("${matches[@]}")
 				else
-					echo "Ambiguous package name '$name' — it exists in more than one tier:" >&2
+					echo "Ambiguous package name '$name'. It exists in more than one tier:" >&2
 					printf '  %s\n' "${matches[@]}" >&2
 					echo "Qualify it, e.g. ./verify.sh examples/$name" >&2
 					exit 2
@@ -139,7 +139,7 @@ for dir in "${TARGETS[@]}"; do
 	[[ -f "$dir/package.json" ]] || continue
 
 	if [[ ! -d "$dir/src/agents" ]]; then
-		report "$FAIL" "$name" "no src/agents — not migrated"
+		report "$FAIL" "$name" "no src/agents, not migrated"
 		record 1
 		continue
 	fi
@@ -156,13 +156,13 @@ for dir in "${TARGETS[@]}"; do
 
 	vite_range=$(node -p "((require('./$dir/package.json').devDependencies)||{}).vite||'none'" 2>/dev/null)
 	if [[ "$vite_range" != ^8.* ]]; then
-		report "$FAIL" "$name" "vite must be ^8.x (the 'use agent' scanner cannot parse TS on vite 7) — got $vite_range"
+		report "$FAIL" "$name" "vite must be ^8.x (the 'use agent' scanner cannot parse TS on vite 7), got $vite_range"
 		record 1
 		continue
 	fi
 
 	if [[ ! -d "$dir/node_modules" ]]; then
-		report "$SKIP" "$name" "no node_modules — run bun install"
+		report "$SKIP" "$name" "no node_modules, run bun install"
 		skipped=$((skipped + 1))
 		continue
 	fi

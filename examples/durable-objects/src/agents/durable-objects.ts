@@ -1,13 +1,13 @@
 'use agent';
 
-// examples/durable-objects — per-instance agent routing via Durable Objects.
+// examples/durable-objects: per-instance agent routing via Durable Objects.
 // Flue creates one DO instance per path id: POST /agents/durable-objects/<id>.
 // Same id = same DO = same conversation history; a new id = a fresh instance.
 // Flue owns the session store on Cloudflare.
 //
 // Flue 2: the agent IS this function. The instruction string it returns
 // replaces the old `instructions` config field, and conversation history is
-// still handled by the runtime — nothing here reads or writes it.
+// still handled by the runtime, and nothing here reads or writes it.
 
 import { useModel } from '@flue/runtime';
 

@@ -12,9 +12,9 @@
 
 import { OGImageRoute } from 'astro-og-canvas';
 
-const SITE_TITLE = 'Flue on Cloudflare';
+const SITE_TITLE = 'Flue 2.0 on Cloudflare';
 const SITE_DESCRIPTION =
-  'Four agents I built, smallest to largest. Real code, real deploys.';
+  'Agents you can deploy today. Real code and real deploys.';
 
 interface PageData {
   title: string;

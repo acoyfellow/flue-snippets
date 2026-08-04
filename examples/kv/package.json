@@ -11,7 +11,7 @@
 		"@cloudflare/vite-plugin": "^1.50.0",
 		"@cloudflare/workers-types": "^4.20260602.1",
 		"@flue/cli": "^2.0.0",
-		"@flue/vite": "2.0.0",
+		"@flue/vite": "^2.0.1",
 		"typescript": "^6.0.3",
 		"vite": "^8.2.0",
 		"wrangler": "^4.97.0"

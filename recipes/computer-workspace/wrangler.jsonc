@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "flue-snippet-computer-workspace",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "AI" },
+  "migrations": [
+    {
+      "tag": "flue-2-class-FlueComputerWorkspaceAgent",
+      "new_sqlite_classes": ["FlueComputerWorkspaceAgent"]
+    }
+  ]
+}

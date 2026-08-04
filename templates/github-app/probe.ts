@@ -1,13 +1,13 @@
 /**
- * probe.ts — GitHub channel signature handling (Flue 1.0 @flue/github).
+ * probe.ts. GitHub channel signature handling (Flue 1.0 @flue/github).
  *
  * Modes (argv[2]):
- *   unsigned        — POST with no x-hub-signature-256      → expect 401
- *   wrong-signature — POST with a bad signature            → expect 401
- *   signed          — POST a correctly-signed issues.opened → expect 200 + handled
+ *   unsigned. POST with no x-hub-signature-256      → expect 401
+ *   wrong-signature. POST with a bad signature            → expect 401
+ *   signed. POST a correctly-signed issues.opened → expect 200 + handled
  *
  * @flue/github verifies HMAC-SHA256 over the RAW request body (real header,
- * real status codes — no re-serialization shim).
+ * real status codes, with no re-serialization shim).
  *
  * Required env: AGENT_URL_BASE (worker base + /channels/github/webhook), GITHUB_WEBHOOK_SECRET
  */

@@ -1,214 +1,104 @@
 ---
 import '~/styles/global.css';
-import Hero from '~/components/Hero.astro';
-import WhyFlue from '~/components/WhyFlue.astro';
-import Step from '~/components/Step.astro';
-import Grid from '~/components/Grid.astro';
+import Catalog from '~/components/Catalog.astro';
 import FAQ from '~/components/FAQ.astro';
 import { loadSnippets, type Snippet } from '~/lib/snippets';
 
 const examples = await loadSnippets('examples');
 const recipes = await loadSnippets('recipes');
 const templates = await loadSnippets('templates');
-
-// Combined catalog, examples first then recipes then templates, each
-// alphabetical within its group.
 const allSnippets: Snippet[] = [...examples, ...recipes, ...templates];
 
-// Tour code blocks. Kept inline (verbatim from each snippet file) so the
-// page renders with no async file reads. If a snippet changes, update
-// the matching block here, flagged for future build-time auto-extract.
+const slugsFromSmallestToLargestAgent = ['workers-ai', 'do-session', 'virtual-sandbox', 'mcp-client'];
+const starters = slugsFromSmallestToLargestAgent
+  .map((slug) => allSnippets.find((snippet) => snippet.slug === slug))
+  .filter((snippet): snippet is Snippet => Boolean(snippet));
 
-const workersAiCode = `'use agent';
-
-import { type AgentProps, useModel } from '@flue/runtime';
-
-// The agent IS this function. It returns its instructions;
-// Flue 2 has no defineAgent and no workflows.
-export function WorkersAi(_props: AgentProps) {
-  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
-  return 'Answer each user request directly and concisely.';
-}`;
-
-const doSessionCode = `'use agent';
-
-import { useModel } from '@flue/runtime';
-
-// POST /agents/do-session/<userId>
-// Same userId = same Durable Object = same conversation. New userId = fresh agent.
-export function DoSession() {
-  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
-  return 'You are a concise chat assistant. Answer in one short sentence and use the conversation history to recall facts the user told you earlier.';
-}`;
-
-const virtualSandboxCode = `'use agent';
-
-import { bash, useModel, useSandbox } from '@flue/runtime';
-import { Bash, InMemoryFs } from 'just-bash';
-
-// Mount a filesystem the agent can grep, find, and read with real bash.
-export function VirtualSandbox() {
-  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
-  useSandbox(
-    bash(() => new Bash({
-      fs: new InMemoryFs({
-        '/workspace/docs/colours.md': '# Colours
-
-Octarine is the colour of magic.
-',
-      }),
-    })),
-    { cwd: '/workspace' },
-  );
-  return 'Answer using only what you can grep from /workspace/docs.';
-}`;
-
-const mcpClientCode = `'use agent';
-
-import { env } from 'cloudflare:workers';
-import { defineMcpConnection, useMcpConnection, useModel } from '@flue/runtime';
-
-export function McpClient() {
-  useModel('cloudflare/@cf/moonshotai/kimi-k2.6');
-  useMcpConnection(
-    defineMcpConnection({
-      name: 'reverser',
-      url: (env as unknown as { MCP_URL: string }).MCP_URL,
-      tools: ['reverse_string'],
-    }),
-  );
-  return 'Use the reverse_string MCP tool exactly once to reverse the delivered text.';
-}`;
+const description = `${allSnippets.length} Flue 2.0 agents on Cloudflare Workers. Each one ships real code and a deploy command.`;
 ---
 
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Flue on Cloudflare</title>
-    <meta
-      name="description"
-      content="Four agents I built with Flue on Cloudflare Workers, smallest to largest. Each one ships real code and a deploy command."
-    />
+    <title>Flue 2.0 on Cloudflare</title>
+    <meta name="description" content={description} />
 
     {/* Open Graph + Twitter card */}
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://flue.coey.dev/" />
-    <meta property="og:title" content="Flue on Cloudflare" />
-    <meta
-      property="og:description"
-      content="Four agents I built with Flue on Cloudflare Workers, smallest to largest."
-    />
+    <meta property="og:title" content="Flue 2.0 on Cloudflare" />
+    <meta property="og:description" content={description} />
     <meta property="og:image" content="https://flue.coey.dev/og/index.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Flue on Cloudflare. Four agents I built, smallest to largest. Real code, real deploys."
+      content="Flue 2.0 on Cloudflare. Agents you can deploy today. Real code and real deploys."
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Flue on Cloudflare" />
-    <meta
-      name="twitter:description"
-      content="Four agents I built with Flue on Cloudflare Workers, smallest to largest."
-    />
+    <meta name="twitter:title" content="Flue 2.0 on Cloudflare" />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content="https://flue.coey.dev/og/index.png" />
     <meta
       name="twitter:image:alt"
-      content="Flue on Cloudflare. Four agents I built, smallest to largest. Real code, real deploys."
+      content="Flue 2.0 on Cloudflare. Agents you can deploy today. Real code and real deploys."
     />
-
     <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/jetbrains-mono-500.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-500.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
   </head>
   <body>
-    <a class="skip-link" href="#step-1">Skip to the first agent</a>
     <main class="container">
-      <Hero />
-      <WhyFlue />
-
-      <section class="quickstart">
-        <h2>Run one yourself</h2>
-        <p class="muted">
-          Each agent below has a one-liner you can run. They all deploy to your CF account,
-          assert, then destroy the Worker.
+      <section class="hero">
+        <p class="marks">
+          <a href="https://flueframework.com" aria-label="Flue">
+            <img src="/logos/flue.svg" alt="Flue logo" width="28" height="28" />
+          </a>
+          <span class="plus" aria-hidden="true">+</span>
+          <a href="https://developers.cloudflare.com/workers/" aria-label="Cloudflare Workers">
+            <img src="/logos/cloudflare.svg" alt="Cloudflare logo" width="62" height="28" />
+          </a>
         </p>
-        <pre><code>git clone https://github.com/acoyfellow/flue-snippets
-cd flue-snippets
-bun install        # or: npm install
-export CLOUDFLARE_API_TOKEN=...
-export CLOUDFLARE_ACCOUNT_ID=...
-bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
+        <h1>Flue 2.0 snippets for Cloudflare</h1>
+        <p class="lede">
+          {allSnippets.length} agents you can deploy today. Each one builds with Vite, deploys a real
+          Worker, asserts, then deletes it.
+        </p>
+        <p class="meta muted">
+          <a href="https://github.com/acoyfellow/flue-snippets">Repo →</a>
+        </p>
       </section>
 
-      <Step
-        id="step-1"
-        title="1. Call a model. Return the answer."
-        blurb="The smallest thing I could build. Bind Workers AI, run a prompt, return the response. Flue gives it an HTTP endpoint at /agents/workers-ai/<id>. The whole agent is 13 lines."
-        filename="examples/workers-ai/workers-ai.ts"
-        code={workersAiCode}
-        githubPath="examples/workers-ai/src/agents/workers-ai.ts"
-      >
-        <p class="muted">
-          What surprised me: only two things here are Flue's, the <code>'use agent'</code>
-          directive and <code>useModel()</code>. Everything else is plain Cloudflare. Flue
-          handled the routing and gave the rest somewhere to live.
-        </p>
-      </Step>
+      <Catalog snippets={allSnippets} />
 
-      <Step
-        title="2. Make it remember things"
-        blurb="Same code, but now I call session() and prompt(). Two POSTs to /agents/do-session/alice keep talking to the same Durable Object. The agent remembers what alice said earlier. Different path id, different DO, fresh conversation. I didn't wire any of this up."
-        filename="recipes/do-session/agents/do-session.ts"
-        code={doSessionCode}
-        githubPath="recipes/do-session/src/agents/do-session.ts"
-      >
-        <p class="muted">
-          Cloudflare's part: Durable Objects with SQLite, geo-pinned to the user. Flue's
-          part: <code>session()</code> figures out which DO to talk to and stores the
-          messages for you. I never wrote SQL or touched DO RPC.
-        </p>
-      </Step>
-
-      <Step
-        title="3. Give it a real filesystem"
-        blurb="useSandbox(bash(...)) mounts a filesystem as /workspace. The model now has grep, find, and read inside the prompt loop. I dumped some markdown into R2, asked a question, and watched the agent grep through it to find the answer."
-        filename="recipes/virtual-sandbox/agents/virtual-sandbox.ts"
-        code={virtualSandboxCode}
-        githubPath="recipes/virtual-sandbox/src/agents/virtual-sandbox.ts"
-      >
-        <p class="muted">
-          No vector DB, no embedding pipeline. For a lot of "search my docs" use cases this
-          works fine, the model just runs grep. The shell underneath is{' '}
-          <code>just-bash</code>, running right inside the Worker. R2 is the storage.
-        </p>
-      </Step>
-
-      <Step
-        title="4. Talk to another Worker over MCP"
-        blurb="This Flue agent connects to a peer Worker that exposes tools via MCP. One wrangler deploy ships both side by side and passes the peer's URL into this one's env. The model can now call the peer's tools mid-prompt. I didn't have to wire each one up manually."
-        filename="recipes/mcp-client/agents/mcp-client.ts"
-        code={mcpClientCode}
-        githubPath="recipes/mcp-client/src/agents/mcp-client.ts"
-      >
-        <p class="muted">
-          The peer is just another Worker , 
-          <a href="https://github.com/acoyfellow/flue-snippets/blob/main/recipes/mcp-client/mcp-server.ts">
-            mcp-server.ts</a
-          > using <code>McpAgent</code> from the <code>agents</code> SDK. Nice side effect:
-          the model never sees the peer's credentials, just its tools. Auth stays on the
-          server side.
-        </p>
-      </Step>
-
-      <section class="more">
-        <h2>The rest of the repo</h2>
-        <p class="muted">
-          Those were four. There are {allSnippets.length} total, every one runnable on your
-          own CF account. Each row links to the snippet's folder on GitHub.
-        </p>
-        <Grid snippets={allSnippets} caption="All snippets in the repo" />
+      <section class="starters">
+        <h2>New here? Start with these</h2>
+        <p class="muted">Four snippets, smallest to largest.</p>
+        <ol class="starter-list">
+          {
+            starters.map((snippet, index) => (
+              <li>
+                <a
+                  href={`https://github.com/acoyfellow/flue-snippets/tree/main/${snippet.repoPath}`}
+                >
+                  <span class="step-number">{index + 1}</span>
+                  <span class="starter-body">
+                    <span class="starter-title">{snippet.title}</span>
+                    <span class="starter-tagline muted">{snippet.tagline}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
       </section>
 
       <FAQ />
@@ -229,17 +119,74 @@ bun ex:workers-ai  # or: npm run ex:workers-ai</code></pre>
 </html>
 
 <style>
-  .quickstart {
-    margin: var(--space-6) 0 var(--space-7);
+  .marks {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 var(--space-3);
   }
-  .quickstart h2 {
-    margin-top: 0;
+  .marks img {
+    display: block;
+    height: 28px;
+    width: auto;
   }
-  .quickstart pre {
-    margin-bottom: 0;
+  .plus {
+    color: var(--muted);
+    font-size: var(--text-sm);
   }
-  .more {
+  .lede {
+    max-width: 62ch;
+    text-wrap: balance;
+    margin-bottom: var(--space-2);
+  }
+  .meta {
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+  .starters {
     margin-top: var(--space-7);
+  }
+  .starters h2 {
+    margin-bottom: var(--space-2);
+  }
+  .starter-list {
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .starter-list a {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text);
+  }
+  .starter-list a:hover {
+    background: var(--card-bg);
+  }
+  .step-number {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--muted);
+    height: 1lh;
+    display: flex;
+    align-items: center;
+  }
+  .starter-body {
+    display: grid;
+    gap: 1px;
+  }
+  .starter-title {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+  .starter-tagline {
+    font-size: var(--text-sm);
   }
   .footer {
     margin-top: var(--space-7);

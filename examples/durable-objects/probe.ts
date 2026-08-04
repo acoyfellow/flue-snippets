@@ -1,8 +1,8 @@
 /**
- * probe.ts — proves Durable Object per-instance routing (Flue 2 agent).
+ * probe.ts proves Durable Object per-instance routing (Flue 2 agent).
  *
  * Establish a fact in instance A (two turns, same id): A recalls it.
- * A DIFFERENT instance B does NOT know the fact — separate DO, separate history.
+ * A DIFFERENT instance B does NOT know the fact. It is a separate DO with separate history.
  *
  * Sends are fire-and-forget (POST -> 202); replies are read back from
  * GET /agents/durable-objects/<id>, which returns a conversation snapshot.
@@ -105,7 +105,7 @@ if (!a2.toLowerCase().includes('octarine')) {
 const b1 = await turn(b, 'What is my favourite colour? If you do not know, say "unknown".', 0);
 console.log(`instance B (fresh): ${b1}`);
 if (b1.toLowerCase().includes('octarine')) {
-  console.error('different-id instance leaked state — DO isolation broken');
+  console.error('different-id instance leaked state, DO isolation broken');
   process.exit(1);
 }
 

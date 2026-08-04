@@ -6,24 +6,24 @@ interface QA {
 
 const items: QA[] = [
   {
-    q: 'Do these agents actually run on Cloudflare?',
-    a: 'Yes. Every snippet in the repo builds with vite, deploys a real Worker with wrangler, asserts against it, then destroys it. No mocks, no skips. CI does the same.',
+    q: 'Do these agents run on Cloudflare?',
+    a: 'Yes. Each test builds a Worker with Vite, deploys it with Wrangler, asserts against the live endpoint, then deletes the Worker. CI does the same. No mocks.',
   },
   {
-    q: 'How does it build and deploy?',
-    a: 'Flue 2 builds through Vite: the flue() plugin scans for \'use agent\' modules and emits dist/<name>/wrangler.json with bindings and Durable Object migrations merged in. wrangler deploy --config ships that artifact.',
+    q: 'How does the build and the deploy work?',
+    a: 'Vite builds each snippet. The flue() plugin finds each \'use agent\' module and writes dist/<name>/wrangler.json with the bindings and Durable Object migrations. Then wrangler deploy --config ships it.',
   },
   {
     q: 'Do I need any third-party API keys?',
-    a: 'No. Every example uses Workers AI as the model. No OpenAI / Anthropic key required. Free tier covers the whole matrix.',
+    a: 'No. The examples use Workers AI. You need no OpenAI or Anthropic key. Check your Cloudflare plan before you run the full matrix.',
   },
   {
-    q: 'Can I run just one?',
-    a: 'Yes. bun ex:<name> for examples, bun rx:<name> for recipes, bun tpl:<name> for templates. Each is independent.',
+    q: 'Can I run one snippet only?',
+    a: 'Yes. Use bun ex:<name> for examples, bun rx:<name> for recipes, and bun tpl:<name> for templates.',
   },
   {
-    q: 'Where does Flue itself run?',
-    a: 'Anywhere TypeScript runs. The repo deploys to Cloudflare Workers because that\u2019s the focus of this demo, but Flue agents also build for Node, GitHub Actions, GitLab CI, and Daytona. The agent code is the same; only the deploy target changes.',
+    q: 'Where can Flue run?',
+    a: 'Flue runs where TypeScript runs. This repository targets Cloudflare Workers. Flue also builds for Node.js, GitHub Actions, GitLab CI, and Daytona. The agent code stays the same.',
   },
 ];
 ---

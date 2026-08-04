@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-# run-e2e.sh, full E2E for the github-app template (Flue 1.0 @flue/github channel).
 set -euo pipefail
 cd "$(dirname "$0")"
 ROOT="$(cd ../.. && pwd)"
-# Local dev sources .env; CI provides these as real env vars.
 if [ -f "$ROOT/.env" ]; then set -a; source "$ROOT/.env"; set +a; fi
-
-# Self-contained: install this snippet's own 1.0 deps if missing.
 [ -d node_modules ] || bun install
-
-export GITHUB_WEBHOOK_SECRET="${GITHUB_WEBHOOK_SECRET:-dev-secret-rotate-me}"
 WORKER_NAME=$(node -p "require('./package.json').name")
 DEPLOY_LOG=$(mktemp)
 WORKERS_FILE=$(mktemp)
-
 cleanup() {
   set +e
   [[ -n "${WORKER_NAME:-}" ]] && npx wrangler delete --name "$WORKER_NAME" --force >/dev/null 2>&1 || true
@@ -25,37 +18,33 @@ cleanup() {
   rm -f "$DEPLOY_LOG" "$WORKERS_FILE"
 }
 trap cleanup EXIT INT TERM
-
 echo "::group::vite build"
 npx vite build
 echo "::endgroup::"
-
 echo "::group::wrangler deploy"
 DIST_DIR=$(dirname "$(find dist -name wrangler.json -print -quit)")
 DEPLOY_CONFIG="$DIST_DIR/wrangler.json"
-npx wrangler deploy --config "$DEPLOY_CONFIG" --var "GITHUB_WEBHOOK_SECRET:$GITHUB_WEBHOOK_SECRET" 2>&1 | tee "$DEPLOY_LOG"
+npx wrangler deploy --dry-run --config "$DEPLOY_CONFIG"
+SNIPPET_API_KEY="e2e-$(openssl rand -hex 16)"
+export SNIPPET_API_KEY
+npx wrangler deploy --config "$DEPLOY_CONFIG" --var "SNIPPET_API_KEY:$SNIPPET_API_KEY" 2>&1 | tee "$DEPLOY_LOG"
 WORKER_URL=$(grep -Eo 'https://[A-Za-z0-9.-]+\.workers\.dev' "$DEPLOY_LOG" | tail -1)
 test -n "$WORKER_URL"
 echo "deployed: $WORKER_URL"
 echo "::endgroup::"
-
 echo "::group::warmup"
-# Unsigned POST returns 401 fast once the route is live, so use it to warm.
+WARMUP_URL="$WORKER_URL/agents/computer-workspace/warmup"
 for i in $(seq 1 40); do
-  code=$(curl -sS -m 30 -o /dev/null -w '%{http_code}' -X POST \
-    "$WORKER_URL/channels/github/webhook" \
-    -H 'content-type: application/json' -H 'x-github-event: issues' -H 'x-github-delivery: warmup' \
-    -d '{}' 2>/dev/null || echo "000")
-  if [ "$code" = "401" ]; then echo "  channel route live after $i attempts"; break; fi
-  if [ "$i" = "40" ]; then echo "::error::channel route not responding (HTTP $code)"; exit 1; fi
-  sleep 3
+  code=$(curl -sS -m 120 -o /tmp/warmup-body -w '%{http_code}' "$WARMUP_URL" -X POST -H 'content-type: application/json' \
+		-H "x-api-key: $SNIPPET_API_KEY" -d '{"kind":"user","body":"What colour is magic?"}' 2>/dev/null || echo "000")
+  if [ "$code" = "202" ] || [ "$code" = "200" ]; then curl -sS -m 120 "$WARMUP_URL" >/tmp/warmup-body || true; echo "  agent route live after $i attempts"; break; fi
+  if [ "$i" = "40" ]; then echo "::error::agent route still failing (HTTP $code)"; head -c 400 /tmp/warmup-body; exit 1; fi
+  sleep 4
 done
 echo "::endgroup::"
-
-echo "::group::gateproof plan against $WORKER_URL"
-AGENT_URL_BASE="${WORKER_URL}/channels/github/webhook" \
-  GITHUB_WEBHOOK_SECRET="$GITHUB_WEBHOOK_SECRET" \
-  bun run gateproof.plan.ts
+echo "::group::probe against $WORKER_URL"
+AGENT_URL_BASE="${WORKER_URL}/agents/computer-workspace" \
+  SNIPPET_API_KEY="$SNIPPET_API_KEY" \
+  bun run probe.ts
 echo "::endgroup::"
-
-echo "✅ template github-app E2E pass"
+echo "✅ recipe computer-workspace E2E pass"

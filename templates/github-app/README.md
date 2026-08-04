@@ -11,13 +11,13 @@ composes: [Flue channels, Workers AI, Durable Objects, '@flue/github']
 This is a **template**, not a snippet. Fork the folder, set a webhook
 secret, and you have a working GitHub App: verified webhook ingress that
 dispatches issue and pull-request opens to a triage agent. Production-shape,
-real HMAC signature verification, multi-event routing — on Flue 2.0 +
+real HMAC signature verification, multi-event routing, on Flue 2.0 +
 Cloudflare Workers AI.
 
 ## What you get
 
 - ✅ Real HMAC-SHA256 verification over the **raw request body** via
-  [`@flue/github`](https://flueframework.com) (`x-hub-signature-256`) — no
+  [`@flue/github`](https://flueframework.com) (`x-hub-signature-256`). no
   re-serialization hacks; bad/missing signature → `401`
 - ✅ Multi-event routing: `issues.opened` and `pull_request.opened`
 - ✅ Each event `dispatch()`es to a per-issue/PR **agent instance**
@@ -56,9 +56,9 @@ dispatch-only so the E2E stays key-free.
 
 ## Composes
 
-- **[Flue channels](https://flueframework.com)** — `@flue/github`'s `createGitHubChannel` owns the verified ingress boundary (HMAC over raw body, typed deliveries) at `POST /channels/github/webhook`
-- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** — `cloudflare/@cf/moonshotai/kimi-k2.6`
-- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)** — one triage agent instance per issue/PR (auto-generated `FlueTriageAgent`)
+- **[Flue channels](https://flueframework.com)**. `@flue/github`'s `createGitHubChannel` owns the verified ingress boundary (HMAC over raw body, typed deliveries) at `POST /channels/github/webhook`
+- **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)**. `cloudflare/@cf/moonshotai/kimi-k2.6`
+- **[Durable Objects](https://developers.cloudflare.com/durable-objects/)**. one triage agent instance per issue/PR (auto-generated `FlueTriageAgent`)
 
 ## What's in here
 
@@ -93,7 +93,7 @@ calls `issues.createComment` for the bound issue/PR.
 - [ ] Set `GITHUB_WEBHOOK_SECRET` via `wrangler secret put` (rotate periodically)
 - [ ] Use a GitHub App installation token (short-lived) for outbound Octokit calls
 - [ ] Route the model through an [AI Gateway](https://developers.cloudflare.com/ai-gateway/) (see `recipes/ai-gateway`)
-- [ ] Deduplicate on `delivery.deliveryId` — GitHub retries deliveries
+- [ ] Deduplicate on `delivery.deliveryId`. GitHub retries deliveries
 - [ ] Add [`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/lab) receipts for a replay-inspectable audit trail (see `recipes/lab-receipt`)
 - [ ] Set up [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/) to retain failures
 
@@ -109,6 +109,6 @@ gates against `/channels/github/webhook` (the probe signs a real
 `x-hub-signature-256` HMAC), then deletes it. ~60s, ~$0.0001.
 
 Because `@flue/github` verifies the **raw** request body, unsigned and
-wrong-signature deliveries get a genuine `401` at the edge — and a
+wrong-signature deliveries get a genuine `401` at the edge, and a
 correctly-signed `issues.opened` returns `200` after dispatching to the
 triage agent.

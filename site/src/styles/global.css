@@ -55,12 +55,12 @@
   --pill-fg: #1a1a1a;
 
   /* Type scale */
-  --text-xs: 0.78rem;
-  --text-sm: 0.9rem;
-  --text-md: 1rem;
-  --text-lg: 1.1rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2.5rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.875rem;
+  --text-lg: 0.875rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 2.25rem;
 
   /* Spacing (power-of-2-ish) */
   --space-1: 0.25rem;
@@ -100,7 +100,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -127,32 +127,14 @@ a:focus-visible {
   padding: var(--space-6);
 }
 
-/* Skip link, visible only when focused via keyboard */
-.skip-link {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-  background: var(--text);
-  color: var(--bg);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  z-index: 100;
-  transform: translateY(-200%);
-  transition: transform 0.15s;
-}
-.skip-link:focus-visible {
-  transform: translateY(0);
-  text-decoration: none;
-}
-
 /* Headings */
 h1,
 h2,
 h3,
 h4 {
   margin: 0 0 var(--space-3);
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  text-wrap: balance;
 }
 
 h1 {
@@ -172,6 +154,11 @@ h3 {
 
 p {
   margin: 0 0 var(--space-4);
+  text-wrap: pretty;
+}
+
+.lede {
+  text-wrap: balance;
 }
 
 /* Code */

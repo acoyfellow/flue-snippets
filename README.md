@@ -1,13 +1,12 @@
 # flue-snippets
 
-Real, runnable [Flue](https://flueframework.com) agents and channels on
-[Cloudflare](https://developers.cloudflare.com/workers/). Every snippet builds
-with `vite build`, deploys a real ephemeral Worker with `wrangler`, exercises it
-against live services, then deletes it. No mocks.
+Runnable [Flue](https://flueframework.com) 2.0 agents and channels for
+[Cloudflare](https://developers.cloudflare.com/workers/). Each E2E script
+builds a Worker, deploys it, tests the live endpoint, and deletes the Worker.
+The tests do not use mocks.
 
-Built for **Flue 2.0** (`@flue/* 2.0`). Each snippet is a self-contained
-Cloudflare app: its own `package.json`, `wrangler.jsonc`, and `src/`
-(`agents/`, `channels/`).
+Each snippet is a self-contained Cloudflare app. It has its own package file,
+Wrangler configuration, and source directory.
 
 [![ci](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml/badge.svg)](https://github.com/acoyfellow/flue-snippets/actions/workflows/e2e.yml)
 
@@ -21,7 +20,7 @@ templates/  forkable starters, production-shape, fork-and-ship
 
 Every deployed snippet is public on `*.workers.dev` **and binds Workers AI**,
 so each agent route requires the per-run `SNIPPET_API_KEY` sent as an
-`x-api-key` header — `run-e2e.sh` generates a fresh one and injects it with
+`x-api-key` header. Each `run-e2e.sh` generates a fresh one and injects it with
 `wrangler deploy --var`. Without it the route answers `401`.
 `templates/github-app` mounts no agent route at all: its only inbound surface
 is the HMAC-verified GitHub webhook.
@@ -76,7 +75,7 @@ One Flue snippet, one Cloudflare binding.
 | Example | Cloudflare product |
 |---|---|
 | [workers-ai](examples/workers-ai) | [Workers AI](https://developers.cloudflare.com/workers-ai/) |
-| [effect-hello](examples/effect-hello) | [Workers AI](https://developers.cloudflare.com/workers-ai/) + [Effect v4](https://github.com/Effect-TS/effect-smol) (smallest Flue workflow whose body is an Effect program) |
+| [effect-hello](examples/effect-hello) | [Workers AI](https://developers.cloudflare.com/workers-ai/) + [Effect v4](https://github.com/Effect-TS/effect-smol) (small Flue agent with an Effect program) |
 | [kv](examples/kv) | [Workers KV](https://developers.cloudflare.com/workers/runtime-apis/kv/) |
 | [r2](examples/r2) | [R2](https://developers.cloudflare.com/r2/) |
 | [d1](examples/d1) | [D1](https://developers.cloudflare.com/d1/) |
@@ -117,7 +116,7 @@ layers (including [`@acoyfellow/lab`](https://www.npmjs.com/package/@acoyfellow/
 Each recipe's README explains what it composes, what it proves, and how to run it. The Braintrust
 recipes require a `BRAINTRUST_API_KEY` (injected into the ephemeral Worker via
 `wrangler deploy --var`); they run explicitly with `bun rx:braintrust-*` rather than in the CI
-matrix. No `ALCHEMY_PASSWORD` — deploys use wrangler, not alchemy.
+matrix. No `ALCHEMY_PASSWORD` is used. Deploys use wrangler, not alchemy.
 
 ## Local scripts
 
@@ -164,7 +163,7 @@ Every `run-e2e.sh` does the same five things:
 
 Flue owns the wrangler config: the Vite plugin merges its generated bindings +
 DO migrations into `dist/<name>/wrangler.json`, and `wrangler deploy` ships it. Each
-snippet is self-contained — its own `package.json`, `wrangler.jsonc`, and `src/`.
+snippet is self-contained. It has its own `package.json`, `wrangler.jsonc`, and `src/`.
 
 ## CI
 
@@ -178,13 +177,13 @@ Secrets:
 
 The Braintrust recipes currently run explicitly with `bun rx:braintrust-*` rather than in this
 matrix. Enrolling them requires a `BRAINTRUST_API_KEY` (injected into the ephemeral Worker via
-`wrangler deploy --var`). No `ALCHEMY_PASSWORD` is needed — deploys use wrangler, not alchemy.
+`wrangler deploy --var`). No `ALCHEMY_PASSWORD` is needed. Deploys use wrangler, not alchemy.
 
 ## FAQ
 
-**Does it really deploy?** Yes. Each `run-e2e.sh` runs `vite build` then `wrangler deploy`, hits a real `*.workers.dev` URL, then `wrangler delete`s it. CI does the same. There is no mock layer.
+**Does it deploy a Worker?** Yes. Each `run-e2e.sh` runs `vite build` then `wrangler deploy`, hits a real `*.workers.dev` URL, then `wrangler delete`s it. CI does the same. The tests do not use mocks.
 
-**What does it cost?** ~$0.0001 per snippet per run (one Workers AI `@cf/moonshotai/kimi-k2.6` call). Free tier is plenty for the entire matrix.
+**What does it cost?** ~$0.0001 per snippet per run (one Workers AI `@cf/moonshotai/kimi-k2.6` call). Check your Cloudflare plan and limits before you run the full matrix.
 
 **Do all snippets run on a stock token?** Most do. A few need extra access and will otherwise report a clear, non-fatal error: `hyperdrive` (token needs Hyperdrive), `braintrust-*` (need `BRAINTRUST_API_KEY`; `braintrust-ai-gateway` also needs a model provider configured in your Braintrust AI Gateway), `email-workers` (a verified sender, else it returns a structured `E_*` code and still passes).
 

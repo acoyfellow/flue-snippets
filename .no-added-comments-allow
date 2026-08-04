@@ -51,6 +51,8 @@ recipes/lab-checkpoint/src/app.ts
 recipes/lab-receipt/src/app.ts
 recipes/mcp-client/src/app.ts
 recipes/virtual-sandbox/src/app.ts
+templates/github-app/probe.ts
+templates/github-app/run-e2e.sh
 templates/github-app/src/agents/triage.ts
 templates/github-app/src/app.ts
 verify.sh

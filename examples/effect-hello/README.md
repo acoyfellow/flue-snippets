@@ -41,6 +41,6 @@ Everything below that line is Effect. Everything above it is Flue.
 | Timeout | none | `Effect.timeout('30 seconds')` on the program |
 | What scales | more model interactions | more combinators (`Effect.retry`, `Effect.forEach({ concurrency })`, and so on) |
 
-If you want to see more substantial Effect agents — concurrency, retry,
-streaming, approval flows, typed errors, and MCP — see
+For more substantial Effect agents (concurrency, retry, streaming,
+approval flows, typed errors, and MCP), see
 [acoyfellow/effect-agents](https://github.com/acoyfellow/effect-agents).
